@@ -60,6 +60,7 @@ case $target in
 		GUI_FLAGS="-mwindows"
 		CONSOLE_FLAGS="-mconsole"
 		mingw_found=yes
+		AC_CHECK_TOOL(WINDRES, windres)
 	;;
        armv6-apple-darwin|armv7-apple-darwin|i386-apple-darwin)
                 CFLAGS="$CFLAGS -DTARGET_OS_IPHONE "

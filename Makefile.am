@@ -101,31 +101,31 @@ endif
 other-cherrypick:
 	cd $(GTK_PREFIX) && \
 	for file in $(WINBINDIST_FILES) ; do \
-		if test -d $$file; then \
+		if test -d $(prefix)/$$file; then \
 			mkdir -p $(INSTALLDIR_WITH_PREFIX)/$$file ;\
 		else \
-			cp $$file $(INSTALLDIR_WITH_PREFIX)/$$file ;\
+			cp $(prefix)/$$file $(INSTALLDIR_WITH_PREFIX)/$$file ;\
 		fi \
 	done
-	cp /mingw/bin/libgcc_s*.dll \
-		/mingw/bin/libstdc++-6.dll \
-		/mingw/bin/libintl-8.dll \
-		/mingw/bin/libiconv-2.dll \
-		/mingw/bin/pthreadGC2.dll \
-		$(INSTALLDIR_WITH_PREFIX)/bin/.
+#	cp /mingw/bin/libgcc_s*.dll \
+#		/mingw/bin/libstdc++-6.dll \
+#		/mingw/bin/libintl-8.dll \
+#		/mingw/bin/libiconv-2.dll \
+#		/mingw/bin/pthreadGC2.dll \
+#		$(INSTALLDIR_WITH_PREFIX)/bin/.
 
 
 gtk-cherrypick:
 	cd $(GTK_PREFIX) && \
 	for file in `cat $(GTK_FILELIST_PATH)` ; do \
-		if test -d $$file; then \
+		if test -d $(prefix)/$$file; then \
 			mkdir -p $(INSTALLDIR_WITH_PREFIX)/$$file ;\
 		else \
-			cp $$file $(INSTALLDIR_WITH_PREFIX)/$$file ;\
+			cp $(prefix)/$$file $(INSTALLDIR_WITH_PREFIX)/$$file ;\
 		fi \
 	done && \
 	mkdir -p  $(INSTALLDIR_WITH_PREFIX)/share/themes && \
-	cp -rf share/themes/$(GTK_THEME) $(INSTALLDIR_WITH_PREFIX)/share/themes/.
+	cp -rf $(prefix)/share/themes/$(GTK_THEME) $(INSTALLDIR_WITH_PREFIX)/share/themes/.
 
 zip:
 	rm -f $(ZIPFILE)
