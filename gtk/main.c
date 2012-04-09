@@ -63,6 +63,7 @@ static void linphone_gtk_display_url(LinphoneCore *lc, const char *msg, const ch
 static void linphone_gtk_call_log_updated(LinphoneCore *lc, LinphoneCallLog *cl);
 static void linphone_gtk_call_state_changed(LinphoneCore *lc, LinphoneCall *call, LinphoneCallState cs, const char *msg);
 static void linphone_gtk_call_encryption_changed(LinphoneCore *lc, LinphoneCall *call, bool_t enabled, const char *token);
+static void linphone_gtk_transfer_state_changed(LinphoneCore *lc, LinphoneCall *call, LinphoneCallState cstate);
 static gboolean linphone_gtk_auto_answer(LinphoneCall *call);
 static void linphone_gtk_status_icon_set_blinking(gboolean val);
 
@@ -225,12 +226,14 @@ static void linphone_gtk_init_liblinphone(const char *config_file,
 	vtable.refer_received=linphone_gtk_refer_received;
 	vtable.buddy_info_updated=linphone_gtk_buddy_info_updated;
 	vtable.call_encryption_changed=linphone_gtk_call_encryption_changed;
+	vtable.transfer_state_changed=linphone_gtk_transfer_state_changed;
 
 	linphone_core_set_user_agent("Linphone", LINPHONE_VERSION);
 	the_core=linphone_core_new(&vtable,config_file,factory_config_file,NULL);
 	linphone_core_set_waiting_callback(the_core,linphone_gtk_wait,NULL);
 	linphone_core_set_zrtp_secrets_file(the_core,secrets_file);
 	g_free(secrets_file);
+	linphone_core_enable_video(the_core,TRUE,TRUE);
 }
 
 
@@ -637,10 +640,15 @@ static void completion_add_text(GtkEntry *entry, const char *text){
 }
 
 
+bool_t linphone_gtk_video_enabled(void){
+	const LinphoneVideoPolicy *vpol=linphone_core_get_video_policy(linphone_gtk_get_core());
+	return vpol->automatically_accept && vpol->automatically_initiate;
+}
+
 void linphone_gtk_show_main_window(){
 	GtkWidget *w=linphone_gtk_get_main_window();
 	LinphoneCore *lc=linphone_gtk_get_core();
-	if (linphone_core_video_enabled(lc)){
+	if (linphone_gtk_video_enabled()){
 		linphone_core_enable_video_preview(lc,linphone_gtk_get_ui_config_int("videoselfview",
 	    	VIDEOSELFVIEW_DEFAULT));
 	}
@@ -694,6 +702,7 @@ static void linphone_gtk_update_call_buttons(LinphoneCall *call){
 	linphone_gtk_enable_transfer_button(lc,call_list_size>1);
 	linphone_gtk_enable_conference_button(lc,call_list_size>1);
 	update_video_title();
+	if (call) linphone_gtk_update_video_button(call);
 }
 
 static gboolean linphone_gtk_start_call_do(GtkWidget *uri_bar){
@@ -766,7 +775,11 @@ void linphone_gtk_answer_clicked(GtkWidget *button){
 void linphone_gtk_enable_video(GtkWidget *w){
 	gboolean val=gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
 	GtkWidget *selfview_item=linphone_gtk_get_widget(linphone_gtk_get_main_window(),"selfview_item");
-	linphone_core_enable_video(linphone_gtk_get_core(),val,val);
+	LinphoneVideoPolicy policy={0};
+	policy.automatically_initiate=policy.automatically_accept=val;
+	linphone_core_enable_video(linphone_gtk_get_core(),TRUE,TRUE);
+	linphone_core_set_video_policy(linphone_gtk_get_core(),&policy);
+	
 	gtk_widget_set_sensitive(selfview_item,val);
 	if (val){
 		linphone_core_enable_video_preview(linphone_gtk_get_core(),
@@ -1022,6 +1035,52 @@ static void linphone_gtk_notify(LinphoneCall *call, const char *msg){
 	}
 }
 
+static void on_call_updated_response(GtkWidget *dialog, gint responseid, LinphoneCall *call){
+	if (linphone_call_get_state(call)==LinphoneCallUpdatedByRemote){
+		LinphoneCore *lc=linphone_call_get_core(call);
+		LinphoneCallParams *params=linphone_call_params_copy(linphone_call_get_current_params(call));
+		linphone_call_params_enable_video(params,responseid==GTK_RESPONSE_YES);
+		linphone_core_accept_call_update(lc,call,params);
+		linphone_call_params_destroy(params);
+	}
+	linphone_call_unref(call);
+	g_source_remove_by_user_data(dialog);
+	gtk_widget_destroy(dialog);
+}
+
+static void on_call_updated_timeout(GtkWidget *dialog){
+	gtk_widget_destroy(dialog);
+}
+
+static void linphone_gtk_call_updated_by_remote(LinphoneCall *call){
+	LinphoneCore *lc=linphone_call_get_core(call);
+	const LinphoneVideoPolicy *pol=linphone_core_get_video_policy(lc);
+	const LinphoneCallParams *rparams=linphone_call_get_remote_params(call);
+	const LinphoneCallParams *current_params=linphone_call_get_current_params(call);
+	gboolean video_requested=linphone_call_params_video_enabled(rparams);
+	gboolean video_used=linphone_call_params_video_enabled(current_params);
+	g_message("Video used=%i, video requested=%i, automatically_accept=%i",
+	          video_used,video_requested,pol->automatically_accept);
+	if (video_used==FALSE && video_requested && !pol->automatically_accept){
+		linphone_core_defer_call_update(lc,call);
+		{
+			const LinphoneAddress *addr=linphone_call_get_remote_address(call);
+			GtkWidget *dialog;
+			const char *dname=linphone_address_get_display_name(addr);
+			if (dname==NULL) dname=linphone_address_get_username(addr);
+			if (dname==NULL) dname=linphone_address_get_domain(addr);
+			dialog=gtk_message_dialog_new(GTK_WINDOW(linphone_gtk_get_main_window()),
+			                                         GTK_DIALOG_DESTROY_WITH_PARENT,
+			                                         GTK_MESSAGE_WARNING,
+			                                         GTK_BUTTONS_YES_NO,
+			                                         _("%s proposed to start video. Do you accept ?"),dname);
+			g_signal_connect(G_OBJECT(dialog),"response",(GCallback)on_call_updated_response,linphone_call_ref(call));
+			g_timeout_add(20000,(GSourceFunc)on_call_updated_timeout,dialog);
+			gtk_widget_show(dialog);
+		}
+	}
+}
+
 static void linphone_gtk_call_state_changed(LinphoneCore *lc, LinphoneCall *call, LinphoneCallState cs, const char *msg){
 	switch(cs){
 		case LinphoneCallOutgoingInit:
@@ -1032,6 +1091,9 @@ static void linphone_gtk_call_state_changed(LinphoneCore *lc, LinphoneCall *call
 		break;
 		case LinphoneCallStreamsRunning:
 			linphone_gtk_in_call_view_set_in_call(call);
+		break;
+		case LinphoneCallUpdatedByRemote:
+			linphone_gtk_call_updated_by_remote(call);
 		break;
 		case LinphoneCallError:
 			linphone_gtk_in_call_view_terminate (call,msg);
@@ -1071,6 +1133,10 @@ static void linphone_gtk_call_state_changed(LinphoneCore *lc, LinphoneCall *call
 
 static void linphone_gtk_call_encryption_changed(LinphoneCore *lc, LinphoneCall *call, bool_t enabled, const char *token){
 	linphone_gtk_in_call_view_show_encryption(call);
+}
+
+static void linphone_gtk_transfer_state_changed(LinphoneCore *lc, LinphoneCall *call, LinphoneCallState cstate){
+	linphone_gtk_in_call_view_set_transfer_status(call,cstate);
 }
 
 static void update_registration_status(LinphoneProxyConfig *cfg, LinphoneRegistrationState rs){
@@ -1265,7 +1331,7 @@ static void linphone_gtk_status_icon_set_blinking(gboolean val){
 void linphone_gtk_options_activate(GtkWidget *item){
 #ifndef HAVE_GTK_OSX
 	gtk_widget_set_visible(linphone_gtk_get_widget(linphone_gtk_get_main_window(),"quit_item"),
-		icon && !gtk_status_icon_is_embedded(icon));
+		TRUE);
 #endif
 }
 
@@ -1345,7 +1411,7 @@ static void linphone_gtk_connect_digits(void){
 }
 
 static void linphone_gtk_check_menu_items(void){
-	bool_t video_enabled=linphone_core_video_enabled(linphone_gtk_get_core());
+	bool_t video_enabled=linphone_gtk_video_enabled();
 	bool_t selfview=linphone_gtk_get_ui_config_int("videoselfview",VIDEOSELFVIEW_DEFAULT);
 	GtkWidget *selfview_item=linphone_gtk_get_widget(
 					linphone_gtk_get_main_window(),"selfview_item");
@@ -1436,7 +1502,13 @@ static void linphone_gtk_configure_main_window(){
 	{
 		GdkPixbuf *pbuf=create_pixbuf("dialer-orange.png");
 		if (pbuf) {
-			gtk_image_set_from_pixbuf(GTK_IMAGE(linphone_gtk_get_widget(w,"keypad_tab_icon")),pbuf);
+			GtkImage *img=GTK_IMAGE(linphone_gtk_get_widget(w,"keypad_tab_icon"));
+			int w,h;
+			GdkPixbuf *scaled;
+			gtk_icon_size_lookup(GTK_ICON_SIZE_MENU,&w,&h);
+			scaled=gdk_pixbuf_scale_simple(pbuf,w,h,GDK_INTERP_BILINEAR);
+			gtk_image_set_from_pixbuf(img,scaled);
+			g_object_unref(G_OBJECT(scaled));
 			g_object_unref(G_OBJECT(pbuf));
 		}
 	}
@@ -1485,13 +1557,14 @@ gboolean linphone_gtk_close(GtkWidget *mw){
 
 #ifdef HAVE_GTK_OSX
 static gboolean on_window_state_event(GtkWidget *w, GdkEventWindowState *event){
-        if ((event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) ||(event->new_window_state & GDK_WINDOW_STATE_WITHDRAWN) ){
-                linphone_core_enable_video_preview(linphone_gtk_get_core(),FALSE);
-        }else{
-                linphone_core_enable_video_preview(linphone_gtk_get_core(),
-		linphone_gtk_get_ui_config_int("videoselfview",VIDEOSELFVIEW_DEFAULT) && linphone_core_video_enabled(linphone_gtk_get_core()));
-        }
-        return FALSE;
+	bool_t video_enabled=linphone_gtk_video_enabled();
+	if ((event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) ||(event->new_window_state & GDK_WINDOW_STATE_WITHDRAWN) ){
+		linphone_core_enable_video_preview(linphone_gtk_get_core(),FALSE);
+	}else{
+		linphone_core_enable_video_preview(linphone_gtk_get_core(),
+		linphone_gtk_get_ui_config_int("videoselfview",VIDEOSELFVIEW_DEFAULT) && video_enabled);
+	}
+	return FALSE;
 }
 #endif
 
@@ -1599,6 +1672,7 @@ static void linphone_gtk_quit(void){
 	static gboolean quit_done=FALSE;
 	if (!quit_done){
 		quit_done=TRUE;
+		linphone_gtk_unmonitor_usb();
 		g_source_remove_by_user_data(linphone_gtk_get_core());
 		linphone_gtk_uninit_instance();
 		linphone_gtk_destroy_log_window();
@@ -1637,7 +1711,9 @@ int main(int argc, char *argv[]){
 	GdkPixbuf *pbuf;
 	const char *app_name="Linphone";
 
+#if !GLIB_CHECK_VERSION(2, 31, 0)
 	g_thread_init(NULL);
+#endif
 	gdk_threads_init();
 	
 	progpath = strdup(argv[0]);
@@ -1755,6 +1831,7 @@ int main(int argc, char *argv[]){
 	}
 	if (linphone_gtk_get_ui_config_int("update_check_menu",0)==0)
 		linphone_gtk_check_for_new_version();
+	linphone_gtk_monitor_usb();
 
 	gtk_main();
 	linphone_gtk_quit();

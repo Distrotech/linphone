@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([linphone],[3.5.1],[linphone-developers@nongnu.org])
+AC_INIT([linphone],[3.5.2],[linphone-developers@nongnu.org])
 AC_CANONICAL_SYSTEM
 AC_CONFIG_SRCDIR([coreapi/linphonecore.c])
 
@@ -17,7 +17,7 @@ if test "$LINPHONE_EXTRA_VERSION" != "" ;then
 	LINPHONE_VERSION=$LINPHONE_VERSION.${LINPHONE_EXTRA_VERSION}
 fi
 
-LIBLINPHONE_SO_CURRENT=4 dnl increment this number when you add/change/remove an interface
+LIBLINPHONE_SO_CURRENT=5 dnl increment this number when you add/change/remove an interface
 LIBLINPHONE_SO_REVISION=0 dnl increment this number when you change source code, without changing interfaces; set to 0 when incrementing CURRENT
 LIBLINPHONE_SO_AGE=0 dnl increment this number when you add an interface, set to 0 if you remove an interface
 
@@ -68,7 +68,7 @@ case $target in
                 ios_found=yes
         ;;
         x86_64-apple-darwin*|i686-apple-darwin*)
-                MSPLUGINS_CFLAGS=""
+        MSPLUGINS_CFLAGS=""
 		dnl use macport installation
 		ACLOCAL_MACOS_FLAGS="-I /opt/local/share/aclocal"
 		build_macos=yes
@@ -103,9 +103,13 @@ AC_SUBST(ALL_LINGUAS)
 AC_DEFINE_UNQUOTED(LINPHONE_ALL_LANGS, "$ALL_LINGUAS", [All supported languages])
 
 if test "$mingw_found" != "yes" ; then
-dnl gettext macro does not work properly under mingw. And we want to use the one provided by GTK.
-AM_GNU_GETTEXT([external])
-LIBS="$LIBS $LIBINTL"
+	dnl gettext macro does not work properly under mingw. And we want to use the one provided by GTK.
+	
+	dnl AM_GNU_GETTEXT pollutes CPPFLAGS: workaround this.
+	CPPFLAGS_save=$CPPFLAGS
+	AM_GNU_GETTEXT([external])
+	CPPFLAGS=$CPPFLAGS_save
+	LIBS="$LIBS $LIBINTL"
 else
 	AC_DEFINE(ENABLE_NLS,1,[Tells whether localisation is possible])
 	AC_DEFINE(HAVE_GETTEXT,1,[Tells wheter localisation is possible])
@@ -331,13 +335,17 @@ fi
 
 AC_WORDS_BIGENDIAN
 
-dnl normaly this should only by done by mediastreamer2/configure.ac
-dnl but to workaround bugs when cross-compiling for arm-linux,
-dnl we need to have SPEEX_LIBS defined
-dnl Furthermore it is good to repeat here all mediastreamer2 toggles
-dnl since top-level configure --help will not print them.
-
-PKG_CHECK_MODULES(SPEEX, speex >= 1.1.6, build_speex=yes)
+AC_ARG_ENABLE([speex],
+	      AS_HELP_STRING([--disable-speex], [Disable speex support]),
+	      [], [enable_speex=yes])
+if test "x$enable_speex" = "xyes"; then
+	dnl normaly this should only by done by mediastreamer2/configure.ac
+	dnl but to workaround bugs when cross-compiling for arm-linux,
+	dnl we need to have SPEEX_LIBS defined
+	dnl Furthermore it is good to repeat here all mediastreamer2 toggles
+	dnl since top-level configure --help will not print them.
+	PKG_CHECK_MODULES(SPEEX, speex >= 1.1.6, build_speex=yes)
+fi
 
 dnl conditionnal build of video support
 AC_ARG_ENABLE(video,
@@ -413,14 +421,34 @@ if test "$has_sighandler_t" = "yes" ; then
     AC_DEFINE( HAVE_SIGHANDLER_T, 1, [Define if sighandler_t available] )
 fi
 
+AC_ARG_ENABLE(assistant,
+      [  --enable-assistant    Turn on assistant compiling],
+      [case "${enableval}" in
+        yes) build_wizard=true ;;
+        no)  build_wizard=false ;;
+        *) AC_MSG_ERROR(bad value ${enableval} for --enable-assistant) ;;
+      esac],[build_wizard=check])
+
 dnl check libsoup (needed for wizard)
-PKG_CHECK_MODULES(LIBSOUP, [libsoup-2.4 >= 2.26],[build_wizard=true],foo=bar)
+if test "$build_wizard" != "false" ; then
+	PKG_CHECK_MODULES(LIBSOUP, [libsoup-2.4 >= 2.26],[build_wizard=true],
+	[
+		if test "$build_wizard" = "true" ; then
+			AC_MSG_ERROR([Could not found libsoup, assistant cannot be compiled.])
+		else
+			build_wizard=false
+		fi
+	])
+fi
 AC_SUBST(LIBSOUP_CFLAGS)
 AC_SUBST(LIBSOUP_LIBS)
 AM_CONDITIONAL(BUILD_WIZARD, test x$build_wizard = xtrue)
 if test "$build_wizard" = "true" ; then
    AC_DEFINE( BUILD_WIZARD, 1, [Define if wizard enabled] ) 
 fi
+
+AC_CHECK_HEADERS(libudev.h)
+AC_CHECK_LIB(udev,udev_new)
 
 ##################################################
 # Stricter build options (after external packages)
@@ -435,7 +463,7 @@ AC_ARG_ENABLE(strict,
 
 STRICT_OPTIONS="-Wall "
 
-if test "$GCC$strictness" = "yesyes" ; then
+if test "$strictness" = "yes" ; then
 	STRICT_OPTIONS="$STRICT_OPTIONS -Werror"
 	CFLAGS="$CFLAGS -fno-strict-aliasing"
 fi
@@ -593,12 +621,15 @@ linphone.iss
 AC_OUTPUT
 
 echo "Linphone build configuration ended."
+echo "Summary of build options:"
+printf "* Video support\t\t\t%s\n" $video
+printf "* GTK interface\t\t\t%s\n" $gtk_ui
+printf "* Account assistant\t\t%s\n" $build_wizard
+printf "* Console interface\t\t%s\n" $console_ui
+printf "* zRTP encryption (GPLv3)\t%s\n" $zrtp
 
-if test x$gtk_ui = xtrue ; then
-	echo "* GTK interface will be compiled."
-fi
-if test x$console_ui = xtrue ; then
-	echo "* Console interface will be compiled."
+if test "$enable_tunnel" = "true" ; then
+	printf "* Tunnel support\t\ttrue\n"
 fi
 
 echo "Now type 'make' to compile, and then 'make install' as root to install it."

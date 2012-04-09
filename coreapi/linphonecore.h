@@ -153,6 +153,7 @@ typedef struct _LinphoneCallLog{
 	rtp_stats_t local_stats;
 	rtp_stats_t remote_stats;
 	float quality;
+    int video_enabled;
 	struct _LinphoneCore *lc;
 } LinphoneCallLog;
 
@@ -210,10 +211,24 @@ typedef enum _LinphoneReason LinphoneReason;
 const char *linphone_reason_to_string(LinphoneReason err);
 
 /**
+ * Structure describing policy regarding video streams establishments.
+**/
+struct _LinphoneVideoPolicy{
+	bool_t automatically_initiate; /**<Whether video shall be automatically proposed for outgoing calls.*/ 
+	bool_t automatically_accept; /**<Whether video shall be automatically accepted for incoming calls*/
+	bool_t unused[2];
+};
+
+typedef struct _LinphoneVideoPolicy LinphoneVideoPolicy;
+
+/**
  * The LinphoneCall object represents a call issued or received by the LinphoneCore
 **/
 struct _LinphoneCall;
 typedef struct _LinphoneCall LinphoneCall;
+    
+/** Callback prototype */
+typedef void (*LinphoneCallCbFunc)(struct _LinphoneCall *call,void * user_data);
 
 /**
  * LinphoneCallState enum represents the different state a call can reach into.
@@ -236,7 +251,7 @@ typedef enum _LinphoneCallState{
 	LinphoneCallError, /**<The call encountered an error*/
 	LinphoneCallEnd, /**<The call ended normally*/
 	LinphoneCallPausedByRemote, /**<The call is paused by remote end*/
-	LinphoneCallUpdatedByRemote, /**<The call's parameters are updated, used for example when video is asked by remote */
+	LinphoneCallUpdatedByRemote, /**<The call's parameters change is requested by remote end, used for example when video is added by remote */
 	LinphoneCallIncomingEarlyMedia, /**<We are proposing early media to an incoming call */
 	LinphoneCallUpdated, /**<The remote accepted the call update initiated by us */
 	LinphoneCallReleased /**< The call object is no more retained by the core */
@@ -259,6 +274,7 @@ bool_t linphone_call_has_transfer_pending(const LinphoneCall *call);
 LinphoneCall *linphone_call_get_replaced_call(LinphoneCall *call);
 int linphone_call_get_duration(const LinphoneCall *call);
 const LinphoneCallParams * linphone_call_get_current_params(const LinphoneCall *call);
+const LinphoneCallParams * linphone_call_get_remote_params(LinphoneCall *call);
 void linphone_call_enable_camera(LinphoneCall *lc, bool_t enabled);
 bool_t linphone_call_camera_enabled(const LinphoneCall *lc);
 int linphone_call_take_video_snapshot(LinphoneCall *call, const char *file);
@@ -274,6 +290,9 @@ void linphone_call_set_authentication_token_verified(LinphoneCall *call, bool_t 
 void linphone_call_send_vfu_request(LinphoneCall *call);
 void *linphone_call_get_user_pointer(LinphoneCall *call);
 void linphone_call_set_user_pointer(LinphoneCall *call, void *user_pointer);
+void linphone_call_set_next_video_frame_decoded_callback(LinphoneCall *call, LinphoneCallCbFunc cb, void* user_data);
+LinphoneCallState linphone_call_get_transfer_state(LinphoneCall *call);
+    
 /**
  * Enables or disable echo cancellation for this call
  * @param call
@@ -601,6 +620,8 @@ typedef void (*DtmfReceived)(struct _LinphoneCore* lc, LinphoneCall *call, int d
 typedef void (*ReferReceived)(struct _LinphoneCore *lc, const char *refer_to);
 /** Callback prototype */
 typedef void (*BuddyInfoUpdated)(struct _LinphoneCore *lc, LinphoneFriend *lf);
+/** Callback prototype for in progress transfers. The new_call_state is the state of the call resulting of the transfer, at the other party. */
+typedef void (*LinphoneTransferStateChanged)(struct _LinphoneCore *lc, LinphoneCall *transfered, LinphoneCallState new_call_state);
 
 /**
  * This structure holds all callbacks that the application should implement.
@@ -617,6 +638,8 @@ typedef struct _LinphoneVTable{
 	TextMessageReceived text_received; /**< A text message has been received */
 	DtmfReceived dtmf_received; /**< A dtmf has been received received */
 	ReferReceived refer_received; /**< An out of call refer was received */
+	CallEncryptionChangedCb call_encryption_changed; /**<Notifies on change in the encryption of call streams */
+    LinphoneTransferStateChanged transfer_state_changed; /**<Notifies when a transfer is in progress */
 	BuddyInfoUpdated buddy_info_updated; /**< a LinphoneFriend's BuddyInfo has changed*/
 	NotifyReceivedCb notify_recv; /**< Other notifications*/
 	DisplayStatusCb display_status; /**< Callback that notifies various events with human readable text.*/
@@ -624,7 +647,6 @@ typedef struct _LinphoneVTable{
 	DisplayMessageCb display_warning;/** Callback to display a warning to the user */
 	DisplayUrlCb display_url;
 	ShowInterfaceCb show; /**< Notifies the application that it should show up*/
-	CallEncryptionChangedCb call_encryption_changed; /**<Notifies on change in the encryption of call streams */
 } LinphoneCoreVTable;
 
 /**
@@ -690,6 +712,8 @@ LinphoneCall *linphone_core_get_current_call(const LinphoneCore *lc);
 
 int linphone_core_accept_call(LinphoneCore *lc, LinphoneCall *call);
 
+int linphone_core_accept_call_with_params(LinphoneCore *lc, LinphoneCall *call, const LinphoneCallParams *params);
+
 int linphone_core_terminate_call(LinphoneCore *lc, LinphoneCall *call);
 
 int linphone_core_redirect_call(LinphoneCore *lc, LinphoneCall *call, const char *redirect_uri);
@@ -703,6 +727,10 @@ int linphone_core_pause_all_calls(LinphoneCore *lc);
 int linphone_core_resume_call(LinphoneCore *lc, LinphoneCall *call);
 
 int linphone_core_update_call(LinphoneCore *lc, LinphoneCall *call, const LinphoneCallParams *params);
+
+int linphone_core_defer_call_update(LinphoneCore *lc, LinphoneCall *call);
+
+int linphone_core_accept_call_update(LinphoneCore *lc, LinphoneCall *call, const LinphoneCallParams *params);
 
 LinphoneCallParams *linphone_core_create_default_call_parameters(LinphoneCore *lc);
 
@@ -763,6 +791,8 @@ bool_t linphone_core_payload_type_enabled(LinphoneCore *lc, PayloadType *pt);
 int linphone_core_enable_payload_type(LinphoneCore *lc, PayloadType *pt, bool_t enable);
 
 PayloadType* linphone_core_find_payload_type(LinphoneCore* lc, const char* type, int rate) ;
+
+int linphone_core_get_payload_type_number(LinphoneCore *lc, PayloadType *pt);
 
 const char *linphone_core_get_payload_type_description(LinphoneCore *lc, PayloadType *pt);
 
@@ -856,6 +886,7 @@ int linphone_core_set_relay_addr(LinphoneCore *lc, const char *addr);
 /* sound functions */
 /* returns a null terminated static array of string describing the sound devices */
 const char**  linphone_core_get_sound_devices(LinphoneCore *lc);
+void linphone_core_reload_sound_devices(LinphoneCore *lc);
 bool_t linphone_core_sound_device_can_capture(LinphoneCore *lc, const char *device);
 bool_t linphone_core_sound_device_can_playback(LinphoneCore *lc, const char *device);
 int linphone_core_get_ring_level(LinphoneCore *lc);
@@ -916,8 +947,11 @@ const MSList * linphone_core_get_call_logs(LinphoneCore *lc);
 void linphone_core_clear_call_logs(LinphoneCore *lc);
 
 /* video support */
+bool_t linphone_core_video_supported(LinphoneCore *lc);
 void linphone_core_enable_video(LinphoneCore *lc, bool_t vcap_enabled, bool_t display_enabled);
 bool_t linphone_core_video_enabled(LinphoneCore *lc);
+void linphone_core_set_video_policy(LinphoneCore *lc, const LinphoneVideoPolicy *policy);
+const LinphoneVideoPolicy *linphone_core_get_video_policy(LinphoneCore *lc);
 
 typedef struct MSVideoSizeDef{
 	MSVideoSize vsize;
@@ -937,6 +971,7 @@ bool_t linphone_core_self_view_enabled(const LinphoneCore *lc);
 
 
 /* returns a null terminated static array of string describing the webcams */
+void linphone_core_reload_video_devices(LinphoneCore *lc);
 const char**  linphone_core_get_video_devices(const LinphoneCore *lc);
 int linphone_core_set_video_device(LinphoneCore *lc, const char *id);
 const char *linphone_core_get_video_device(const LinphoneCore *lc);
@@ -1003,6 +1038,7 @@ void linphone_core_enable_keep_alive(LinphoneCore* lc,bool_t enable);
 bool_t linphone_core_keep_alive_enabled(LinphoneCore* lc);
 
 void *linphone_core_get_user_data(LinphoneCore *lc);
+void linphone_core_set_user_data(LinphoneCore *lc, void *userdata);
 
 /* returns LpConfig object to read/write to the config file: usefull if you wish to extend
 the config file with your own sections */

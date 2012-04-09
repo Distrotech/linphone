@@ -44,6 +44,7 @@ void linphone_proxy_config_write_all_to_config_file(LinphoneCore *lc){
 
 void linphone_proxy_config_init(LinphoneProxyConfig *obj){
 	memset(obj,0,sizeof(LinphoneProxyConfig));
+	obj->magic=linphone_proxy_config_magic;
 	obj->expires=3600;
 }
 
@@ -547,8 +548,10 @@ void linphone_core_remove_proxy_config(LinphoneCore *lc, LinphoneProxyConfig *cf
 	/* add to the list of destroyed proxies, so that the possible unREGISTER request can succeed authentication */
 	lc->sip_conf.deleted_proxies=ms_list_append(lc->sip_conf.deleted_proxies,(void *)cfg);
 	cfg->deletion_date=ms_time(NULL);
-	/* this will unREGISTER */
-	linphone_proxy_config_edit(cfg);
+	if (cfg->state==LinphoneRegistrationOk){
+		/* this will unREGISTER */
+		linphone_proxy_config_edit(cfg);
+	}
 	if (lc->default_proxy==cfg){
 		lc->default_proxy=NULL;
 	}

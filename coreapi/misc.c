@@ -202,6 +202,10 @@ int linphone_core_enable_payload_type(LinphoneCore *lc, PayloadType *pt, bool_t 
 	return -1;
 }
 
+int linphone_core_get_payload_type_number(LinphoneCore *lc, PayloadType *pt){
+       return payload_type_get_number(pt);
+}
+
 const char *linphone_core_get_payload_type_description(LinphoneCore *lc, PayloadType *pt){
 	if (ms_filter_codec_supported(pt->mime_type)){
 		MSFilterDesc *desc=ms_filter_get_encoder(pt->mime_type);
@@ -556,6 +560,19 @@ void linphone_core_run_stun_tests(LinphoneCore *lc, LinphoneCall *call){
 		if (sock2!=-1) close_socket(sock2);
 	}
 }
+
+LinphoneCall * is_a_linphone_call(void *user_pointer){
+	LinphoneCall *call=(LinphoneCall*)user_pointer;
+	if (call==NULL) return NULL;
+	return call->magic==linphone_call_magic ? call : NULL;
+}
+
+LinphoneProxyConfig * is_a_linphone_proxy_config(void *user_pointer){
+	LinphoneProxyConfig *cfg=(LinphoneProxyConfig*)user_pointer;
+	if (cfg==NULL) return NULL;
+	return cfg->magic==linphone_proxy_config_magic ? cfg : NULL;
+}
+
 
 #ifdef HAVE_GETIFADDRS
 

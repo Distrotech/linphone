@@ -508,7 +508,7 @@ static void set_sdp_from_desc(osip_message_t *sip, const SalMediaDescription *de
 }
 
 static void sdp_process(SalOp *h){
-	ms_message("Doing SDP offer/answer process");
+	ms_message("Doing SDP offer/answer process of type %s",h->sdp_offering ? "outgoing" : "incoming");
 	if (h->result){
 		sal_media_description_unref(h->result);
 	}
@@ -517,6 +517,9 @@ static void sdp_process(SalOp *h){
 		offer_answer_initiate_outgoing(h->base.local_media,h->base.remote_media,h->result);
 	}else{
 		int i;
+		if (h->sdp_answer){
+			sdp_message_free(h->sdp_answer);
+		}
 		offer_answer_initiate_incoming(h->base.local_media,h->base.remote_media,h->result,h->base.root->one_matching_codec);
 		h->sdp_answer=media_description_to_sdp(h->result);
 		/*once we have generated the SDP answer, we modify the result description for processing by the upper layer.
@@ -550,6 +553,15 @@ int sal_call_set_local_media_description(SalOp *h, SalMediaDescription *desc){
 	if (h->base.local_media)
 		sal_media_description_unref(h->base.local_media);
 	h->base.local_media=desc;
+	if (h->base.remote_media){
+		/*case of an incoming call where we modify the local capabilities between the time
+		 * the call is ringing and it is accepted (for example if you want to accept without video*/
+		/*reset the sdp answer so that it is computed again*/
+		if (h->sdp_answer){
+			sdp_message_free(h->sdp_answer);
+			h->sdp_answer=NULL;
+		}
+	}
 	return 0;
 }
 
@@ -606,18 +618,17 @@ int sal_call_notify_ringing(SalOp *h, bool_t early_media){
 	osip_message_t *msg;
 	
 	/*if early media send also 180 and 183 */
-	if (early_media && h->sdp_answer){
+	if (early_media){
 		msg=NULL;
 		eXosip_lock();
-		eXosip_call_build_answer(h->tid,180,&msg);
-		if (msg){
-			set_sdp(msg,h->sdp_answer);
-			eXosip_call_send_answer(h->tid,180,msg);
-		}
-		msg=NULL;
 		eXosip_call_build_answer(h->tid,183,&msg);
 		if (msg){
-			set_sdp(msg,h->sdp_answer);
+			sdp_process(h);
+			if (h->sdp_answer){
+				set_sdp(msg,h->sdp_answer);
+				sdp_message_free(h->sdp_answer);
+				h->sdp_answer=NULL;
+			}
 			eXosip_call_send_answer(h->tid,183,msg);
 		}
 		eXosip_unlock();
@@ -652,6 +663,7 @@ int sal_call_accept(SalOp * h){
 		if (h->sdp_offering) {
 			set_sdp_from_desc(msg,h->base.local_media);
 		}else{
+			if (h->sdp_answer==NULL) sdp_process(h);
 			if (h->sdp_answer){
 				set_sdp(msg,h->sdp_answer);
 				sdp_message_free(h->sdp_answer);
@@ -697,6 +709,10 @@ int sal_call_decline(SalOp *h, SalReason reason, const char *redirect){
 	return 0;
 }
 
+SalMediaDescription * sal_call_get_remote_media_description(SalOp *h){
+	return h->base.remote_media;
+}
+
 SalMediaDescription * sal_call_get_final_media_description(SalOp *h){
 	if (h->base.local_media && h->base.remote_media && !h->result){
 		sdp_process(h);
@@ -709,6 +725,45 @@ int sal_call_set_referer(SalOp *h, SalOp *refered_call){
 		h->replaces=ms_strdup(refered_call->replaces);
 	if (refered_call->referred_by)
 		h->referred_by=ms_strdup(refered_call->referred_by);
+	return 0;
+}
+
+static int send_notify_for_refer(int did, const char *sipfrag){
+	osip_message_t *msg;
+	eXosip_lock();
+	eXosip_call_build_notify(did,EXOSIP_SUBCRSTATE_ACTIVE,&msg);
+	if (msg==NULL){
+		eXosip_unlock();
+		ms_error("Could not build NOTIFY for refer.");
+		return -1;
+	}
+	osip_message_set_content_type(msg,"message/sipfrag");
+	osip_message_set_header(msg,"Event","refer");
+	osip_message_set_body(msg,sipfrag,strlen(sipfrag));
+	eXosip_call_send_request(did,msg);
+	eXosip_unlock();
+	return 0;
+}
+
+/* currently only support to notify trying and 200Ok*/
+int sal_call_notify_refer_state(SalOp *h, SalOp *newcall){
+	if (newcall==NULL){
+		/* in progress*/
+		send_notify_for_refer(h->did,"SIP/2.0 100 Trying\r\n");
+	}
+	else if (newcall->cid!=-1){
+		if (newcall->did==-1){
+			/* not yet established*/
+			if (!newcall->terminated){
+				/* in progress*/
+				send_notify_for_refer(h->did,"SIP/2.0 100 Trying\r\n");
+			}
+		}else{
+			if (!newcall->terminated){
+				send_notify_for_refer(h->did,"SIP/2.0 200 Ok\r\n");
+			}
+		}
+	}
 	return 0;
 }
 
@@ -730,26 +785,6 @@ int sal_ping(SalOp *op, const char *from, const char *to){
 		return eXosip_options_send_request(options);
 	}
 	return -1;
-}
-
-int sal_call_accept_refer(SalOp *op){
-	osip_message_t *msg=NULL;
-	int err=0;
-	eXosip_lock();
-	err = eXosip_call_build_notify(op->did,EXOSIP_SUBCRSTATE_ACTIVE,&msg);
-	if(msg != NULL)
-	{
-		osip_message_set_header(msg,(const char *)"event","refer");
-		osip_message_set_content_type(msg,"message/sipfrag");
-		osip_message_set_body(msg,"SIP/2.0 100 Trying",sizeof("SIP/2.0 100 Trying"));
-		eXosip_call_send_request(op->did,msg);
-	}
-	else
-	{
-		ms_error("could not get a notify built\n");
-	}
-	eXosip_unlock();
-	return err;
 }
 
 int sal_call_refer(SalOp *h, const char *refer_to){
@@ -988,7 +1023,6 @@ static void inc_new_call(Sal *sal, eXosip_event_t *ev){
 static void handle_reinvite(Sal *sal,  eXosip_event_t *ev){
 	SalOp *op=find_op(sal,ev);
 	sdp_message_t *sdp;
-	osip_message_t *msg=NULL;
 
 	if (op==NULL) {
 		ms_warning("Reinvite for non-existing operation !");
@@ -1010,18 +1044,11 @@ static void handle_reinvite(Sal *sal,  eXosip_event_t *ev){
 		op->base.remote_media=sal_media_description_new();
 		sdp_to_media_description(sdp,op->base.remote_media);
 		sdp_message_free(sdp);
-		sal->callbacks.call_updating(op);
+		
 	}else {
 		op->sdp_offering=TRUE;
-		eXosip_lock();
-		eXosip_call_build_answer(ev->tid,200,&msg);
-		if (msg!=NULL){
-			set_sdp_from_desc(msg,op->base.local_media);
-			eXosip_call_send_answer(ev->tid,200,msg);
-		}
-		eXosip_unlock();
 	}
-	
+	sal->callbacks.call_updating(op);
 }
 
 static void handle_ack(Sal *sal,  eXosip_event_t *ev){
@@ -1032,19 +1059,22 @@ static void handle_ack(Sal *sal,  eXosip_event_t *ev){
 		ms_warning("ack for non-existing call !");
 		return;
 	}
-	sdp=eXosip_get_sdp_info(ev->ack);
-	if (sdp){
-		op->base.remote_media=sal_media_description_new();
-		sdp_to_media_description(sdp,op->base.remote_media);
-		sdp_process(op);
-		sdp_message_free(sdp);
+	
+	if (op->sdp_offering){
+		sdp=eXosip_get_sdp_info(ev->ack);
+		if (sdp){
+			if (op->base.remote_media)
+				sal_media_description_unref(op->base.remote_media);
+			op->base.remote_media=sal_media_description_new();
+			sdp_to_media_description(sdp,op->base.remote_media);
+			sdp_process(op);
+			sdp_message_free(sdp);
+		}
 	}
 	if (op->reinvite){
-		if (sdp) sal->callbacks.call_updating(op);
 		op->reinvite=FALSE;
-	}else{
-		sal->callbacks.call_ack(op);
 	}
+	sal->callbacks.call_ack(op);
 }
 
 static void update_contact_from_response(SalOp *op, osip_message_t *response){
@@ -1506,6 +1536,51 @@ static void process_refer(Sal *sal, SalOp *op, eXosip_event_t *ev){
 	}
 }
 
+void process_notify(Sal *sal, eXosip_event_t *ev){
+	osip_header_t *h=NULL;
+	char *from=NULL;
+	SalOp *op=find_op(sal,ev);
+	osip_message_t *ans=NULL;
+
+	ms_message("Receiving NOTIFY request !");
+	osip_from_to_str(ev->request->from,&from);
+	osip_message_header_get_byname(ev->request,"Event",0,&h);
+	if(h){
+		osip_body_t *body=NULL;
+		//osip_content_type_t *ct=NULL;
+		osip_message_get_body(ev->request,0,&body);
+		//ct=osip_message_get_content_type(ev->request);
+		if (h->hvalue && strcasecmp(h->hvalue,"refer")==0){
+			/*special handling of refer events*/
+			if (body && body->body){
+				osip_message_t *msg;
+				osip_message_init(&msg);
+				if (osip_message_parse_sipfrag(msg,body->body,strlen(body->body))==0){
+					int code=osip_message_get_status_code(msg);
+					if (code==100){
+						sal->callbacks.notify_refer(op,SalReferTrying);
+					}else if (code==200){
+						sal->callbacks.notify_refer(op,SalReferSuccess);
+					}else if (code>=400){
+						sal->callbacks.notify_refer(op,SalReferFailed);
+					}
+				}
+				osip_message_free(msg);
+			}
+		}else{
+			/*generic handling*/
+			sal->callbacks.notify(op,from,h->hvalue);
+		}
+	}
+	/*answer that we received the notify*/
+	eXosip_lock();
+	eXosip_call_build_answer(ev->tid,200,&ans);
+	if (ans)
+		eXosip_call_send_answer(ev->tid,200,ans);
+	eXosip_unlock();
+	osip_free(from);
+}
+
 static void call_message_new(Sal *sal, eXosip_event_t *ev){
 	osip_message_t *ans=NULL;
 	if (ev->request){
@@ -1548,22 +1623,7 @@ static void call_message_new(Sal *sal, eXosip_event_t *ev){
 			ms_message("Receiving REFER request !");
 			process_refer(sal,op,ev);
 		}else if(MSG_IS_NOTIFY(ev->request)){
-			osip_header_t *h=NULL;
-			char *from=NULL;
-			SalOp *op=find_op(sal,ev);
-
-			ms_message("Receiving NOTIFY request !");
-			osip_from_to_str(ev->request->from,&from);
-			osip_message_header_get_byname(ev->request,"Event",0,&h);
-			if(h)
-				sal->callbacks.notify(op,from,h->hvalue);
-			/*answer that we received the notify*/
-			eXosip_lock();
-			eXosip_call_build_answer(ev->tid,200,&ans);
-			if (ans)
-				eXosip_call_send_answer(ev->tid,200,ans);
-			eXosip_unlock();
-			osip_free(from);
+			process_notify(sal,ev);
 		}else if (MSG_IS_OPTIONS(ev->request)){
 			eXosip_lock();
 			eXosip_call_build_answer(ev->tid,200,&ans);
@@ -1981,9 +2041,18 @@ int sal_iterate(Sal *sal){
 		if (process_event(sal,ev))
 			eXosip_event_free(ev);
 	}
+#ifdef HAVE_EXOSIP_TRYLOCK
+	if (eXosip_trylock()==0){
+		eXosip_automatic_refresh();
+		eXosip_unlock();
+	}else{
+		ms_warning("eXosip_trylock busy.");
+	}
+#else
 	eXosip_lock();
 	eXosip_automatic_refresh();
 	eXosip_unlock();
+#endif
 	return 0;
 }
 

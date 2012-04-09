@@ -67,6 +67,8 @@ void linphone_gtk_show_friends(void);
 void linphone_gtk_show_contact(LinphoneFriend *lf);
 void linphone_gtk_set_my_presence(LinphoneOnlineStatus ss);
 void linphone_gtk_show_parameters(void);
+void linphone_gtk_fill_soundcards(GtkWidget *pb);
+void linphone_gtk_fill_webcams(GtkWidget *pb);
 void linphone_gtk_load_identities(void);
 void linphone_gtk_create_chatroom(const char *with);
 void linphone_gtk_text_received(LinphoneCore *lc, LinphoneChatRoom *room, const LinphoneAddress *from, const char *message);
@@ -105,6 +107,7 @@ void linphone_gtk_in_call_view_update_duration(LinphoneCall *call);
 void linphone_gtk_in_call_view_terminate(LinphoneCall *call, const char *error_msg);
 void linphone_gtk_in_call_view_set_incoming(LinphoneCall *call);
 void linphone_gtk_in_call_view_set_paused(LinphoneCall *call);
+void linphone_gtk_in_call_view_set_transfer_status(LinphoneCall *call,LinphoneCallState cstate);
 void linphone_gtk_mute_clicked(GtkButton *button);
 void linphone_gtk_enable_mute_button(GtkButton *button, gboolean sensitive);
 void linphone_gtk_enable_hold_button(LinphoneCall *call, gboolean sensitive, gboolean holdon);
@@ -114,6 +117,7 @@ void linphone_gtk_set_in_conference(LinphoneCall *call);
 void linphone_gtk_unset_from_conference(LinphoneCall *call);
 void linphone_gtk_terminate_conference_participant(LinphoneCall *call);
 void linphone_gtk_in_call_view_show_encryption(LinphoneCall *call);
+void linphone_gtk_update_video_button(LinphoneCall *call);
 typedef float (*get_volume_t)(void *data);
 void linphone_gtk_init_audio_meter(GtkWidget *w, get_volume_t get_volume, void *data);
 
@@ -125,3 +129,6 @@ void linphone_gtk_log_uninit();
 
 bool_t linphone_gtk_init_instance(const char *app_name, const char *addr_to_call);
 void linphone_gtk_uninit_instance(void);
+void linphone_gtk_monitor_usb(void);
+void linphone_gtk_unmonitor_usb(void);
+

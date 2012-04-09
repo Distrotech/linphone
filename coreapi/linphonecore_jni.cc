@@ -553,6 +553,29 @@ extern "C" void Java_org_linphone_core_LinphoneCoreImpl_acceptCall(	JNIEnv*  env
 	linphone_core_accept_call((LinphoneCore*)lc,(LinphoneCall*)call);
 }
 
+extern "C" void Java_org_linphone_core_LinphoneCoreImpl_acceptCallWithParams(JNIEnv *env,
+		jobject thiz,
+		jlong lc,
+		jlong call,
+		jlong params){
+	linphone_core_accept_call_with_params((LinphoneCore*)lc,(LinphoneCall*)call, (LinphoneCallParams*)params);
+}
+
+extern "C" void Java_org_linphone_core_LinphoneCoreImpl_acceptCallUpdate(JNIEnv *env,
+		jobject thiz,
+		jlong lc,
+		jlong call,
+		jlong params){
+	linphone_core_accept_call_update((LinphoneCore*)lc,(LinphoneCall*)call, (LinphoneCallParams*)params);
+}
+
+extern "C" void Java_org_linphone_core_LinphoneCoreImpl_deferCallUpdate(JNIEnv *env,
+		jobject thiz,
+		jlong lc,
+		jlong call){
+	linphone_core_defer_call_update((LinphoneCore*)lc,(LinphoneCall*)call);
+}
+
 extern "C" jlong Java_org_linphone_core_LinphoneCoreImpl_getCallLog(	JNIEnv*  env
 		,jobject  thiz
 		,jlong lc
@@ -1363,6 +1386,10 @@ extern "C" jlong Java_org_linphone_core_LinphoneCoreImpl_createDefaultCallParams
 	return (jlong) linphone_core_create_default_call_parameters((LinphoneCore*)lc);
 }
 
+extern "C" jlong Java_org_linphone_core_LinphoneCallImpl_getRemoteParams(JNIEnv *env, jobject thiz, jlong lc){
+	return (jlong) linphone_call_params_copy(linphone_call_get_remote_params((LinphoneCall*)lc));
+}
+
 extern "C" jlong Java_org_linphone_core_LinphoneCallImpl_getCurrentParamsCopy(JNIEnv *env, jobject thiz, jlong lc){
 	return (jlong) linphone_call_params_copy(linphone_call_get_current_params((LinphoneCall*)lc));
 }
@@ -1660,6 +1687,25 @@ extern "C" void Java_org_linphone_core_LinphoneCoreImpl_tunnelEnableLogs(JNIEnv 
 #endif
 }
 
+extern "C" void Java_org_linphone_core_LinphoneCoreImpl_setUserAgent(JNIEnv *env,jobject thiz,jlong pCore, jstring name, jstring version){
+	const char* cname=env->GetStringUTFChars(name, NULL);
+	const char* cversion=env->GetStringUTFChars(version, NULL);
+	linphone_core_set_user_agent(cname,cversion);
+	env->ReleaseStringUTFChars(name, cname);
+	env->ReleaseStringUTFChars(version, cversion);
+}
+
 extern "C" jboolean Java_org_linphone_core_LinphoneCoreImpl_isTunnelAvailable(JNIEnv *env,jobject thiz){
 	return linphone_core_tunnel_available();
+}
+
+extern "C" void Java_org_linphone_core_LinphoneCoreImpl_setVideoPolicy(JNIEnv *env, jobject thiz, jlong lc, jboolean autoInitiate, jboolean autoAccept){
+	LinphoneVideoPolicy vpol;
+	vpol.automatically_initiate = autoInitiate;
+	vpol.automatically_accept = autoAccept;
+	linphone_core_set_video_policy((LinphoneCore *)lc, &vpol);
+}
+
+extern "C" void Java_org_linphone_core_LinphoneCoreImpl_setCpuCountNative(JNIEnv *env, jobject thiz, jint count) {
+	ms_set_cpu_count(count);
 }

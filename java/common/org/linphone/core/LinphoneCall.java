@@ -35,7 +35,7 @@ public interface LinphoneCall {
 		static private Vector values = new Vector();
 		private final int mValue;
 		public final int value() {return mValue;}
-
+		
 		private final String mStringValue;
 		/**
 		 * Idle
@@ -159,6 +159,8 @@ public interface LinphoneCall {
 	 * @Return LinphoneCallLog
 	**/
 	LinphoneCallLog getCallLog();
+	
+	LinphoneCallParams getRemoteParams();
 
 	LinphoneCallParams getCurrentParamsCopy();
 	

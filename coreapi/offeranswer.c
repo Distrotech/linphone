@@ -129,21 +129,27 @@ static MSList *match_payloads(const MSList *local, const MSList *remote, bool_t 
 }
 
 static bool_t match_crypto_algo(const SalSrtpCryptoAlgo* local, const SalSrtpCryptoAlgo* remote, 
-	SalSrtpCryptoAlgo* result, bool_t use_local_key) {
+	SalSrtpCryptoAlgo* result, unsigned int* choosen_local_tag, bool_t use_local_key) {
 	int i,j;
 	for(i=0; i<SAL_CRYPTO_ALGO_MAX; i++) {
 		if (remote[i].algo == 0)
 			break;
-			
+
+        /* Look for a local enabled crypto algo that matches one of the proposed by remote */
 		for(j=0; j<SAL_CRYPTO_ALGO_MAX; j++) {
 			if (remote[i].algo == local[j].algo) {
 				result->algo = remote[i].algo;
+            /* We're answering an SDP offer. Supply our master key, associated with the remote supplied tag */
 				if (use_local_key) {
 					strncpy(result->master_key, local[j].master_key, 41);
-					result->tag = local[j].tag;
-				} else {
-					strncpy(result->master_key, remote[i].master_key, 41);
 					result->tag = remote[i].tag;
+                    *choosen_local_tag = local[j].tag;
+				}
+				/* We received an answer to our SDP crypto proposal. Copy matching algo remote master key to result, and memorize local tag */
+            else {
+					strncpy(result->master_key, remote[i].master_key, 41);
+					result->tag = local[j].tag;
+                    *choosen_local_tag = local[j].tag;
 				}
 				result->master_key[40] = '\0';
 				return TRUE;
@@ -214,7 +220,7 @@ static void initiate_outgoing(const SalStreamDescription *local_offer,
 	if (result->proto == SalProtoRtpSavp) {
 		/* verify crypto algo */
 		memset(result->crypto, 0, sizeof(result->crypto));
-		if (!match_crypto_algo(local_offer->crypto, remote_answer->crypto, &result->crypto[0], FALSE))
+		if (!match_crypto_algo(local_offer->crypto, remote_answer->crypto, &result->crypto[0], &result->crypto_local_tag, FALSE))
 			result->port = 0;
 	}
 }
@@ -239,7 +245,7 @@ static void initiate_incoming(const SalStreamDescription *local_cap,
 	if (result->proto == SalProtoRtpSavp) {
 		/* select crypto algo */
 		memset(result->crypto, 0, sizeof(result->crypto));
-		if (!match_crypto_algo(local_cap->crypto, remote_offer->crypto, &result->crypto[0], TRUE))
+		if (!match_crypto_algo(local_cap->crypto, remote_offer->crypto, &result->crypto[0], &result->crypto_local_tag, TRUE))
 			result->port = 0; 
 		
 	}
@@ -252,19 +258,19 @@ static void initiate_incoming(const SalStreamDescription *local_cap,
 int offer_answer_initiate_outgoing(const SalMediaDescription *local_offer,
 									const SalMediaDescription *remote_answer,
     							SalMediaDescription *result){
-    int i,j;
+    	int i,j;
     
 	const SalStreamDescription *ls,*rs;
-    for(i=0,j=0;i<local_offer->nstreams;++i){
+	for(i=0,j=0;i<local_offer->nstreams;++i){
 		ms_message("Processing for stream %i",i);
 		ls=&local_offer->streams[i];
 		rs=sal_media_description_find_stream((SalMediaDescription*)remote_answer,ls->proto,ls->type);
-    	if (rs) {
+	if (rs) {
 			initiate_outgoing(ls,rs,&result->streams[j]);
 			++j;
 		}
 		else ms_warning("No matching stream for %i",i);
-    }
+	}
 	result->nstreams=j;
 	result->bandwidth=remote_answer->bandwidth;
 	strcpy(result->addr,remote_answer->addr);
@@ -279,22 +285,20 @@ int offer_answer_initiate_outgoing(const SalMediaDescription *local_offer,
 int offer_answer_initiate_incoming(const SalMediaDescription *local_capabilities,
 						const SalMediaDescription *remote_offer,
     					SalMediaDescription *result, bool_t one_matching_codec){
-    int i;
-	const SalStreamDescription *ls,*rs;
+	int i;
+	const SalStreamDescription *ls=NULL,*rs;
 							
-    for(i=0;i<remote_offer->nstreams;++i){
+	for(i=0;i<remote_offer->nstreams;++i){
 		rs=&remote_offer->streams[i];
-		ms_message("Processing for stream %i",i);
-		
-		ls=sal_media_description_find_stream((SalMediaDescription*)local_capabilities,rs->proto,rs->type);
-		ms_message("remote proto: %s => %p", (rs->proto == SalProtoRtpAvp)?"AVP":"SAVP", ls);
-		/* if matching failed, and remote proposes Avp only, ask for local Savp streams */ 
-		if (!ls && rs->proto == SalProtoRtpAvp) {
-			ls=sal_media_description_find_stream((SalMediaDescription*)local_capabilities,SalProtoRtpSavp,rs->type);
-			ms_message("retry with AVP => %p", ls);
-		}
+		if (rs->proto!=SalProtoUnknown){
+			ls=sal_media_description_find_stream((SalMediaDescription*)local_capabilities,rs->proto,rs->type);
+			/* if matching failed, and remote proposes Avp only, ask for local Savp streams */ 
+			if (!ls && rs->proto == SalProtoRtpAvp) {
+				ls=sal_media_description_find_stream((SalMediaDescription*)local_capabilities,SalProtoRtpSavp,rs->type);
+			}
+		}else ms_warning("Unknown protocol for mline %i, declining",i);
 		if (ls){
-    		initiate_incoming(ls,rs,&result->streams[i],one_matching_codec);
+			initiate_incoming(ls,rs,&result->streams[i],one_matching_codec);
 		}
 		else {
 			/* create an inactive stream for the answer, as there where no matching stream a local capability */
@@ -306,7 +310,7 @@ int offer_answer_initiate_incoming(const SalMediaDescription *local_capabilities
 				strncpy(result->streams[i].typeother,rs->typeother,sizeof(rs->typeother)-1);
 			}
 		}
-    }
+	}
 	result->nstreams=i;
 	strcpy(result->username, local_capabilities->username);
 	strcpy(result->addr,local_capabilities->addr);
