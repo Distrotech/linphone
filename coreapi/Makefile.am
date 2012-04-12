@@ -55,6 +55,14 @@ endif
 
 liblinphone_la_LDFLAGS= -version-info $(LIBLINPHONE_SO_VERSION) -no-undefined
 
+if HAVE_LD_OUTPUT_DEF
+liblinphone_la_LDFLAGS += -Wl,--output-def,liblinphone-$(LIBLINPHONE_SO_VERSION).def
+defexecdir = $(libdir)
+defexec_DATA = liblinphone-$(LIBLINPHONE_SO_VERSION).def
+CLEANFILES = $(defexec_DATA)
+liblinphone-$(LIBLINPHONE_SO_VERSION).def: liblinphone.la
+endif
+
 liblinphone_la_LIBADD= \
 		$(EXOSIP_LIBS) \
 		$(MEDIASTREAMER_LIBS) \
