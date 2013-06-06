@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Linphone by Distrotech</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Linphone</h1>
+          <h2>Mirror of git://git.linphone.org/linphone.git</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/Distrotech/linphone/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/Distrotech/linphone/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/Distrotech/linphone" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <p>This is Linphone, a free (GPL) video softphone based on the SIP protocol.</p>
+
+<p>******************Building linphone ***********************************</p>
+
+<ul>
+<li>
+<p>Install build time dependencies</p>
+
+<ul>
+<li>libtool</li>
+<li>intltool</li>
+</ul>
+</li>
+<li>
+<p>you need at least:</p>
+
+<ul>
+<li>libosip2&gt;=3.5.0</li>
+<li>libeXosip2&gt;=3.5.0</li>
+<li>speex&gt;=1.2.0 (including libspeexdsp part)</li>
+<li>if you want the gtk/glade interface:
+
+<ul>
+<li>libgtk &gt;=2.16.0</li>
+</ul>
+</li>
+<li>if you want video support:
+
+<ul>
+<li>libvpx (VP8 codec)</li>
+<li>libavcodec (ffmpeg) </li>
+<li>libswscale (part of ffmpeg too) for better scaling performance</li>
+<li>libxv (x11 video extension)</li>
+<li>ligl1-mesa (OpenGL API -- GLX development files)</li>
+<li>libglew (OpenGL Extension Wrangler library)</li>
+<li>libv4l (Video for linux)</li>
+<li>libx11 (x11)</li>
+<li>theora (optional)</li>
+</ul>
+</li>
+<li>gsm codec (gsm source package or libgsm-dev or gsm-devel) (optional)</li>
+<li>libreadline (optional: for convenient command line in linphonec)</li>
+<li>libsoup (optional: for wizard - account creation assistant)</li>
+<li>libsqlite3 (optional : for a local history of chat messages)</li>
+<li>if you want uPnP support (optional):
+
+<ul>
+<li>libupnp (version 1.6 branch (not patched with 18-url-upnpstrings.patch))</li>
+</ul>
+</li>
+</ul>
+<p>Here is the command line to get these dependencies installed for Ubuntu &amp;&amp; Debian </p>
+
+<p>$ sudo apt-get install libtool intltool libgtk2.0-dev libosip2-dev libexosip2-dev libspeexdsp-dev libavcodec-dev libswscale-dev libx11-dev libvx-dev ligl1-mesa-dev libglew-dev libv4l-dev</p>
+
+<ul>
+<li>for optional library
+$ sudo apt-get install libreadline-dev liggsm1-dev libtheora-dev libsoup2.4-dev libsqlit3-dev libupnp6-dev </li>
+<li>Install srtp (optional) for call encryption :
+$ git clone git://git.linphone.org/srtp.git
+$ cd srtp &amp;&amp; autoconf &amp;&amp; ./configure &amp;&amp; make
+$ sudo make install</li>
+<li>Install zrtpcpp (optional), for unbreakable call encryption
+$ sudo apt-get install cmake libssl-dev
+$ git clone git://git.linphone.org/zrtpcpp.git
+$ cd zrtpcpp &amp;&amp; cmake -Denable-ccrtp=false . &amp;&amp; make
+$ sudo make install</li>
+</ul>
+</li>
+<li>
+<p>Compile linphone</p>
+
+<p>$ ./autogen.sh
+$ ./configure 
+$ make &amp;&amp; sudo make install 
+$ sudo ldconfig</p>
+</li>
+</ul><p>For windows compilation see README.mingw.
+For macOS X, see README.macos</p>
+
+<p>******************************** notes for developers: *****************************</p>
+
+<p>Here is a short description of the content of the source tree.</p>
+
+<ul>
+<li><p>oRTP/ is a poweful implementation of the RTP protocol. See the oRTP/README for more details. 
+It is used by the mediastreamer to send and receive streams to the network.</p></li>
+<li><p>mediastreamer2/ is one of the important part of linphone. It is a framework library for audio 
+and video processing. It contains several objects for grabing audio and video and outputing
+it (through rtp, to file).
+It contains also codec objects to compress audio and video streams.
+The mediastream.h files contain routines to easyly setup audio streams.</p></li>
+<li><p>coreapi/ is the central point of linphone, which handles relationship between sip signalisation and media
+streaming. It contains an easy to use api to create a sip phone.</p></li>
+<li><p>gtk/  is the directory that contains the gui frontend of linphone. It uses all libraries descibed above.</p></li>
+<li>
+<p>console/</p>
+
+<ul>
+<li>linphonec.c is the main file for the console version of linphone.</li>
+<li>sipomatic.c / sipomatic.h contains the code for sipomatic, the test program that auto-answer to linphone calls.</li>
+<li>shell.c (program name: linphonecsh) is a small utilities to send interactive commands to a running linphonec daemon.</li>
+</ul>
+</li>
+<li><p>share/ contains translation, documentation, rings and hello sound files.</p></li>
+</ul>
+        </section>
+
+        <footer>
+          Linphone is maintained by <a href="https://github.com/Distrotech">Distrotech</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
