@@ -1,3 +1,5 @@
+RC=		windres
+
 UI_FILES=	about.ui \
 		main.ui \
 		password.ui \
@@ -61,7 +63,7 @@ linphone_LDADD=	$(top_builddir)/coreapi/liblinphone.la \
 if BUILD_WIN32
 
 linphone.res:	$(LINPHONE_ICO_RC_FILE) $(LINPHONE_ICO_FILE)
-	windres $(srcdir)/$(LINPHONE_ICO_RC_FILE) -O coff -o linphone.res
+	$(RC) $(srcdir)/$(LINPHONE_ICO_RC_FILE) -O coff -o linphone.res
 
 linphone_LDADD+=linphone.res -lwininet
 linphone_LDFLAGS=-Wl,--export-all-symbols -mwindows
