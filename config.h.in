@@ -3,6 +3,9 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
+/* Defined if LDAP build option enabled */
+#undef BUILD_LDAP
+
 /* Define if tools enabled */
 #undef BUILD_TOOLS
 
@@ -29,30 +32,18 @@
    the CoreFoundation framework. */
 #undef HAVE_CFPREFERENCESCOPYAPPVALUE
 
+/* Define to 1 if you have the <CUnit/CUnit.h> header file. */
+#undef HAVE_CUNIT_CUNIT_H
+
+/* defined when CU_curses_run_tests is available */
+#undef HAVE_CU_CURSES
+
 /* Define if the GNU dcgettext() function is already present or preinstalled.
    */
 #undef HAVE_DCGETTEXT
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
-
-/* Define if exosip dscp available */
-#undef HAVE_EXOSIP_DSCP
-
-/* Defined when eXosip_get_version is available */
-#undef HAVE_EXOSIP_GET_VERSION
-
-/* Defined when eXosip_reset_transports is available */
-#undef HAVE_EXOSIP_RESET_TRANSPORTS
-
-/* Defined when eXosip_tls_verify_certificate is available */
-#undef HAVE_EXOSIP_TLS_VERIFY_CERTIFICATE
-
-/* Defined when eXosip_tls_verify_certificate is available */
-#undef HAVE_EXOSIP_TLS_VERIFY_CN
-
-/* Defined when eXosip_get_socket is available */
-#undef HAVE_EXOSIP_TRYLOCK
 
 /* If present, the getenv function allows fim to read environment variables.
    */
@@ -79,14 +70,8 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `eXosip2' library (-leXosip2). */
-#undef HAVE_LIBEXOSIP2
-
-/* Define to 1 if you have the `osip2' library (-losip2). */
-#undef HAVE_LIBOSIP2
-
-/* Define to 1 if you have the `osipparser2' library (-losipparser2). */
-#undef HAVE_LIBOSIPPARSER2
+/* Define to 1 if you have the <ldap.h> header file. */
+#undef HAVE_LDAP_H
 
 /* Define to 1 if you have the `udev' library (-ludev). */
 #undef HAVE_LIBUDEV
@@ -114,6 +99,9 @@
 
 /* Define to 1 if you have the <readline/readline.h> header file. */
 #undef HAVE_READLINE_READLINE_H
+
+/* Define to 1 if you have the <sasl/sasl.h> header file. */
+#undef HAVE_SASL_SASL_H
 
 /* Define if sighandler_t available */
 #undef HAVE_SIGHANDLER_T
@@ -208,9 +196,6 @@
 
 /* defined if video support is available */
 #undef VIDEO_ENABLED
-
-/* Tell whether RSVP support should be compiled. */
-#undef VINCENT_MAURY_RSVP
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */

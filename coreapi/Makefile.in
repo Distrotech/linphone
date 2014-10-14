@@ -16,6 +16,7 @@
 
 
 
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -86,21 +87,23 @@ target_triplet = @target@
 @BUILD_WIZARD_TRUE@am__append_3 = sipwizard.c 
 @BUILD_TUNNEL_TRUE@am__append_4 = linphone_tunnel.cc TunnelManager.cc TunnelManager.hh 
 @BUILD_TUNNEL_FALSE@am__append_5 = linphone_tunnel_stubs.c
-@BUILD_TESTS_TRUE@noinst_PROGRAMS = test_lsd$(EXEEXT) \
-@BUILD_TESTS_TRUE@	test_ecc$(EXEEXT) test_numbers$(EXEEXT)
-@BUILD_WIZARD_TRUE@am__append_6 = -DBUILD_WIZARD 
+@HAVE_LD_OUTPUT_DEF_TRUE@am__append_6 = -Wl,--output-def,liblinphone-$(LIBLINPHONE_SO_CURRENT).def
+@BUILD_WIN32_TRUE@@HAVE_LD_OUTPUT_DEF_TRUE@am__append_7 = liblinphone-$(LIBLINPHONE_SO_CURRENT).lib
+@ENABLE_TESTS_TRUE@noinst_PROGRAMS = test_lsd$(EXEEXT) \
+@ENABLE_TESTS_TRUE@	test_ecc$(EXEEXT) test_numbers$(EXEEXT)
+@BUILD_WIZARD_TRUE@am__append_8 = -DBUILD_WIZARD 
 subdir = coreapi
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(am__linphone_include_HEADERS_DIST)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/exosip.m4 \
-	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/iconv.m4 \
-	$(top_srcdir)/m4/intltool.m4 $(top_srcdir)/m4/isc-posix.m4 \
-	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
-	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
-	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/osip.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intltool.m4 \
+	$(top_srcdir)/m4/isc-posix.m4 \
+	$(top_srcdir)/m4/ld-output-def.m4 $(top_srcdir)/m4/lib-ld.m4 \
+	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
+	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
+	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/nls.m4 \
 	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/progtest.m4 \
 	$(top_srcdir)/m4/readline.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -136,37 +139,57 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(libdir)" \
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(defexecdir)" \
 	"$(DESTDIR)$(linphone_includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 liblinphone_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__liblinphone_la_SOURCES_DIST = linphonecore.c linphonecore.h \
-	private.h offeranswer.c offeranswer.h sal.c sal.h \
-	sal_eXosip2.c sal_eXosip2.h sal_eXosip2_sdp.c \
-	sal_eXosip2_presence.c callbacks.c misc.c address.c enum.c \
-	enum.h presence.c proxy.c friend.c authentication.c lpconfig.c \
-	lpconfig.h chat.c linphonecall.c sipsetup.c sipsetup.h \
-	siplogin.c lsd.c linphonecore_utils.h ec-calibrator.c \
-	conference.c message_storage.c liblinphone_gitversion.h upnp.c \
-	upnp.h sipwizard.c linphone_tunnel_config.c linphone_tunnel.cc \
-	TunnelManager.cc TunnelManager.hh linphone_tunnel_stubs.c
+	private.h offeranswer.c offeranswer.h sal.c callbacks.c misc.c \
+	address.c enum.c enum.h presence.c proxy.c friend.c \
+	authentication.c lpconfig.c lpconfig.h chat.c linphonecall.c \
+	sipsetup.c sipsetup.h siplogin.c lsd.c linphonecore_utils.h \
+	ec-calibrator.c conference.c message_storage.c info.c event.c \
+	event.h contactprovider.c contactprovider.h \
+	contact_providers_priv.h ldap/ldapprovider.c \
+	ldap/ldapprovider.h dict.c xml.c xml2lpc.c lpc2xml.c \
+	remote_provisioning.c liblinphone_gitversion.h upnp.c upnp.h \
+	bellesip_sal/sal_address_impl.c bellesip_sal/sal_impl.c \
+	bellesip_sal/sal_impl.h bellesip_sal/sal_op_impl.c \
+	bellesip_sal/sal_op_call.c bellesip_sal/sal_op_registration.c \
+	bellesip_sal/sal_sdp.c bellesip_sal/sal_op_message.c \
+	bellesip_sal/sal_op_presence.c bellesip_sal/sal_op_publish.c \
+	bellesip_sal/sal_op_call_transfer.c bellesip_sal/sal_op_info.c \
+	bellesip_sal/sal_op_events.c sipwizard.c \
+	linphone_tunnel_config.c linphone_tunnel.cc TunnelManager.cc \
+	TunnelManager.hh linphone_tunnel_stubs.c
+am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 =
 @BUILD_UPNP_TRUE@am__objects_2 = upnp.lo
 @BUILD_WIZARD_TRUE@am__objects_3 = sipwizard.lo
 @BUILD_TUNNEL_TRUE@am__objects_4 = linphone_tunnel.lo TunnelManager.lo
 @BUILD_TUNNEL_FALSE@am__objects_5 = linphone_tunnel_stubs.lo
 am_liblinphone_la_OBJECTS = linphonecore.lo offeranswer.lo sal.lo \
-	sal_eXosip2.lo sal_eXosip2_sdp.lo sal_eXosip2_presence.lo \
 	callbacks.lo misc.lo address.lo enum.lo presence.lo proxy.lo \
 	friend.lo authentication.lo lpconfig.lo chat.lo \
 	linphonecall.lo sipsetup.lo siplogin.lo lsd.lo \
-	ec-calibrator.lo conference.lo message_storage.lo \
-	$(am__objects_1) $(am__objects_2) $(am__objects_3) \
-	linphone_tunnel_config.lo $(am__objects_4) $(am__objects_5)
+	ec-calibrator.lo conference.lo message_storage.lo info.lo \
+	event.lo contactprovider.lo ldap/ldapprovider.lo dict.lo \
+	xml.lo xml2lpc.lo lpc2xml.lo remote_provisioning.lo \
+	$(am__objects_1) $(am__objects_2) \
+	bellesip_sal/sal_address_impl.lo bellesip_sal/sal_impl.lo \
+	bellesip_sal/sal_op_impl.lo bellesip_sal/sal_op_call.lo \
+	bellesip_sal/sal_op_registration.lo bellesip_sal/sal_sdp.lo \
+	bellesip_sal/sal_op_message.lo bellesip_sal/sal_op_presence.lo \
+	bellesip_sal/sal_op_publish.lo \
+	bellesip_sal/sal_op_call_transfer.lo \
+	bellesip_sal/sal_op_info.lo bellesip_sal/sal_op_events.lo \
+	$(am__objects_3) linphone_tunnel_config.lo $(am__objects_4) \
+	$(am__objects_5)
 liblinphone_la_OBJECTS = $(am_liblinphone_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -178,24 +201,25 @@ liblinphone_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(LDFLAGS) -o $@
 PROGRAMS = $(noinst_PROGRAMS)
 am__test_ecc_SOURCES_DIST = test_ecc.c
-@BUILD_TESTS_TRUE@am_test_ecc_OBJECTS = test_ecc.$(OBJEXT)
+@ENABLE_TESTS_TRUE@am_test_ecc_OBJECTS = test_ecc.$(OBJEXT)
 test_ecc_OBJECTS = $(am_test_ecc_OBJECTS)
 am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-@BUILD_TESTS_TRUE@test_ecc_DEPENDENCIES = liblinphone.la \
-@BUILD_TESTS_TRUE@	$(am__DEPENDENCIES_2)
+@ENABLE_TESTS_TRUE@test_ecc_DEPENDENCIES = liblinphone.la \
+@ENABLE_TESTS_TRUE@	$(am__DEPENDENCIES_2)
 am__test_lsd_SOURCES_DIST = test_lsd.c
-@BUILD_TESTS_TRUE@am_test_lsd_OBJECTS = test_lsd.$(OBJEXT)
+@ENABLE_TESTS_TRUE@am_test_lsd_OBJECTS = test_lsd.$(OBJEXT)
 test_lsd_OBJECTS = $(am_test_lsd_OBJECTS)
-@BUILD_TESTS_TRUE@test_lsd_DEPENDENCIES = liblinphone.la \
-@BUILD_TESTS_TRUE@	$(am__DEPENDENCIES_2)
+@ENABLE_TESTS_TRUE@test_lsd_DEPENDENCIES = liblinphone.la \
+@ENABLE_TESTS_TRUE@	$(am__DEPENDENCIES_2)
 am__test_numbers_SOURCES_DIST = test_numbers.c
-@BUILD_TESTS_TRUE@am_test_numbers_OBJECTS = test_numbers.$(OBJEXT)
+@ENABLE_TESTS_TRUE@am_test_numbers_OBJECTS = test_numbers.$(OBJEXT)
 test_numbers_OBJECTS = $(am_test_numbers_OBJECTS)
-@BUILD_TESTS_TRUE@test_numbers_DEPENDENCIES = liblinphone.la \
-@BUILD_TESTS_TRUE@	$(am__DEPENDENCIES_2)
+@ENABLE_TESTS_TRUE@test_numbers_DEPENDENCIES = liblinphone.la \
+@ENABLE_TESTS_TRUE@	$(am__DEPENDENCIES_2)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -266,8 +290,10 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+DATA = $(defexec_DATA)
 am__linphone_include_HEADERS_DIST = linphonecore.h linphonefriend.h \
-	linphonecore_utils.h lpconfig.h sipsetup.h linphone_tunnel.h
+	linphonepresence.h linphonecore_utils.h lpconfig.h sipsetup.h \
+	event.h xml2lpc.h lpc2xml.h linphone_tunnel.h
 HEADERS = $(linphone_include_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
@@ -334,12 +360,16 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BELLESIP_CFLAGS = @BELLESIP_CFLAGS@
+BELLESIP_LIBS = @BELLESIP_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CONSOLE_FLAGS = @CONSOLE_FLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CUNIT_CFLAGS = @CUNIT_CFLAGS@
+CUNIT_LIBS = @CUNIT_LIBS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -357,14 +387,13 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-EXOSIP_CFLAGS = @EXOSIP_CFLAGS@
-EXOSIP_LIBS = @EXOSIP_LIBS@
 FGREP = @FGREP@
 GETTEXT_PACKAGE = @GETTEXT_PACKAGE@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GREP = @GREP@
 GUI_FLAGS = @GUI_FLAGS@
+HTTPS_CA_DIR = @HTTPS_CA_DIR@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -382,6 +411,8 @@ INTLTOOL__v_MERGE_0 = @INTLTOOL__v_MERGE_0@
 INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
 IPV6_CFLAGS = @IPV6_CFLAGS@
 LD = @LD@
+LDAP_CFLAGS = @LDAP_CFLAGS@
+LDAP_LIBS = @LDAP_LIBS@
 LDFLAGS = @LDFLAGS@
 LIBGTKMAC_CFLAGS = @LIBGTKMAC_CFLAGS@
 LIBGTKMAC_LIBS = @LIBGTKMAC_LIBS@
@@ -391,6 +422,7 @@ LIBGTK_CFLAGS = @LIBGTK_CFLAGS@
 LIBGTK_LIBS = @LIBGTK_LIBS@
 LIBICONV = @LIBICONV@
 LIBINTL = @LIBINTL@
+LIBLINPHONE_SO_CURRENT = @LIBLINPHONE_SO_CURRENT@
 LIBLINPHONE_SO_VERSION = @LIBLINPHONE_SO_VERSION@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
@@ -430,14 +462,10 @@ NOTIFY4_CFLAGS = @NOTIFY4_CFLAGS@
 NOTIFY4_LIBS = @NOTIFY4_LIBS@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
-OPENSSL_LIBS = @OPENSSL_LIBS@
 ORTP_CFLAGS = @ORTP_CFLAGS@
 ORTP_DIR = @ORTP_DIR@
 ORTP_LIBS = @ORTP_LIBS@
 ORTP_VERSION = @ORTP_VERSION@
-OSIP_CFLAGS = @OSIP_CFLAGS@
-OSIP_LIBS = @OSIP_LIBS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -455,9 +483,13 @@ POSUB = @POSUB@
 RANLIB = @RANLIB@
 READLINE_CFLAGS = @READLINE_CFLAGS@
 READLINE_LIBS = @READLINE_LIBS@
+SASL_CFLAGS = @SASL_CFLAGS@
+SASL_LIBS = @SASL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIPSTACK_CFLAGS = @SIPSTACK_CFLAGS@
+SIPSTACK_LIBS = @SIPSTACK_LIBS@
 SPEEX_CFLAGS = @SPEEX_CFLAGS@
 SPEEX_LIBS = @SPEEX_LIBS@
 SQLITE3_CFLAGS = @SQLITE3_CFLAGS@
@@ -469,6 +501,7 @@ TUNNEL_CFLAGS = @TUNNEL_CFLAGS@
 TUNNEL_LIBS = @TUNNEL_LIBS@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
+WINDRES = @WINDRES@
 X11_LIBS = @X11_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
@@ -533,52 +566,71 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+AUTOMAKE_OPTIONS = subdir-objects
 GITVERSION_FILE = liblinphone_gitversion.h
 GITVERSION_FILE_TMP = liblinphone_gitversion.h.tmp
-GITDESCRIBE = `git describe --always`
-GITREVISION = `git rev-parse HEAD`
+GITDESCRIBE = `cd $(top_srcdir) && git describe --always`
+GIT_TAG = `cd $(top_srcdir) && git describe --abbrev=0`
+GITREVISION = `cd $(top_srcdir) && git rev-parse HEAD`
 ECHO = /bin/echo
 SUBDIRS = . help
 EXTRA_DIST = linphonecore_jni.cc $(GITVERSION_FILE)
 BUILT_SOURCES = $(GITVERSION_FILE)
+@HAVE_LD_OUTPUT_DEF_TRUE@CLEANFILES = $(defexec_DATA)
 CLEANFILES = $(GITVERSION_FILE)
 linphone_includedir = $(includedir)/linphone
 linphone_include_HEADERS = linphonecore.h linphonefriend.h \
-	linphonecore_utils.h lpconfig.h sipsetup.h $(am__append_1)
+	linphonepresence.h linphonecore_utils.h lpconfig.h sipsetup.h \
+	event.h xml2lpc.h lpc2xml.h $(am__append_1)
 lib_LTLIBRARIES = liblinphone.la
 liblinphone_la_SOURCES = linphonecore.c linphonecore.h private.h \
-	offeranswer.c offeranswer.h sal.c sal.h sal_eXosip2.c \
-	sal_eXosip2.h sal_eXosip2_sdp.c sal_eXosip2_presence.c \
-	callbacks.c misc.c address.c enum.c enum.h presence.c proxy.c \
-	friend.c authentication.c lpconfig.c lpconfig.h chat.c \
-	linphonecall.c sipsetup.c sipsetup.h siplogin.c lsd.c \
-	linphonecore_utils.h ec-calibrator.c conference.c \
-	message_storage.c $(GITVERSION_FILE) $(am__append_2) \
-	$(am__append_3) linphone_tunnel_config.c $(am__append_4) \
-	$(am__append_5)
-liblinphone_la_LDFLAGS = -version-info $(LIBLINPHONE_SO_VERSION) -no-undefined
+	offeranswer.c offeranswer.h sal.c callbacks.c misc.c address.c \
+	enum.c enum.h presence.c proxy.c friend.c authentication.c \
+	lpconfig.c lpconfig.h chat.c linphonecall.c sipsetup.c \
+	sipsetup.h siplogin.c lsd.c linphonecore_utils.h \
+	ec-calibrator.c conference.c message_storage.c info.c event.c \
+	event.h contactprovider.c contactprovider.h \
+	contact_providers_priv.h ldap/ldapprovider.c \
+	ldap/ldapprovider.h dict.c xml.c xml2lpc.c lpc2xml.c \
+	remote_provisioning.c $(GITVERSION_FILE) $(am__append_2) \
+	bellesip_sal/sal_address_impl.c bellesip_sal/sal_impl.c \
+	bellesip_sal/sal_impl.h bellesip_sal/sal_op_impl.c \
+	bellesip_sal/sal_op_call.c bellesip_sal/sal_op_registration.c \
+	bellesip_sal/sal_sdp.c bellesip_sal/sal_op_message.c \
+	bellesip_sal/sal_op_presence.c bellesip_sal/sal_op_publish.c \
+	bellesip_sal/sal_op_call_transfer.c bellesip_sal/sal_op_info.c \
+	bellesip_sal/sal_op_events.c $(am__append_3) \
+	linphone_tunnel_config.c $(am__append_4) $(am__append_5)
+liblinphone_la_LDFLAGS = -version-info $(LIBLINPHONE_SO_VERSION) \
+	-no-undefined $(am__append_6)
+@HAVE_LD_OUTPUT_DEF_TRUE@defexecdir = $(libdir)
+@HAVE_LD_OUTPUT_DEF_TRUE@defexec_DATA = liblinphone-$(LIBLINPHONE_SO_CURRENT).def \
+@HAVE_LD_OUTPUT_DEF_TRUE@	$(am__append_7)
 liblinphone_la_LIBADD = \
-		$(EXOSIP_LIBS) \
+		$(SIPSTACK_LIBS) \
 		$(MEDIASTREAMER_LIBS) \
 		$(ORTP_LIBS) $(OPENSSL_LIBS) \
 		$(TUNNEL_LIBS) \
 		$(LIBSOUP_LIBS) \
-		$(SQLITE3_LIBS)
+		$(SQLITE3_LIBS) \
+		$(LIBXML2_LIBS) \
+		$(LDAP_LIBS) $(SASL_LIBS)
 
-@BUILD_TESTS_TRUE@test_lsd_SOURCES = test_lsd.c
-@BUILD_TESTS_TRUE@test_lsd_LDADD = liblinphone.la $(liblinphone_la_LIBADD)
-@BUILD_TESTS_TRUE@test_ecc_SOURCES = test_ecc.c
-@BUILD_TESTS_TRUE@test_ecc_LDADD = liblinphone.la $(liblinphone_la_LIBADD)
-@BUILD_TESTS_TRUE@test_numbers_SOURCES = test_numbers.c
-@BUILD_TESTS_TRUE@test_numbers_LDADD = liblinphone.la $(liblinphone_la_LIBADD)
+@ENABLE_TESTS_TRUE@test_lsd_SOURCES = test_lsd.c
+@ENABLE_TESTS_TRUE@test_lsd_LDADD = liblinphone.la $(liblinphone_la_LIBADD)
+@ENABLE_TESTS_TRUE@test_ecc_SOURCES = test_ecc.c
+@ENABLE_TESTS_TRUE@test_ecc_LDADD = liblinphone.la $(liblinphone_la_LIBADD)
+@ENABLE_TESTS_TRUE@test_numbers_SOURCES = test_numbers.c
+@ENABLE_TESTS_TRUE@test_numbers_LDADD = liblinphone.la $(liblinphone_la_LIBADD)
 AM_CPPFLAGS = \
-	-I$(top_srcdir)
+	-I$(top_srcdir) -I$(top_srcdir)/include
 
 AM_CFLAGS = $(STRICT_OPTIONS) -DIN_LINPHONE $(ORTP_CFLAGS) \
-	$(MEDIASTREAMER_CFLAGS) $(OSIP_CFLAGS) $(EXOSIP_CFLAGS) \
-	$(LIBSOUP_CFLAGS) -DENABLE_TRACE -DLOG_DOMAIN=\"LinphoneCore\" \
-	$(IPV6_CFLAGS) -DORTP_INET6 $(VIDEO_CFLAGS) $(TUNNEL_CFLAGS) \
-	$(SQLITE3_CFLAGS) $(am__append_6)
+	$(MEDIASTREAMER_CFLAGS) $(SIPSTACK_CFLAGS) $(LIBSOUP_CFLAGS) \
+	-DENABLE_TRACE -DLOG_DOMAIN=\"LinphoneCore\" $(IPV6_CFLAGS) \
+	-DORTP_INET6 $(VIDEO_CFLAGS) $(TUNNEL_CFLAGS) \
+	$(SQLITE3_CFLAGS) $(LIBXML2_CFLAGS) $(LDAP_CFLAGS) \
+	$(SASL_CFLAGS) $(am__append_8) -DUSE_BELLESIP
 AM_CXXFLAGS = $(AM_CFLAGS)
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
@@ -650,6 +702,44 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
+ldap/$(am__dirstamp):
+	@$(MKDIR_P) ldap
+	@: > ldap/$(am__dirstamp)
+ldap/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ldap/$(DEPDIR)
+	@: > ldap/$(DEPDIR)/$(am__dirstamp)
+ldap/ldapprovider.lo: ldap/$(am__dirstamp) \
+	ldap/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/$(am__dirstamp):
+	@$(MKDIR_P) bellesip_sal
+	@: > bellesip_sal/$(am__dirstamp)
+bellesip_sal/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) bellesip_sal/$(DEPDIR)
+	@: > bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/sal_address_impl.lo: bellesip_sal/$(am__dirstamp) \
+	bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/sal_impl.lo: bellesip_sal/$(am__dirstamp) \
+	bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/sal_op_impl.lo: bellesip_sal/$(am__dirstamp) \
+	bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/sal_op_call.lo: bellesip_sal/$(am__dirstamp) \
+	bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/sal_op_registration.lo: bellesip_sal/$(am__dirstamp) \
+	bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/sal_sdp.lo: bellesip_sal/$(am__dirstamp) \
+	bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/sal_op_message.lo: bellesip_sal/$(am__dirstamp) \
+	bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/sal_op_presence.lo: bellesip_sal/$(am__dirstamp) \
+	bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/sal_op_publish.lo: bellesip_sal/$(am__dirstamp) \
+	bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/sal_op_call_transfer.lo: bellesip_sal/$(am__dirstamp) \
+	bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/sal_op_info.lo: bellesip_sal/$(am__dirstamp) \
+	bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+bellesip_sal/sal_op_events.lo: bellesip_sal/$(am__dirstamp) \
+	bellesip_sal/$(DEPDIR)/$(am__dirstamp)
 
 liblinphone.la: $(liblinphone_la_OBJECTS) $(liblinphone_la_DEPENDENCIES) $(EXTRA_liblinphone_la_DEPENDENCIES) 
 	$(AM_V_CXXLD)$(liblinphone_la_LINK) -rpath $(libdir) $(liblinphone_la_OBJECTS) $(liblinphone_la_LIBADD) $(LIBS)
@@ -677,6 +767,10 @@ test_numbers$(EXEEXT): $(test_numbers_OBJECTS) $(test_numbers_DEPENDENCIES) $(EX
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f bellesip_sal/*.$(OBJEXT)
+	-rm -f bellesip_sal/*.lo
+	-rm -f ldap/*.$(OBJEXT)
+	-rm -f ldap/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -687,14 +781,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/callbacks.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chat.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/conference.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/contactprovider.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dict.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ec-calibrator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/enum.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/event.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/friend.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/info.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linphone_tunnel.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linphone_tunnel_config.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linphone_tunnel_stubs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linphonecall.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linphonecore.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lpc2xml.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lpconfig.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lsd.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/message_storage.Plo@am__quote@
@@ -702,10 +801,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/offeranswer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/presence.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/proxy.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remote_provisioning.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sal.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sal_eXosip2.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sal_eXosip2_presence.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sal_eXosip2_sdp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/siplogin.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sipsetup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sipwizard.Plo@am__quote@
@@ -713,45 +810,66 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_lsd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_numbers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/upnp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xml.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xml2lpc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bellesip_sal/$(DEPDIR)/sal_address_impl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bellesip_sal/$(DEPDIR)/sal_impl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bellesip_sal/$(DEPDIR)/sal_op_call.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bellesip_sal/$(DEPDIR)/sal_op_call_transfer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bellesip_sal/$(DEPDIR)/sal_op_events.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bellesip_sal/$(DEPDIR)/sal_op_impl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bellesip_sal/$(DEPDIR)/sal_op_info.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bellesip_sal/$(DEPDIR)/sal_op_message.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bellesip_sal/$(DEPDIR)/sal_op_presence.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bellesip_sal/$(DEPDIR)/sal_op_publish.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bellesip_sal/$(DEPDIR)/sal_op_registration.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bellesip_sal/$(DEPDIR)/sal_sdp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ldap/$(DEPDIR)/ldapprovider.Plo@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
 .cc.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
 
 .cc.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .cc.lo:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
@@ -761,6 +879,29 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf bellesip_sal/.libs bellesip_sal/_libs
+	-rm -rf ldap/.libs ldap/_libs
+install-defexecDATA: $(defexec_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(defexec_DATA)'; test -n "$(defexecdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(defexecdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(defexecdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(defexecdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(defexecdir)" || exit $$?; \
+	done
+
+uninstall-defexecDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(defexec_DATA)'; test -n "$(defexecdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(defexecdir)'; $(am__uninstall_files_from_dir)
 install-linphone_includeHEADERS: $(linphone_include_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(linphone_include_HEADERS)'; test -n "$(linphone_includedir)" || list=; \
@@ -940,10 +1081,10 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-recursive
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(linphone_includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(defexecdir)" "$(DESTDIR)$(linphone_includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -974,6 +1115,10 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f bellesip_sal/$(DEPDIR)/$(am__dirstamp)
+	-rm -f bellesip_sal/$(am__dirstamp)
+	-rm -f ldap/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ldap/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -985,7 +1130,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-recursive
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) bellesip_sal/$(DEPDIR) ldap/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1008,7 +1153,7 @@ install-dvi: install-dvi-recursive
 
 install-dvi-am:
 
-install-exec-am: install-libLTLIBRARIES
+install-exec-am: install-defexecDATA install-libLTLIBRARIES
 
 install-html: install-html-recursive
 
@@ -1031,7 +1176,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) bellesip_sal/$(DEPDIR) ldap/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -1048,7 +1193,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES \
+uninstall-am: uninstall-defexecDATA uninstall-libLTLIBRARIES \
 	uninstall-linphone_includeHEADERS
 
 .MAKE: $(am__recursive_targets) all check install install-am \
@@ -1060,20 +1205,29 @@ uninstall-am: uninstall-libLTLIBRARIES \
 	ctags-am distclean distclean-compile distclean-generic \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-libLTLIBRARIES \
+	install-data-am install-defexecDATA install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-libLTLIBRARIES \
 	install-linphone_includeHEADERS install-man install-pdf \
 	install-pdf-am install-ps install-ps-am install-strip \
 	installcheck installcheck-am installdirs installdirs-am \
 	maintainer-clean maintainer-clean-generic mostlyclean \
 	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
 	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
-	uninstall-libLTLIBRARIES uninstall-linphone_includeHEADERS
+	uninstall-defexecDATA uninstall-libLTLIBRARIES \
+	uninstall-linphone_includeHEADERS
 
+
+@HAVE_LD_OUTPUT_DEF_TRUE@liblinphone-$(LIBLINPHONE_SO_CURRENT).def: liblinphone.la
+@BUILD_WIN32_TRUE@@HAVE_LD_OUTPUT_DEF_TRUE@liblinphone-$(LIBLINPHONE_SO_CURRENT).lib: liblinphone-$(LIBLINPHONE_SO_CURRENT).def liblinphone.la
+@BUILD_WIN32_TRUE@@HAVE_LD_OUTPUT_DEF_TRUE@	$(DLLTOOL) --dllname liblinphone-$(LIBLINPHONE_SO_CURRENT).dll --input-def liblinphone-$(LIBLINPHONE_SO_CURRENT).def --output-lib $@ liblinphone.la
 
 make_gitversion_h:
 	if test "$(GITDESCRIBE)" != "" ; then \
+		if test "$(GIT_TAG)" != "$(PACKAGE_VERSION)" ; then \
+			echo "*** PACKAGE_VERSION and git tag differ. Please put them identical."; \
+			exit 1; \
+		fi ; \
 		$(ECHO) -n "#define LIBLINPHONE_GIT_VERSION \"$(GITDESCRIBE)\"" > $(GITVERSION_FILE_TMP) ; \
 	elif test "$(GITREVISION)" != "" ; then \
 		$(ECHO) -n "#define LIBLINPHONE_GIT_VERSION \"$(LINPHONE_VERSION)_$(GITREVISION)\"" > $(GITVERSION_FILE_TMP) ; \
