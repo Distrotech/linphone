@@ -80,23 +80,22 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@noinst_PROGRAMS =  \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	helloworld$(EXEEXT) \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	registration$(EXEEXT) \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	buddy_status$(EXEEXT) \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	chatroom$(EXEEXT)
+@ENABLE_TUTORIALS_TRUE@noinst_PROGRAMS = helloworld$(EXEEXT) \
+@ENABLE_TUTORIALS_TRUE@	registration$(EXEEXT) \
+@ENABLE_TUTORIALS_TRUE@	buddy_status$(EXEEXT) chatroom$(EXEEXT) \
+@ENABLE_TUTORIALS_TRUE@	notify$(EXEEXT)
 subdir = coreapi/help
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/Doxyfile.in $(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/exosip.m4 \
-	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/iconv.m4 \
-	$(top_srcdir)/m4/intltool.m4 $(top_srcdir)/m4/isc-posix.m4 \
-	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
-	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
-	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/osip.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intltool.m4 \
+	$(top_srcdir)/m4/isc-posix.m4 \
+	$(top_srcdir)/m4/ld-output-def.m4 $(top_srcdir)/m4/lib-ld.m4 \
+	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
+	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
+	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/nls.m4 \
 	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/progtest.m4 \
 	$(top_srcdir)/m4/readline.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -107,38 +106,43 @@ CONFIG_CLEAN_FILES = Doxyfile
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am__buddy_status_SOURCES_DIST = buddy_status.c
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@am_buddy_status_OBJECTS =  \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	buddy_status.$(OBJEXT)
+@ENABLE_TUTORIALS_TRUE@am_buddy_status_OBJECTS =  \
+@ENABLE_TUTORIALS_TRUE@	buddy_status.$(OBJEXT)
 buddy_status_OBJECTS = $(am_buddy_status_OBJECTS)
 am__DEPENDENCIES_1 =
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@am__DEPENDENCIES_2 = $(top_builddir)/coreapi/liblinphone.la \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	$(am__DEPENDENCIES_1) \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	$(am__DEPENDENCIES_1)
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@buddy_status_DEPENDENCIES =  \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	$(am__DEPENDENCIES_2)
+@ENABLE_TUTORIALS_TRUE@am__DEPENDENCIES_2 =  \
+@ENABLE_TUTORIALS_TRUE@	$(top_builddir)/coreapi/liblinphone.la \
+@ENABLE_TUTORIALS_TRUE@	$(am__DEPENDENCIES_1) \
+@ENABLE_TUTORIALS_TRUE@	$(am__DEPENDENCIES_1) \
+@ENABLE_TUTORIALS_TRUE@	$(am__DEPENDENCIES_1)
+@ENABLE_TUTORIALS_TRUE@buddy_status_DEPENDENCIES =  \
+@ENABLE_TUTORIALS_TRUE@	$(am__DEPENDENCIES_2)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 am__chatroom_SOURCES_DIST = chatroom.c
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@am_chatroom_OBJECTS =  \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	chatroom.$(OBJEXT)
+@ENABLE_TUTORIALS_TRUE@am_chatroom_OBJECTS = chatroom.$(OBJEXT)
 chatroom_OBJECTS = $(am_chatroom_OBJECTS)
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@chatroom_DEPENDENCIES =  \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	$(am__DEPENDENCIES_2)
+@ENABLE_TUTORIALS_TRUE@chatroom_DEPENDENCIES = $(am__DEPENDENCIES_2)
 am__helloworld_SOURCES_DIST = helloworld.c
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@am_helloworld_OBJECTS =  \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	helloworld.$(OBJEXT)
+@ENABLE_TUTORIALS_TRUE@am_helloworld_OBJECTS = helloworld.$(OBJEXT)
 helloworld_OBJECTS = $(am_helloworld_OBJECTS)
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@helloworld_DEPENDENCIES = $(top_builddir)/coreapi/liblinphone.la \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	$(am__DEPENDENCIES_1) \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	$(am__DEPENDENCIES_1)
+@ENABLE_TUTORIALS_TRUE@helloworld_DEPENDENCIES =  \
+@ENABLE_TUTORIALS_TRUE@	$(top_builddir)/coreapi/liblinphone.la \
+@ENABLE_TUTORIALS_TRUE@	$(am__DEPENDENCIES_1) \
+@ENABLE_TUTORIALS_TRUE@	$(am__DEPENDENCIES_1) \
+@ENABLE_TUTORIALS_TRUE@	$(am__DEPENDENCIES_1)
+am__notify_SOURCES_DIST = notify.c
+@ENABLE_TUTORIALS_TRUE@am_notify_OBJECTS = notify.$(OBJEXT)
+notify_OBJECTS = $(am_notify_OBJECTS)
+@ENABLE_TUTORIALS_TRUE@notify_DEPENDENCIES = $(am__DEPENDENCIES_2)
 am__registration_SOURCES_DIST = registration.c
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@am_registration_OBJECTS =  \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	registration.$(OBJEXT)
+@ENABLE_TUTORIALS_TRUE@am_registration_OBJECTS =  \
+@ENABLE_TUTORIALS_TRUE@	registration.$(OBJEXT)
 registration_OBJECTS = $(am_registration_OBJECTS)
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@registration_DEPENDENCIES =  \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	$(am__DEPENDENCIES_2)
+@ENABLE_TUTORIALS_TRUE@registration_DEPENDENCIES =  \
+@ENABLE_TUTORIALS_TRUE@	$(am__DEPENDENCIES_2)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -175,7 +179,7 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 DIST_SOURCES = $(am__buddy_status_SOURCES_DIST) \
 	$(am__chatroom_SOURCES_DIST) $(am__helloworld_SOURCES_DIST) \
-	$(am__registration_SOURCES_DIST)
+	$(am__notify_SOURCES_DIST) $(am__registration_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -208,8 +212,9 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(doc_htmldir)" "$(DESTDIR)$(tutodir)"
-DATA = $(doc_html_DATA) $(tuto_DATA)
+am__installdirs = "$(DESTDIR)$(doc_htmldir)" "$(DESTDIR)$(doc_xmldir)" \
+	"$(DESTDIR)$(tutodir)"
+DATA = $(doc_html_DATA) $(doc_xml_DATA) $(tuto_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -241,12 +246,16 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BELLESIP_CFLAGS = @BELLESIP_CFLAGS@
+BELLESIP_LIBS = @BELLESIP_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CONSOLE_FLAGS = @CONSOLE_FLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CUNIT_CFLAGS = @CUNIT_CFLAGS@
+CUNIT_LIBS = @CUNIT_LIBS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -264,14 +273,13 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-EXOSIP_CFLAGS = @EXOSIP_CFLAGS@
-EXOSIP_LIBS = @EXOSIP_LIBS@
 FGREP = @FGREP@
 GETTEXT_PACKAGE = @GETTEXT_PACKAGE@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GREP = @GREP@
 GUI_FLAGS = @GUI_FLAGS@
+HTTPS_CA_DIR = @HTTPS_CA_DIR@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -289,6 +297,8 @@ INTLTOOL__v_MERGE_0 = @INTLTOOL__v_MERGE_0@
 INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
 IPV6_CFLAGS = @IPV6_CFLAGS@
 LD = @LD@
+LDAP_CFLAGS = @LDAP_CFLAGS@
+LDAP_LIBS = @LDAP_LIBS@
 LDFLAGS = @LDFLAGS@
 LIBGTKMAC_CFLAGS = @LIBGTKMAC_CFLAGS@
 LIBGTKMAC_LIBS = @LIBGTKMAC_LIBS@
@@ -298,6 +308,7 @@ LIBGTK_CFLAGS = @LIBGTK_CFLAGS@
 LIBGTK_LIBS = @LIBGTK_LIBS@
 LIBICONV = @LIBICONV@
 LIBINTL = @LIBINTL@
+LIBLINPHONE_SO_CURRENT = @LIBLINPHONE_SO_CURRENT@
 LIBLINPHONE_SO_VERSION = @LIBLINPHONE_SO_VERSION@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
@@ -337,14 +348,10 @@ NOTIFY4_CFLAGS = @NOTIFY4_CFLAGS@
 NOTIFY4_LIBS = @NOTIFY4_LIBS@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
-OPENSSL_LIBS = @OPENSSL_LIBS@
 ORTP_CFLAGS = @ORTP_CFLAGS@
 ORTP_DIR = @ORTP_DIR@
 ORTP_LIBS = @ORTP_LIBS@
 ORTP_VERSION = @ORTP_VERSION@
-OSIP_CFLAGS = @OSIP_CFLAGS@
-OSIP_LIBS = @OSIP_LIBS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -362,9 +369,13 @@ POSUB = @POSUB@
 RANLIB = @RANLIB@
 READLINE_CFLAGS = @READLINE_CFLAGS@
 READLINE_LIBS = @READLINE_LIBS@
+SASL_CFLAGS = @SASL_CFLAGS@
+SASL_LIBS = @SASL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIPSTACK_CFLAGS = @SIPSTACK_CFLAGS@
+SIPSTACK_LIBS = @SIPSTACK_LIBS@
 SPEEX_CFLAGS = @SPEEX_CFLAGS@
 SPEEX_LIBS = @SPEEX_LIBS@
 SQLITE3_CFLAGS = @SQLITE3_CFLAGS@
@@ -376,6 +387,7 @@ TUNNEL_CFLAGS = @TUNNEL_CFLAGS@
 TUNNEL_LIBS = @TUNNEL_LIBS@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
+WINDRES = @WINDRES@
 X11_LIBS = @X11_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
@@ -448,38 +460,42 @@ SOURCES = doxygen.dox $(top_srcdir)/coreapi/help/*.c $(top_srcdir)/coreapi/*.c $
 # docdir & pkgdocdir are not always defined by automake
 @HAVE_DOXYGEN_TRUE@pkgdocdir = $(docdir)/$(PACKAGE)-$(VERSION)
 @HAVE_DOXYGEN_TRUE@doc_htmldir = $(pkgdocdir)/html
+@HAVE_DOXYGEN_TRUE@doc_xmldir = $(pkgdocdir)/xml
 @HAVE_DOXYGEN_TRUE@doc_html_DATA = $(top_builddir)/coreapi/help/doc/html/html.tar
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@helloworld_SOURCES = helloworld.c
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@LINPHONE_TUTOS =  \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	$(helloworld_SOURCES) \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	$(registration_SOURCES) \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	$(buddy_status_SOURCES) \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@	$(chatroom_SOURCES)
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@helloworld_LDADD = $(top_builddir)/coreapi/liblinphone.la \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@				$(MEDIASTREAMER_LIBS) \
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@				$(ORTP_LIBS)
+@HAVE_DOXYGEN_TRUE@doc_xml_DATA = $(top_builddir)/coreapi/help/doc/xml/xml.tar
+@ENABLE_TUTORIALS_TRUE@helloworld_SOURCES = helloworld.c
+@ENABLE_TUTORIALS_TRUE@LINPHONE_TUTOS = $(helloworld_SOURCES) \
+@ENABLE_TUTORIALS_TRUE@	$(registration_SOURCES) \
+@ENABLE_TUTORIALS_TRUE@	$(buddy_status_SOURCES) \
+@ENABLE_TUTORIALS_TRUE@	$(chatroom_SOURCES) $(notify_SOURCES)
+@ENABLE_TUTORIALS_TRUE@helloworld_LDADD = $(top_builddir)/coreapi/liblinphone.la \
+@ENABLE_TUTORIALS_TRUE@				$(MEDIASTREAMER_LIBS) \
+@ENABLE_TUTORIALS_TRUE@				$(ORTP_LIBS) \
+@ENABLE_TUTORIALS_TRUE@				$(BELLESIP_LIBS)
 
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@registration_SOURCES = registration.c
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@registration_LDADD = $(helloworld_LDADD)
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@buddy_status_SOURCES = buddy_status.c
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@buddy_status_LDADD = $(helloworld_LDADD)
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@chatroom_SOURCES = chatroom.c
-@BUILD_TESTS_TRUE@@ENABLE_TESTS_TRUE@chatroom_LDADD = $(helloworld_LDADD)
-AM_CFLAGS = \
-	$(STRICT_OPTIONS) \
-	-DIN_LINPHONE \
-	$(ORTP_CFLAGS) \
-	$(OSIP_CFLAGS) \
-	$(MEDIASTREAMER_CFLAGS) \
-	$(EXOSIP_CFLAGS) \
-	-DENABLE_TRACE 	\
-	-DLOG_DOMAIN=\"LinphoneCore\" \
-	$(IPV6_CFLAGS) \
-	-DORTP_INET6 \
-	$(VIDEO_CFLAGS)
+@ENABLE_TUTORIALS_TRUE@registration_SOURCES = registration.c
+@ENABLE_TUTORIALS_TRUE@registration_LDADD = $(helloworld_LDADD)
+@ENABLE_TUTORIALS_TRUE@buddy_status_SOURCES = buddy_status.c
+@ENABLE_TUTORIALS_TRUE@buddy_status_LDADD = $(helloworld_LDADD)
+@ENABLE_TUTORIALS_TRUE@chatroom_SOURCES = chatroom.c
+@ENABLE_TUTORIALS_TRUE@chatroom_LDADD = $(helloworld_LDADD)
+@ENABLE_TUTORIALS_TRUE@notify_SOURCES = notify.c
+@ENABLE_TUTORIALS_TRUE@notify_LDADD = $(helloworld_LDADD)
+@ENABLE_TUTORIALS_TRUE@AM_CFLAGS = \
+@ENABLE_TUTORIALS_TRUE@	-I$(top_srcdir)/coreapi \
+@ENABLE_TUTORIALS_TRUE@	$(STRICT_OPTIONS) \
+@ENABLE_TUTORIALS_TRUE@	-DIN_LINPHONE \
+@ENABLE_TUTORIALS_TRUE@	$(ORTP_CFLAGS) \
+@ENABLE_TUTORIALS_TRUE@	$(MEDIASTREAMER_CFLAGS) \
+@ENABLE_TUTORIALS_TRUE@	-DENABLE_TRACE 	\
+@ENABLE_TUTORIALS_TRUE@	-DLOG_DOMAIN=\"LinphoneCore\" \
+@ENABLE_TUTORIALS_TRUE@	$(IPV6_CFLAGS) \
+@ENABLE_TUTORIALS_TRUE@	-DORTP_INET6 \
+@ENABLE_TUTORIALS_TRUE@	$(VIDEO_CFLAGS) \
+@ENABLE_TUTORIALS_TRUE@	$(BELLESIP_CFLAGS)
 
-tutodir = $(datadir)/tutorials/linphone
-tuto_DATA = $(LINPHONE_TUTOS)
+@ENABLE_TUTORIALS_TRUE@tutodir = $(datadir)/tutorials/linphone
+@ENABLE_TUTORIALS_TRUE@tuto_DATA = $(LINPHONE_TUTOS)
 all: all-am
 
 .SUFFIXES:
@@ -538,6 +554,10 @@ helloworld$(EXEEXT): $(helloworld_OBJECTS) $(helloworld_DEPENDENCIES) $(EXTRA_he
 	@rm -f helloworld$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(helloworld_OBJECTS) $(helloworld_LDADD) $(LIBS)
 
+notify$(EXEEXT): $(notify_OBJECTS) $(notify_DEPENDENCIES) $(EXTRA_notify_DEPENDENCIES) 
+	@rm -f notify$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(notify_OBJECTS) $(notify_LDADD) $(LIBS)
+
 registration$(EXEEXT): $(registration_OBJECTS) $(registration_DEPENDENCIES) $(EXTRA_registration_DEPENDENCIES) 
 	@rm -f registration$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(registration_OBJECTS) $(registration_LDADD) $(LIBS)
@@ -551,6 +571,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buddy_status.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chatroom.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/helloworld.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/notify.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/registration.Po@am__quote@
 
 .c.o:
@@ -600,6 +621,27 @@ uninstall-doc_htmlDATA:
 	@list='$(doc_html_DATA)'; test -n "$(doc_htmldir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(doc_htmldir)'; $(am__uninstall_files_from_dir)
+install-doc_xmlDATA: $(doc_xml_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(doc_xml_DATA)'; test -n "$(doc_xmldir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(doc_xmldir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(doc_xmldir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(doc_xmldir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(doc_xmldir)" || exit $$?; \
+	done
+
+uninstall-doc_xmlDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(doc_xml_DATA)'; test -n "$(doc_xmldir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(doc_xmldir)'; $(am__uninstall_files_from_dir)
 install-tutoDATA: $(tuto_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(tuto_DATA)'; test -n "$(tutodir)" || list=; \
@@ -708,7 +750,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(PROGRAMS) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(doc_htmldir)" "$(DESTDIR)$(tutodir)"; do \
+	for dir in "$(DESTDIR)$(doc_htmldir)" "$(DESTDIR)$(doc_xmldir)" "$(DESTDIR)$(tutodir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -766,7 +808,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-doc_htmlDATA install-tutoDATA
+install-data-am: install-doc_htmlDATA install-doc_xmlDATA \
+	install-tutoDATA
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
 install-dvi: install-dvi-am
@@ -813,7 +856,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-doc_htmlDATA uninstall-tutoDATA
+uninstall-am: uninstall-doc_htmlDATA uninstall-doc_xmlDATA \
+	uninstall-tutoDATA
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) uninstall-hook
 .MAKE: install-am install-data-am install-strip uninstall-am
@@ -824,15 +868,15 @@ uninstall-am: uninstall-doc_htmlDATA uninstall-tutoDATA
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-data \
 	install-data-am install-data-hook install-doc_htmlDATA \
-	install-dvi install-dvi-am install-exec install-exec-am \
-	install-html install-html-am install-info install-info-am \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip install-tutoDATA installcheck \
-	installcheck-am installdirs maintainer-clean \
+	install-doc_xmlDATA install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip install-tutoDATA \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags tags-am uninstall uninstall-am uninstall-doc_htmlDATA \
-	uninstall-hook uninstall-tutoDATA
+	uninstall-doc_xmlDATA uninstall-hook uninstall-tutoDATA
 
 
 @HAVE_DOXYGEN_TRUE@$(doc_html_DATA): $(top_builddir)/coreapi/help/doc/html/index.html
@@ -842,11 +886,18 @@ uninstall-am: uninstall-doc_htmlDATA uninstall-tutoDATA
 @HAVE_DOXYGEN_TRUE@	rm -rf doc
 @HAVE_DOXYGEN_TRUE@	$(DOXYGEN) Doxyfile
 
+@HAVE_DOXYGEN_TRUE@$(doc_xml_DATA): $(top_builddir)/coreapi/help/doc/xml/index.xml
+@HAVE_DOXYGEN_TRUE@	cd $(top_builddir)/coreapi/help/doc/xml/ && tar cf xml.tar *
+
+@HAVE_DOXYGEN_TRUE@$(top_builddir)/coreapi/help/doc/xml/index.xml: $(top_builddir)/coreapi/help/doc/html/index.html
+
 @HAVE_DOXYGEN_TRUE@install-data-hook:
 @HAVE_DOXYGEN_TRUE@	cd $(DESTDIR)$(doc_htmldir) && tar xf html.tar && rm -f html.tar
+@HAVE_DOXYGEN_TRUE@	cd $(DESTDIR)$(doc_xmldir) && tar xf xml.tar && rm -f xml.tar
 
 @HAVE_DOXYGEN_TRUE@uninstall-hook:
 @HAVE_DOXYGEN_TRUE@	cd $(DESTDIR)$(doc_htmldir) && rm -f *
+@HAVE_DOXYGEN_TRUE@	cd $(DESTDIR)$(doc_xmldir) && rm -f *
 
 clean-local:
 	rm -rf doc

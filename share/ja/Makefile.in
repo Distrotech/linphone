@@ -82,14 +82,14 @@ DIST_COMMON = $(srcdir)/../Makefile.inc $(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.am
 subdir = share/ja
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/exosip.m4 \
-	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/iconv.m4 \
-	$(top_srcdir)/m4/intltool.m4 $(top_srcdir)/m4/isc-posix.m4 \
-	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
-	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
-	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/osip.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intltool.m4 \
+	$(top_srcdir)/m4/isc-posix.m4 \
+	$(top_srcdir)/m4/ld-output-def.m4 $(top_srcdir)/m4/lib-ld.m4 \
+	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
+	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
+	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/nls.m4 \
 	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/progtest.m4 \
 	$(top_srcdir)/m4/readline.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -130,12 +130,16 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BELLESIP_CFLAGS = @BELLESIP_CFLAGS@
+BELLESIP_LIBS = @BELLESIP_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CONSOLE_FLAGS = @CONSOLE_FLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CUNIT_CFLAGS = @CUNIT_CFLAGS@
+CUNIT_LIBS = @CUNIT_LIBS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -153,14 +157,13 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-EXOSIP_CFLAGS = @EXOSIP_CFLAGS@
-EXOSIP_LIBS = @EXOSIP_LIBS@
 FGREP = @FGREP@
 GETTEXT_PACKAGE = @GETTEXT_PACKAGE@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GREP = @GREP@
 GUI_FLAGS = @GUI_FLAGS@
+HTTPS_CA_DIR = @HTTPS_CA_DIR@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -178,6 +181,8 @@ INTLTOOL__v_MERGE_0 = @INTLTOOL__v_MERGE_0@
 INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
 IPV6_CFLAGS = @IPV6_CFLAGS@
 LD = @LD@
+LDAP_CFLAGS = @LDAP_CFLAGS@
+LDAP_LIBS = @LDAP_LIBS@
 LDFLAGS = @LDFLAGS@
 LIBGTKMAC_CFLAGS = @LIBGTKMAC_CFLAGS@
 LIBGTKMAC_LIBS = @LIBGTKMAC_LIBS@
@@ -187,6 +192,7 @@ LIBGTK_CFLAGS = @LIBGTK_CFLAGS@
 LIBGTK_LIBS = @LIBGTK_LIBS@
 LIBICONV = @LIBICONV@
 LIBINTL = @LIBINTL@
+LIBLINPHONE_SO_CURRENT = @LIBLINPHONE_SO_CURRENT@
 LIBLINPHONE_SO_VERSION = @LIBLINPHONE_SO_VERSION@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
@@ -226,14 +232,10 @@ NOTIFY4_CFLAGS = @NOTIFY4_CFLAGS@
 NOTIFY4_LIBS = @NOTIFY4_LIBS@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
-OPENSSL_LIBS = @OPENSSL_LIBS@
 ORTP_CFLAGS = @ORTP_CFLAGS@
 ORTP_DIR = @ORTP_DIR@
 ORTP_LIBS = @ORTP_LIBS@
 ORTP_VERSION = @ORTP_VERSION@
-OSIP_CFLAGS = @OSIP_CFLAGS@
-OSIP_LIBS = @OSIP_LIBS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -251,9 +253,13 @@ POSUB = @POSUB@
 RANLIB = @RANLIB@
 READLINE_CFLAGS = @READLINE_CFLAGS@
 READLINE_LIBS = @READLINE_LIBS@
+SASL_CFLAGS = @SASL_CFLAGS@
+SASL_LIBS = @SASL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIPSTACK_CFLAGS = @SIPSTACK_CFLAGS@
+SIPSTACK_LIBS = @SIPSTACK_LIBS@
 SPEEX_CFLAGS = @SPEEX_CFLAGS@
 SPEEX_LIBS = @SPEEX_LIBS@
 SQLITE3_CFLAGS = @SQLITE3_CFLAGS@
@@ -265,6 +271,7 @@ TUNNEL_CFLAGS = @TUNNEL_CFLAGS@
 TUNNEL_LIBS = @TUNNEL_LIBS@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
+WINDRES = @WINDRES@
 X11_LIBS = @X11_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
