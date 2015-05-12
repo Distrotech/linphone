@@ -26,18 +26,13 @@ set(PIXMAPS
 	call.png
 	call_status_incoming.png
 	call_status_outgoing.png
-	chat_message_delivered.png
-	chat_message_inprogress.png
-	chat_message_not_delivered.png
 	chat.png
 	composing_active_chat.png
 	composing_chat.png
 	contact-orange.png
 	contact_starred.png
 	contact_unstarred.png
-	dialer-orange.png
 	dialer.png
-	history-orange.png
 	hold_off.png
 	hold_on.png
 	linphone-banner.png
