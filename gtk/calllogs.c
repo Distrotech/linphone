@@ -24,7 +24,7 @@ static void fill_renderers(GtkTreeView *v){
 	GtkCellRenderer *r;
 	r=gtk_cell_renderer_pixbuf_new();
 
-	c=gtk_tree_view_column_new_with_attributes("icon",r,"pixbuf",0,NULL);
+	c=gtk_tree_view_column_new_with_attributes("icon",r,"icon-name",0,NULL);
 	gtk_tree_view_append_column (v,c);
 
 	r=gtk_cell_renderer_text_new ();
@@ -251,7 +251,7 @@ void linphone_gtk_call_log_update(GtkWidget *w){
 
 	store=(GtkTreeStore*)gtk_tree_view_get_model(v);
 	if (store==NULL){
-		store=gtk_tree_store_new(3,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_POINTER,G_TYPE_STRING);
+		store=gtk_tree_store_new(3,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_POINTER,G_TYPE_STRING);
 		gtk_tree_view_set_model(v,GTK_TREE_MODEL(store));
 		g_object_unref(G_OBJECT(store));
 		fill_renderers(GTK_TREE_VIEW(linphone_gtk_get_widget(w,"logs_view")));
@@ -281,8 +281,6 @@ void linphone_gtk_call_log_update(GtkWidget *w){
 		LinphoneFriend *lf=NULL;
 		int duration=linphone_call_log_get_duration(cl);
 		time_t start_date_time=linphone_call_log_get_start_date(cl);
-		GdkPixbuf *incoming;
-		GdkPixbuf *outgoing;
 
 #if GLIB_CHECK_VERSION(2,26,0)
 		if (start_date_time){
@@ -348,10 +346,8 @@ void linphone_gtk_call_log_update(GtkWidget *w){
 		if (start_date) g_free(start_date);
 		gtk_tree_store_append (store,&iter,NULL);
 
-		incoming = create_pixbuf("call_status_incoming.png");
-		outgoing = create_pixbuf("call_status_outgoing.png");
 		gtk_tree_store_set (store,&iter,
-		               0, linphone_call_log_get_dir(cl)==LinphoneCallOutgoing ? outgoing : incoming,
+		               0, linphone_call_log_get_dir(cl)==LinphoneCallOutgoing ? "call_status_outgoing" : "call_status_incoming",
 		               1, headtxt,2,cl,-1);
 		gtk_tree_store_append (store,&iter2,&iter);
 		gtk_tree_store_set (store,&iter2,1,logtxt,-1);

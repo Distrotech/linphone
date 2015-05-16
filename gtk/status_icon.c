@@ -292,13 +292,13 @@ static void _linphone_status_icon_impl_gtk_popup_menu(GtkStatusIcon *status_icon
 static void _linphone_status_icon_impl_gtk_init(LinphoneStatusIcon *si) {
 	const char *icon_path=linphone_gtk_get_ui_config("icon",LINPHONE_ICON);
 	const char *call_icon_path=linphone_gtk_get_ui_config("start_call_icon","startcall-green.png");
-	GdkPixbuf *pbuf=create_pixbuf(icon_path);
+	GdkPixbuf *pbuf = gdk_pixbuf_new_from_file(icon_path, NULL);
 	GtkStatusIcon *icon=gtk_status_icon_new_from_pixbuf(pbuf);
 	g_signal_connect_swapped(G_OBJECT(icon),"activate", G_CALLBACK(_linphone_status_icon_impl_gtk_on_click_cb), si);
 	g_signal_connect(G_OBJECT(icon), "popup-menu", G_CALLBACK(_linphone_status_icon_impl_gtk_popup_menu), si);
 	g_object_set_data_full(G_OBJECT(icon),"icon",pbuf, g_object_unref);
 	g_object_unref(pbuf);
-	pbuf=create_pixbuf(call_icon_path);
+	pbuf = gdk_pixbuf_new_from_file(call_icon_path, NULL);
 	g_object_set_data_full(G_OBJECT(icon),"call_icon",pbuf, g_object_unref);
 	g_object_unref(pbuf);
 	si->data = icon;

@@ -1709,8 +1709,8 @@ static void linphone_gtk_configure_main_window(){
 	if (!config_loaded){
 		title=linphone_gtk_get_ui_config("title","Linphone");
 		home=linphone_gtk_get_ui_config("home","http://www.linphone.org");
-		start_call_icon=linphone_gtk_get_ui_config("start_call_icon","startcall-green.png");
-		add_call_icon=linphone_gtk_get_ui_config("add_call_icon","addcall-green.png");
+		start_call_icon=linphone_gtk_get_ui_config("start_call_icon","startcall-green");
+		add_call_icon=linphone_gtk_get_ui_config("add_call_icon","addcall-green");
 		search_icon=linphone_gtk_get_ui_config("directory_search_icon",NULL);
 		update_check_menu=linphone_gtk_get_ui_config_int("update_check_menu",0);
 		buttons_have_borders=linphone_gtk_get_ui_config_int("buttons_border",1);
@@ -1723,23 +1723,17 @@ static void linphone_gtk_configure_main_window(){
 	}
 	if (start_call_icon){
 		gtk_button_set_image(GTK_BUTTON(linphone_gtk_get_widget(w,"start_call")),
-		                    create_pixmap (start_call_icon));
+		                    gtk_image_new_from_icon_name(start_call_icon, GTK_ICON_SIZE_DIALOG));
 		if (!buttons_have_borders)
 			gtk_button_set_relief(GTK_BUTTON(linphone_gtk_get_widget(w,"start_call")),GTK_RELIEF_NONE);
 	}
 	if (add_call_icon){
 		gtk_button_set_image(GTK_BUTTON(linphone_gtk_get_widget(w,"add_call")),
-		                    create_pixmap (add_call_icon));
+		                    gtk_image_new_from_icon_name(add_call_icon, GTK_ICON_SIZE_DIALOG));
 		if (!buttons_have_borders)
 			gtk_button_set_relief(GTK_BUTTON(linphone_gtk_get_widget(w,"add_call")),GTK_RELIEF_NONE);
 	}
-	if (search_icon){
-		GdkPixbuf *pbuf=create_pixbuf(search_icon);
-		if(pbuf) {
-			gtk_image_set_from_pixbuf(GTK_IMAGE(linphone_gtk_get_widget(w,"directory_search_button_icon")),pbuf);
-			g_object_unref(G_OBJECT(pbuf));
-		}
-	}
+	if (search_icon) gtk_image_set_from_icon_name(GTK_IMAGE(linphone_gtk_get_widget(w,"directory_search_button_icon")), search_icon, GTK_ICON_SIZE_LARGE_TOOLBAR);
 	if (home){
 		gchar *tmp;
 		GtkWidget *menu_item=linphone_gtk_get_widget(w,"home_item");
@@ -1756,12 +1750,8 @@ static void linphone_gtk_configure_main_window(){
 		*/
 	}
 	{
-		GdkPixbuf *pbuf=create_pixbuf("dialer.png");
-		if (pbuf) {
-			GtkButton *button=GTK_BUTTON(linphone_gtk_get_widget(w,"keypad"));
-			gtk_button_set_image(button,gtk_image_new_from_pixbuf (pbuf));
-			g_object_unref(pbuf);
-		}
+		GtkButton *button=GTK_BUTTON(linphone_gtk_get_widget(w,"keypad"));
+		gtk_button_set_image(button,gtk_image_new_from_icon_name("dialer", GTK_ICON_SIZE_LARGE_TOOLBAR));
 	}
 	if (linphone_gtk_can_manage_accounts()) {
 		gtk_widget_show(linphone_gtk_get_widget(w,"assistant_item"));
@@ -2048,8 +2038,6 @@ int main(int argc, char *argv[]){
 	const char *factory_config_file;
 	const char *lang;
 	GtkSettings *settings;
-	const char *icon_path=LINPHONE_ICON;
-	GdkPixbuf *pbuf;
 	const char *app_name="Linphone";
 	LpConfig *factory;
 	const char *db_file;
@@ -2153,14 +2141,8 @@ int main(int argc, char *argv[]){
 		factory=lp_config_new(NULL);
 		lp_config_read_file(factory,factory_config_file);
 		app_name=lp_config_get_string(factory,"GtkUi","title","Linphone");
-		icon_path=lp_config_get_string(factory,"GtkUi","icon",LINPHONE_ICON);
 	}
 	g_set_application_name(app_name);
-	pbuf=create_pixbuf(icon_path);
-	if (pbuf) {
-		gtk_window_set_default_icon(pbuf);
-		g_object_unref(pbuf);
-	}
 
 #ifdef HAVE_GTK_OSX
 	GtkosxApplication *theMacApp = gtkosx_application_get();

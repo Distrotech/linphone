@@ -233,7 +233,13 @@ static GtkWidget *show_video_controls(GtkWidget *video_window){
 		gtk_window_set_opacity(GTK_WINDOW(w),0.5);
 		gtk_window_set_decorated(GTK_WINDOW(w),FALSE);
 		button=gtk_button_new_with_label(_("Hang up"));
-		gtk_button_set_image(GTK_BUTTON(button),create_pixmap (linphone_gtk_get_ui_config("stop_call_icon","stopcall-small.png")));
+		gtk_button_set_image(
+			GTK_BUTTON(button),
+			gtk_image_new_from_icon_name(
+				linphone_gtk_get_ui_config("stop_call_icon","stopcall-small"),
+				GTK_ICON_SIZE_BUTTON
+			)
+		);
 		gtk_widget_show(button);
 		gtk_dialog_add_action_widget(GTK_DIALOG(w),button,GTK_RESPONSE_REJECT);
 		g_signal_connect(w,"response",(GCallback)on_controls_response,video_window);

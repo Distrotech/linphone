@@ -95,7 +95,7 @@ const char* get_display_name(const LinphoneAddress *from){
 
 GtkWidget *create_tab_chat_header(LinphoneChatRoom *cr,const LinphoneAddress *uri){
 	GtkWidget *w=gtk_hbox_new (FALSE,0);
-	GtkWidget *i=create_pixmap ("chat.png");
+	GtkWidget *i = gtk_image_new_from_icon_name("icon", GTK_ICON_SIZE_LARGE_TOOLBAR);
 	GtkWidget *l;
 	GtkWidget *image=gtk_image_new_from_stock(GTK_STOCK_CLOSE,GTK_ICON_SIZE_MENU);
 	GtkWidget *b=gtk_button_new();
@@ -116,7 +116,7 @@ void udpate_tab_chat_header(GtkWidget *chat_view,const LinphoneAddress *uri,Linp
 	GtkWidget *main_window=linphone_gtk_get_main_window();
 	GtkNotebook *notebook=GTK_NOTEBOOK(linphone_gtk_get_widget(main_window,"viewswitch"));
 	GtkWidget *w=gtk_hbox_new (FALSE,0);
-	GtkWidget *i=create_pixmap ("chat.png");
+	GtkWidget *i = gtk_image_new_from_icon_name("chat", GTK_ICON_SIZE_LARGE_TOOLBAR);
 	GtkWidget *l;
 	GtkWidget *image=gtk_image_new_from_stock(GTK_STOCK_CLOSE,GTK_ICON_SIZE_MENU);
 	GtkWidget *b=gtk_button_new();
