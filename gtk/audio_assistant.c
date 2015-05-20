@@ -334,7 +334,7 @@ static GtkWidget *create_mic_page(){
 	GtkWidget *mixer_button=gtk_button_new_with_label(_("System sound preferences"));
 	GtkWidget *image;
 
-	image=gtk_image_new_from_stock(GTK_STOCK_PREFERENCES,GTK_ICON_SIZE_MENU);
+	image=gtk_image_new_from_icon_name("preferences-system", GTK_ICON_SIZE_MENU);
 	gtk_button_set_image(GTK_BUTTON(mixer_button),image);
 
 	gtk_box_pack_start(GTK_BOX(box),mic_audiolevel,TRUE,TRUE,1);
@@ -368,13 +368,15 @@ static GtkWidget *create_speaker_page(){
 
 	GtkWidget *labelSpeakerChoice=gtk_label_new(_("Playback device"));
 	GtkWidget *labelSpeakerLevel=gtk_label_new(_("Play three beeps"));
-	GtkWidget *spk_button=gtk_button_new_from_stock(GTK_STOCK_MEDIA_PLAY);
+	GtkWidget *spk_button=gtk_button_new();
 	GtkWidget *playback_device=gtk_combo_box_new();
 	GtkWidget *mixer_button=gtk_button_new_with_label(_("System sound preferences"));
 	GtkWidget *image;
 	const char **sound_devices;
 
-	image=gtk_image_new_from_stock(GTK_STOCK_PREFERENCES,GTK_ICON_SIZE_MENU);
+	gtk_button_set_image(GTK_BUTTON(spk_button), gtk_image_new_from_icon_name("media-playback-start", GTK_ICON_SIZE_BUTTON));
+	
+	image=gtk_image_new_from_icon_name("preferences-system", GTK_ICON_SIZE_MENU);
 	gtk_button_set_image(GTK_BUTTON(mixer_button),image);
 
 	gtk_table_attach_defaults(GTK_TABLE(vbox), labelSpeakerChoice, 0, 1, 0, 1);
@@ -406,10 +408,10 @@ static GtkWidget *create_play_record_page(){
 	GtkWidget *play_button=gtk_toggle_button_new_with_label(_("Play"));
 	GtkWidget *image;
 
-	image=gtk_image_new_from_stock(GTK_STOCK_MEDIA_RECORD,GTK_ICON_SIZE_MENU);
+	image = gtk_image_new_from_icon_name("media-record", GTK_ICON_SIZE_MENU);
 	gtk_button_set_image(GTK_BUTTON(rec_button),image);
 
-	image=gtk_image_new_from_stock(GTK_STOCK_MEDIA_PLAY,GTK_ICON_SIZE_MENU);
+	image=gtk_image_new_from_icon_name("media-playback-start", GTK_ICON_SIZE_MENU);
 	gtk_button_set_image(GTK_BUTTON(play_button),image);
 	gtk_widget_set_sensitive(play_button,FALSE);
 

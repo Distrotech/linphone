@@ -152,7 +152,7 @@ static GtkWidget *linphone_gtk_create_call_log_menu(GtkWidget *call_log){
 	}
 	if (call_label){
 		menu_item=gtk_image_menu_item_new_with_label(call_label);
-		image=gtk_image_new_from_stock(GTK_STOCK_NETWORK,GTK_ICON_SIZE_MENU);
+		image=gtk_image_new_from_icon_name("network-server", GTK_ICON_SIZE_MENU);
 		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
 		gtk_widget_show(image);
 		gtk_widget_show(menu_item);
@@ -161,14 +161,14 @@ static GtkWidget *linphone_gtk_create_call_log_menu(GtkWidget *call_log){
 	}
 	if (text_label){
 		menu_item=gtk_image_menu_item_new_with_label(text_label);
-		image=gtk_image_new_from_stock(GTK_STOCK_NETWORK,GTK_ICON_SIZE_MENU);
+		image=gtk_image_new_from_icon_name("network-server", GTK_ICON_SIZE_MENU);
 		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
 		gtk_widget_show(image);
 		gtk_widget_show(menu_item);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
 		g_signal_connect_swapped(G_OBJECT(menu_item),"activate",(GCallback)linphone_gtk_call_log_chat_selected,call_log);
 	}
-	menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
+	menu_item=gtk_image_menu_item_new_with_label("_Add");
 	gtk_widget_show(menu_item);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
 	g_signal_connect_swapped(G_OBJECT(menu_item),"activate",(GCallback)linphone_gtk_call_log_add_contact,call_log);
@@ -199,7 +199,7 @@ void linphone_gtk_call_log_clear_missed_call(){
 	GtkNotebook *notebook=GTK_NOTEBOOK(linphone_gtk_get_widget(mw,"viewswitch"));
 	GtkWidget *page=gtk_notebook_get_nth_page(notebook,0);
 	GtkWidget *box=gtk_hbox_new(FALSE,0);
-	GtkWidget *image=gtk_image_new_from_stock(GTK_STOCK_REFRESH,GTK_ICON_SIZE_MENU);
+	GtkWidget *image=gtk_image_new_from_icon_name("view-refresh",GTK_ICON_SIZE_MENU);
 	GtkWidget *l;
 	const gchar*text=gtk_label_get_text(GTK_LABEL(linphone_gtk_get_widget(mw,"label3")));
 
@@ -225,7 +225,7 @@ void linphone_gtk_call_log_display_missed_call(int nb){
 	GtkWidget *page=gtk_notebook_get_nth_page(notebook,0);
 	GtkWidget *ebox=gtk_event_box_new();
 	GtkWidget *box=gtk_hbox_new(FALSE,0);
-	GtkWidget *image=gtk_image_new_from_stock(GTK_STOCK_REFRESH,GTK_ICON_SIZE_MENU);
+	GtkWidget *image=gtk_image_new_from_icon_name("view_refresh", GTK_ICON_SIZE_MENU);
 	GtkWidget *l;
 	gchar *buf;
 

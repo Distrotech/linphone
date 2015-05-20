@@ -2,6 +2,50 @@
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
+  <object class="GtkImage" id="apply_image">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">dialog-ok</property>
+  </object>
+  <object class="GtkImage" id="cancel_image">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">dialog-cancel</property>
+  </object>
+  <object class="GtkListStore" id="liststore2">
+    <columns>
+      <!-- column-name authmethod -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">ANONYMOUS</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">SIMPLE</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">DIGEST-MD5</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">NTLM</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkAdjustment" id="result_adjustment">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="value">50</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="timeout_adjustment">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="value">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkWindow" id="ldap">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">LDAP Settings</property>
@@ -26,6 +70,9 @@
                     <property name="can_focus">False</property>
                     <property name="n_rows">5</property>
                     <property name="n_columns">2</property>
+                    <child>
+                      <placeholder/>
+                    </child>
                     <child>
                       <object class="GtkLabel" id="label41">
                         <property name="visible">True</property>
@@ -75,7 +122,6 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
                         <property name="tooltip_text" translatable="yes">Not yet available</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="draw_indicator">True</property>
                       </object>
                       <packing>
@@ -155,9 +201,6 @@
                         <property name="top_attach">1</property>
                         <property name="bottom_attach">2</property>
                       </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
                     </child>
                   </object>
                 </child>
@@ -487,6 +530,9 @@
                     <property name="n_rows">3</property>
                     <property name="n_columns">2</property>
                     <child>
+                      <placeholder/>
+                    </child>
+                    <child>
                       <object class="GtkLabel" id="label51">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -548,7 +594,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="draw_indicator">True</property>
                       </object>
                       <packing>
@@ -557,9 +602,6 @@
                         <property name="top_attach">2</property>
                         <property name="bottom_attach">3</property>
                       </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
                     </child>
                   </object>
                 </child>
@@ -590,12 +632,12 @@
             </child>
             <child>
               <object class="GtkButton" id="ldap_save">
-                <property name="label">gtk-apply</property>
+                <property name="label">_Apply</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
-                <property name="use_stock">True</property>
+                <property name="image">apply_image</property>
+                <property name="use_underline">True</property>
                 <signal name="clicked" handler="linphone_gtk_ldap_save" swapped="no"/>
               </object>
               <packing>
@@ -607,12 +649,12 @@
             </child>
             <child>
               <object class="GtkButton" id="ldap_reset">
-                <property name="label">gtk-cancel</property>
+                <property name="label">_Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
-                <property name="use_stock">True</property>
+                <property name="image">cancel_image</property>
+                <property name="use_underline">True</property>
                 <signal name="clicked" handler="linphone_gtk_ldap_reset" swapped="no"/>
               </object>
               <packing>
@@ -631,39 +673,5 @@
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkListStore" id="liststore2">
-    <columns>
-      <!-- column-name authmethod -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">ANONYMOUS</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">SIMPLE</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">DIGEST-MD5</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">NTLM</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkAdjustment" id="result_adjustment">
-    <property name="lower">1</property>
-    <property name="upper">100</property>
-    <property name="value">50</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="timeout_adjustment">
-    <property name="lower">1</property>
-    <property name="upper">100</property>
-    <property name="value">10</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
   </object>
 </interface>

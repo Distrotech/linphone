@@ -225,13 +225,15 @@ static GtkWidget *show_video_controls(GtkWidget *video_window){
 	w=(GtkWidget*)g_object_get_data(G_OBJECT(video_window),"controls");
 	if (!w){
 		gboolean isfullscreen=GPOINTER_TO_INT(g_object_get_data(G_OBJECT(video_window),"fullscreen"));
-		const char *stock_button=isfullscreen ? GTK_STOCK_LEAVE_FULLSCREEN : GTK_STOCK_FULLSCREEN;
+		const char *stock_button = isfullscreen ? "view-restore" : "view-fullscreen";
 		gint response_id=isfullscreen ? GTK_RESPONSE_NO : GTK_RESPONSE_YES ;
+		const char *label = isfullscreen ? _("Leave fullscreen") : _("Fullscreen");
 		gint timeout;
 		GtkWidget *button;
-		w=gtk_dialog_new_with_buttons("",GTK_WINDOW(video_window),GTK_DIALOG_DESTROY_WITH_PARENT,stock_button,response_id,NULL);
+		w=gtk_dialog_new_with_buttons("",GTK_WINDOW(video_window),GTK_DIALOG_DESTROY_WITH_PARENT,NULL);
 		gtk_window_set_opacity(GTK_WINDOW(w),0.5);
 		gtk_window_set_decorated(GTK_WINDOW(w),FALSE);
+		
 		button=gtk_button_new_with_label(_("Hang up"));
 		gtk_button_set_image(
 			GTK_BUTTON(button),
@@ -242,6 +244,18 @@ static GtkWidget *show_video_controls(GtkWidget *video_window){
 		);
 		gtk_widget_show(button);
 		gtk_dialog_add_action_widget(GTK_DIALOG(w),button,GTK_RESPONSE_REJECT);
+		
+		button=gtk_button_new_with_label(label);
+		gtk_button_set_image(
+			GTK_BUTTON(button),
+			gtk_image_new_from_icon_name(
+				stock_button,
+				GTK_ICON_SIZE_BUTTON
+			)
+		);
+		gtk_widget_show(button);
+		gtk_dialog_add_action_widget(GTK_DIALOG(w),button, response_id);
+		
 		g_signal_connect(w,"response",(GCallback)on_controls_response,video_window);
 		timeout=g_timeout_add(3000,(GSourceFunc)gtk_widget_destroy,w);
 		g_object_set_data(G_OBJECT(w),"timeout",GINT_TO_POINTER(timeout));

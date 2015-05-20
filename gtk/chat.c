@@ -97,7 +97,7 @@ GtkWidget *create_tab_chat_header(LinphoneChatRoom *cr,const LinphoneAddress *ur
 	GtkWidget *w=gtk_hbox_new (FALSE,0);
 	GtkWidget *i = gtk_image_new_from_icon_name("icon", GTK_ICON_SIZE_LARGE_TOOLBAR);
 	GtkWidget *l;
-	GtkWidget *image=gtk_image_new_from_stock(GTK_STOCK_CLOSE,GTK_ICON_SIZE_MENU);
+	GtkWidget *image=gtk_image_new_from_icon_name("window-close", GTK_ICON_SIZE_MENU);
 	GtkWidget *b=gtk_button_new();
 
 	gtk_button_set_image(GTK_BUTTON(b),image);
@@ -118,7 +118,7 @@ void udpate_tab_chat_header(GtkWidget *chat_view,const LinphoneAddress *uri,Linp
 	GtkWidget *w=gtk_hbox_new (FALSE,0);
 	GtkWidget *i = gtk_image_new_from_icon_name("chat", GTK_ICON_SIZE_LARGE_TOOLBAR);
 	GtkWidget *l;
-	GtkWidget *image=gtk_image_new_from_stock(GTK_STOCK_CLOSE,GTK_ICON_SIZE_MENU);
+	GtkWidget *image=gtk_image_new_from_icon_name("window-close", GTK_ICON_SIZE_MENU);
 	GtkWidget *b=gtk_button_new();
 
 	gtk_button_set_image(GTK_BUTTON(b),image);

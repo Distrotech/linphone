@@ -627,7 +627,7 @@ void create_button(){
 	GtkWidget *button_add = linphone_gtk_get_widget(main_window,"add_button");
 	GtkWidget *image;
 
-	image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
+	image=gtk_image_new_from_icon_name("list-add", GTK_ICON_SIZE_MENU);
 	gtk_container_add (GTK_CONTAINER (button_add), image);
 }
 
@@ -947,7 +947,7 @@ static GtkWidget *linphone_gtk_create_contact_menu(GtkWidget *contact_list){
 	}
 	if (call_label){
 		menu_item=gtk_image_menu_item_new_with_label(call_label);
-		image=gtk_image_new_from_stock(GTK_STOCK_NETWORK,GTK_ICON_SIZE_MENU);
+		image=gtk_image_new_from_icon_name("network-server", GTK_ICON_SIZE_MENU);
 		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
 		gtk_widget_show(image);
 		gtk_widget_show(menu_item);
@@ -956,7 +956,7 @@ static GtkWidget *linphone_gtk_create_contact_menu(GtkWidget *contact_list){
 	}
 	if (text_label){
 		menu_item=gtk_image_menu_item_new_with_label(text_label);
-		image=gtk_image_new_from_stock(GTK_STOCK_NETWORK,GTK_ICON_SIZE_MENU);
+		image=gtk_image_new_from_icon_name("network-server", GTK_ICON_SIZE_MENU);
 		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
 		gtk_widget_show(image);
 		gtk_widget_show(menu_item);
@@ -965,7 +965,7 @@ static GtkWidget *linphone_gtk_create_contact_menu(GtkWidget *contact_list){
 	}
 	if (edit_label){
 		menu_item=gtk_image_menu_item_new_with_label(edit_label);
-		image=gtk_image_new_from_stock(GTK_STOCK_EDIT,GTK_ICON_SIZE_MENU);
+		image=gtk_image_new_from_icon_name("document-properties", GTK_ICON_SIZE_MENU);
 		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
 		gtk_widget_show(image);
 		gtk_widget_show(menu_item);
@@ -974,7 +974,7 @@ static GtkWidget *linphone_gtk_create_contact_menu(GtkWidget *contact_list){
 	}
 	if (delete_label){
 		menu_item=gtk_image_menu_item_new_with_label(delete_label);
-		image=gtk_image_new_from_stock(GTK_STOCK_DELETE,GTK_ICON_SIZE_MENU);
+		image=gtk_image_new_from_icon_name("edit-delete", GTK_ICON_SIZE_MENU);
 		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
 		gtk_widget_show(image);
 		gtk_widget_show(menu_item);
@@ -984,7 +984,7 @@ static GtkWidget *linphone_gtk_create_contact_menu(GtkWidget *contact_list){
 
 	if (delete_hist_label){
 		menu_item=gtk_image_menu_item_new_with_label(delete_hist_label);
-		image=gtk_image_new_from_stock(GTK_STOCK_CLEAR,GTK_ICON_SIZE_MENU);
+		image=gtk_image_new_from_icon_name("edit-clear", GTK_ICON_SIZE_MENU);
 		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
 		gtk_widget_show(image);
 		gtk_widget_show(menu_item);
@@ -996,7 +996,7 @@ static GtkWidget *linphone_gtk_create_contact_menu(GtkWidget *contact_list){
 		gchar *tmp=g_strdup_printf(_("Add new contact from %s directory"),linphone_proxy_config_get_domain(cfg));
 		menu_item=gtk_image_menu_item_new_with_label(tmp);
 		g_free(tmp);
-		image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
+		image=gtk_image_new_from_icon_name("list-add", GTK_ICON_SIZE_MENU);
 		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
 		gtk_widget_show(image);
 		gtk_widget_show(menu_item);
@@ -1005,7 +1005,7 @@ static GtkWidget *linphone_gtk_create_contact_menu(GtkWidget *contact_list){
 		gtk_widget_show(menu);
 	}
 
-	menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
+	menu_item=gtk_image_menu_item_new_with_label("_Add");
 	gtk_widget_show(menu_item);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
 	g_signal_connect_swapped(G_OBJECT(menu_item),"activate",(GCallback)linphone_gtk_add_contact,contact_list);

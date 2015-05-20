@@ -34,7 +34,7 @@
 
 static GtkWidget *create_conference_label(void){
 	GtkWidget *box=gtk_hbox_new(FALSE,0);
-	gtk_box_pack_start(GTK_BOX(box),gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU),FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(box),gtk_image_new_from_stock("list-add", GTK_ICON_SIZE_MENU), FALSE,FALSE, 0);
 	gtk_box_pack_end(GTK_BOX(box),gtk_label_new(_("Conference")),TRUE,FALSE,0);
 	gtk_widget_show_all(box);
 	return box;

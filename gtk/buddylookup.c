@@ -119,7 +119,7 @@ GtkWidget * linphone_gtk_show_buddy_lookup_window(SipSetupContext *ctx){
 	//g_signal_connect_swapped(G_OBJECT(w),"destroy",(GCallback)linphone_gtk_buddy_lookup_window_destroyed,w);
 	gtk_progress_bar_set_fraction(pb,0);
 	gtk_progress_bar_set_text(pb,NULL);
-	gtk_dialog_add_button(GTK_DIALOG(w),GTK_STOCK_CLOSE,GTK_RESPONSE_CLOSE);
+	gtk_dialog_add_button(GTK_DIALOG(w), "_Close",GTK_RESPONSE_CLOSE);
 	g_object_set_data(G_OBJECT(w),"last_state",GINT_TO_POINTER(-1));
 
 	gtk_widget_show(w);
