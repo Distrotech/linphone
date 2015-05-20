@@ -347,7 +347,7 @@ void linphone_gtk_call_log_update(GtkWidget *w){
 		gtk_tree_store_append (store,&iter,NULL);
 
 		gtk_tree_store_set (store,&iter,
-		               0, linphone_call_log_get_dir(cl)==LinphoneCallOutgoing ? "call_status_outgoing" : "call_status_incoming",
+		               0, linphone_call_log_get_dir(cl)==LinphoneCallOutgoing ? "linphone-call-status-outgoing" : "linphone-call-status-incoming",
 		               1, headtxt,2,cl,-1);
 		gtk_tree_store_append (store,&iter2,&iter);
 		gtk_tree_store_set (store,&iter2,1,logtxt,-1);

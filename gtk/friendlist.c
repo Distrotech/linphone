@@ -41,17 +41,17 @@ typedef struct _status_picture_tab_t{
 } status_picture_tab_t;
 
 status_picture_tab_t status_picture_tab[]={
-	{	LinphoneStatusOnline,		"status-green"	},
-	{	LinphoneStatusBusy,		"status-orange"		},
-	{	LinphoneStatusBeRightBack,	"status-orange"		},
-	{	LinphoneStatusAway,		"status-orange"		},
-	{	LinphoneStatusOnThePhone,	"status-orange"		},
-	{	LinphoneStatusOutToLunch,	"status-orange"		},
-	{	LinphoneStatusDoNotDisturb,	"status-red"	},
-	{	LinphoneStatusMoved,		"status-orange"	},
-	{	LinphoneStatusAltService,	"status-orange"	},
-	{	LinphoneStatusOffline,	"status-offline"		},
-	{	LinphoneStatusPending,	"status-offline"		},
+	{	LinphoneStatusOnline,		"linphone-status-green"	},
+	{	LinphoneStatusBusy,		"linphone-status-orange"		},
+	{	LinphoneStatusBeRightBack,	"linphone-status-orange"		},
+	{	LinphoneStatusAway,		"linphone-status-orange"		},
+	{	LinphoneStatusOnThePhone,	"linphone-status-orange"		},
+	{	LinphoneStatusOutToLunch,	"linphone-status-orange"		},
+	{	LinphoneStatusDoNotDisturb,	"linphone-status-red"	},
+	{	LinphoneStatusMoved,		"linphone-status-orange"	},
+	{	LinphoneStatusAltService,	"linphone-status-orange"	},
+	{	LinphoneStatusOffline,	"linphone-status-offline"		},
+	{	LinphoneStatusPending,	"linphone-status-offline"		},
 	{	LinphoneStatusEnd,		NULL			},
 };
 
@@ -219,14 +219,14 @@ void linphone_gtk_friend_list_update_chat_picture(){
 			is_composing=linphone_chat_room_is_remote_composing(cr);
 			if(nbmsg != 0){
 				if (is_composing == TRUE)
-					gtk_list_store_set(GTK_LIST_STORE(model),&iter,FRIEND_CHAT,"composing_active_chat",-1);
+					gtk_list_store_set(GTK_LIST_STORE(model),&iter,FRIEND_CHAT,"linphone-chat-composing-active",-1);
 				else
-					gtk_list_store_set(GTK_LIST_STORE(model),&iter,FRIEND_CHAT,"active_chat",-1);
+					gtk_list_store_set(GTK_LIST_STORE(model),&iter,FRIEND_CHAT,"linphone-chat-active",-1);
 			} else {
 				if (is_composing == TRUE)
-					gtk_list_store_set(GTK_LIST_STORE(model),&iter,FRIEND_CHAT,"composing_chat",-1);
+					gtk_list_store_set(GTK_LIST_STORE(model),&iter,FRIEND_CHAT,"linphone-chat-composing",-1);
 				else
-					gtk_list_store_set(GTK_LIST_STORE(model),&iter,FRIEND_CHAT,"chat",-1);
+					gtk_list_store_set(GTK_LIST_STORE(model),&iter,FRIEND_CHAT,"linphone-chat",-1);
 			}
 		}while(gtk_tree_model_iter_next(model,&iter));
 	}
@@ -464,12 +464,12 @@ static void update_star(GtkEntry *entry, gboolean is_known){
 	gboolean *active = (gboolean *)g_object_get_data(G_OBJECT(entry), "is_starred");
 	if(active == NULL) return;
 	if (is_known && !*active){
-		gtk_entry_set_icon_from_icon_name(entry,GTK_ENTRY_ICON_SECONDARY,"contact_starred");
+		gtk_entry_set_icon_from_icon_name(entry,GTK_ENTRY_ICON_SECONDARY,"linphone-contact-starred");
 		gtk_entry_set_icon_tooltip_text(GTK_ENTRY(entry),GTK_ENTRY_ICON_SECONDARY,NULL);
 		*active = TRUE;
 	}else if ((!is_known) && *active){
 		gtk_entry_set_icon_tooltip_text(GTK_ENTRY(entry),GTK_ENTRY_ICON_SECONDARY,_("Add to addressbook"));
-		gtk_entry_set_icon_from_icon_name(entry,GTK_ENTRY_ICON_SECONDARY,"contact_unstarred");
+		gtk_entry_set_icon_from_icon_name(entry,GTK_ENTRY_ICON_SECONDARY,"linphone-contact-unstarred");
 		*active = FALSE;
 	}
 }
@@ -500,7 +500,7 @@ static void linphone_gtk_init_bookmark_icon(void){
 	GtkWidget *mw=linphone_gtk_get_main_window();
 	GtkWidget *entry=linphone_gtk_get_widget(mw,"uribar");
 	gboolean *is_starred = g_new0(gboolean, 1);
-	gtk_entry_set_icon_from_icon_name(GTK_ENTRY(entry),GTK_ENTRY_ICON_SECONDARY,"contact_unstarred");
+	gtk_entry_set_icon_from_icon_name(GTK_ENTRY(entry),GTK_ENTRY_ICON_SECONDARY,"linphone-contact-unstarred");
 	gtk_entry_set_icon_activatable(GTK_ENTRY(entry),GTK_ENTRY_ICON_SECONDARY,TRUE);
 	g_signal_connect(G_OBJECT(entry),"icon-release",(GCallback)icon_press_handler,NULL);
 	g_signal_connect(G_OBJECT(GTK_EDITABLE(entry)),"changed",(GCallback)check_contact,linphone_gtk_get_core());
@@ -810,14 +810,14 @@ void linphone_gtk_show_friends(void){
 		gtk_list_store_append(store,&iter);
 		gtk_list_store_set(store,&iter,FRIEND_NAME, display,FRIEND_ID,lf,
 			    FRIEND_PRESENCE_IMG, send_subscribe ? get_status_icon_name(linphone_friend_get_status(lf)) : NULL,
-				FRIEND_CHAT, "chat",
-				FRIEND_CALL, "call",
+				FRIEND_CHAT, "linphone-chat",
+				FRIEND_CALL, "linphone-call",
 				-1);
 		cr=linphone_gtk_create_chatroom(f_uri);
 		gtk_list_store_set(store,&iter,FRIEND_CHATROOM,cr,-1);
 		nbmsg=linphone_chat_room_get_unread_messages_count(cr);
 		if(nbmsg != 0){
-			gtk_list_store_set(store,&iter,FRIEND_CHAT, "active_chat",-1);
+			gtk_list_store_set(store,&iter,FRIEND_CHAT, "linphone-chat-active",-1);
 		}
 		escaped=g_markup_escape_text(uri,-1);
 		gtk_list_store_set(store,&iter,FRIEND_SIP_ADDRESS,escaped,-1);

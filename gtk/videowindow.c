@@ -238,7 +238,7 @@ static GtkWidget *show_video_controls(GtkWidget *video_window){
 		gtk_button_set_image(
 			GTK_BUTTON(button),
 			gtk_image_new_from_icon_name(
-				linphone_gtk_get_ui_config("stop_call_icon","stopcall-small"),
+				linphone_gtk_get_ui_config("stop_call_icon","linphone-stopcall"),
 				GTK_ICON_SIZE_BUTTON
 			)
 		);

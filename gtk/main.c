@@ -1713,8 +1713,8 @@ static void linphone_gtk_configure_main_window(){
 	if (!config_loaded){
 		title=linphone_gtk_get_ui_config("title","Linphone");
 		home=linphone_gtk_get_ui_config("home","http://www.linphone.org");
-		start_call_icon=linphone_gtk_get_ui_config("start_call_icon","startcall-green");
-		add_call_icon=linphone_gtk_get_ui_config("add_call_icon","addcall-green");
+		start_call_icon=linphone_gtk_get_ui_config("start_call_icon","linphone-startcall");
+		add_call_icon=linphone_gtk_get_ui_config("add_call_icon","linphone-addcall");
 		search_icon=linphone_gtk_get_ui_config("directory_search_icon",NULL);
 		update_check_menu=linphone_gtk_get_ui_config_int("update_check_menu",0);
 		buttons_have_borders=linphone_gtk_get_ui_config_int("buttons_border",1);
@@ -1755,7 +1755,7 @@ static void linphone_gtk_configure_main_window(){
 	}
 	{
 		GtkButton *button=GTK_BUTTON(linphone_gtk_get_widget(w,"keypad"));
-		gtk_button_set_image(button,gtk_image_new_from_icon_name("dialer", GTK_ICON_SIZE_LARGE_TOOLBAR));
+		gtk_button_set_image(button,gtk_image_new_from_icon_name("linphone-dialer", GTK_ICON_SIZE_LARGE_TOOLBAR));
 	}
 	if (linphone_gtk_can_manage_accounts()) {
 		gtk_widget_show(linphone_gtk_get_widget(w,"assistant_item"));

@@ -204,11 +204,11 @@ static void account_email_changed(GtkEntry *entry, GtkWidget *w) {
 
 	if (g_regex_match_simple("^[a-z0-9]+([_\\.-][a-z0-9]+)*@([a-z0-9]+([\\.-][a-z0-9]+)*)+\\.[a-z]{2,}$", gtk_entry_get_text(email), 0, 0)) {
 		g_object_set_data(G_OBJECT(w),"is_email_correct",GINT_TO_POINTER(1));
-		gtk_image_set_from_icon_name(isEmailOk, "ok", GTK_ICON_SIZE_DND);
+		gtk_image_set_from_icon_name(isEmailOk, "linphone-ok", GTK_ICON_SIZE_DND);
 	}
 	else {
 		g_object_set_data(G_OBJECT(w),"is_email_correct",GINT_TO_POINTER(0));
-		gtk_image_set_from_icon_name(isEmailOk, "notok", GTK_ICON_SIZE_DND);
+		gtk_image_set_from_icon_name(isEmailOk, "linphone-notok", GTK_ICON_SIZE_DND);
 	}
 	gtk_assistant_set_page_complete(GTK_ASSISTANT(assistant),w,
 			is_account_information_correct(w)>0);
@@ -226,7 +226,7 @@ static void account_password_changed(GtkEntry *entry, GtkWidget *w) {
 	if (gtk_entry_get_text_length(password) >= PASSWORD_MIN_SIZE &&
 	g_ascii_strcasecmp(gtk_entry_get_text(password), gtk_entry_get_text(password_confirm)) == 0) {
 		g_object_set_data(G_OBJECT(w),"is_password_correct",GINT_TO_POINTER(1));
-		gtk_image_set_from_icon_name(isPasswordOk, "ok", GTK_ICON_SIZE_DND);
+		gtk_image_set_from_icon_name(isPasswordOk, "linphone-ok", GTK_ICON_SIZE_DND);
 		gtk_label_set_text(passwordError, "");
 	} else {
 		if (gtk_entry_get_text_length(password) < PASSWORD_MIN_SIZE) {
@@ -236,7 +236,7 @@ static void account_password_changed(GtkEntry *entry, GtkWidget *w) {
 			gtk_label_set_text(passwordError, "Passwords don't match !");
 		}
 		g_object_set_data(G_OBJECT(w),"is_password_correct",GINT_TO_POINTER(0));
-		gtk_image_set_from_icon_name(isPasswordOk, "notok", GTK_ICON_SIZE_DND);
+		gtk_image_set_from_icon_name(isPasswordOk, "linphone-notok", GTK_ICON_SIZE_DND);
 	}
 	gtk_assistant_set_page_complete(GTK_ASSISTANT(assistant),w,
 			is_account_information_correct(w)>0);
@@ -250,13 +250,13 @@ gboolean update_interface_with_username_availability(gpointer *w) {
 
 	if (account_existing == 0) {
 		g_object_set_data(G_OBJECT(w),"is_username_available",GINT_TO_POINTER(1));
-		gtk_image_set_from_icon_name(isUsernameOk, "ok", GTK_ICON_SIZE_DND);
+		gtk_image_set_from_icon_name(isUsernameOk, "linphone-ok", GTK_ICON_SIZE_DND);
 		gtk_label_set_text(usernameError, "");
 	}
 	else {
 		gtk_label_set_text(usernameError, "Username is already in use !");
 		g_object_set_data(G_OBJECT(w),"is_username_available",GINT_TO_POINTER(0));
-		gtk_image_set_from_icon_name(isUsernameOk, "notok", GTK_ICON_SIZE_DND);
+		gtk_image_set_from_icon_name(isUsernameOk, "linphone-notok", GTK_ICON_SIZE_DND);
 	}
 
 	gtk_assistant_set_page_complete(GTK_ASSISTANT(assistant),GTK_WIDGET(w),
@@ -301,7 +301,7 @@ static void account_username_changed(GtkEntry *entry, GtkWidget *w) {
 			gtk_label_set_text(usernameError, "Unauthorized username");
 		}
 		g_object_set_data(G_OBJECT(w),"is_username_available",GINT_TO_POINTER(0));
-		gtk_image_set_from_icon_name(isUsernameOk, "notok", GTK_ICON_SIZE_DND);
+		gtk_image_set_from_icon_name(isUsernameOk, "linphone-notok", GTK_ICON_SIZE_DND);
 
 		gtk_assistant_set_page_complete(GTK_ASSISTANT(assistant),w,
 				is_account_information_correct(w)>0);
@@ -312,11 +312,11 @@ static GtkWidget *create_account_information_page() {
 	GtkWidget *vbox=gtk_table_new(7, 3, FALSE);
 	GtkWidget *label=gtk_label_new(_("(*) Required fields"));
 	GtkWidget *labelUsername=gtk_label_new(_("Username: (*)"));
-	GtkWidget *isUsernameOk=gtk_image_new_from_icon_name("notok", GTK_ICON_SIZE_DND);
+	GtkWidget *isUsernameOk=gtk_image_new_from_icon_name("linphone-notok", GTK_ICON_SIZE_DND);
 	GtkWidget *labelPassword=gtk_label_new(_("Password: (*)"));
-	GtkWidget *isPasswordOk=gtk_image_new_from_icon_name("notok", GTK_ICON_SIZE_DND);
+	GtkWidget *isPasswordOk=gtk_image_new_from_icon_name("linphone-notok", GTK_ICON_SIZE_DND);
 	GtkWidget *labelEmail=gtk_label_new(_("Email: (*)"));
-	GtkWidget *isEmailOk=gtk_image_new_from_icon_name("notok", GTK_ICON_SIZE_DND);
+	GtkWidget *isEmailOk=gtk_image_new_from_icon_name("linphone-notok", GTK_ICON_SIZE_DND);
 	GtkWidget *labelPassword2=gtk_label_new(_("Confirm your password: (*)"));
 	GtkWidget *entryUsername=gtk_entry_new();
 	GtkWidget *entryPassword=gtk_entry_new();
