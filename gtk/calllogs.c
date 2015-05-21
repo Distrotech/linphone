@@ -23,6 +23,7 @@ static void fill_renderers(GtkTreeView *v){
 	GtkTreeViewColumn *c;
 	GtkCellRenderer *r;
 	r=gtk_cell_renderer_pixbuf_new();
+	g_object_set(G_OBJECT(r), "stock-size", GTK_ICON_SIZE_LARGE_TOOLBAR, NULL);
 
 	c=gtk_tree_view_column_new_with_attributes("icon",r,"icon-name",0,NULL);
 	gtk_tree_view_append_column (v,c);

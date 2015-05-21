@@ -668,6 +668,7 @@ static void linphone_gtk_friend_list_init(GtkWidget *friendlist){
 	gtk_tree_view_column_add_attribute  (column,renderer,
                                                          "icon-name",
                                                          FRIEND_PRESENCE_IMG);
+	g_object_set(G_OBJECT(renderer), "stock-size", GTK_ICON_SIZE_LARGE_TOOLBAR, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (friendlist), column);
 
 	renderer = gtk_cell_renderer_text_new ();
@@ -683,11 +684,13 @@ static void linphone_gtk_friend_list_init(GtkWidget *friendlist){
 
 	/* Call column*/
 	renderer = gtk_cell_renderer_pixbuf_new();
+	g_object_set(G_OBJECT(renderer), "stock-size", GTK_ICON_SIZE_LARGE_TOOLBAR, NULL);
 	column = gtk_tree_view_column_new_with_attributes (_("Call"),renderer,"icon-name",FRIEND_CALL,NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (friendlist), column);
 
 	/* Chat column*/
 	renderer = gtk_cell_renderer_pixbuf_new();
+	g_object_set(G_OBJECT(renderer), "stock-size", GTK_ICON_SIZE_LARGE_TOOLBAR, NULL);
 	column = gtk_tree_view_column_new_with_attributes (_("Chat"),renderer,"icon-name",FRIEND_CHAT,NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (friendlist), column);
 
