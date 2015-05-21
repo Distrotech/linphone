@@ -2047,6 +2047,7 @@ int main(int argc, char *argv[]){
 	const char *db_file;
 	GError *error=NULL;
 	const char *tmp;
+	char *xdg_data_dirs;
 
 #if !GLIB_CHECK_VERSION(2, 31, 0)
 	g_thread_init(NULL);
@@ -2063,6 +2064,11 @@ int main(int argc, char *argv[]){
 	/*for pulseaudio:*/
 	g_setenv("PULSE_PROP_media.role", "phone", TRUE);
 #endif
+	
+	tmp = g_getenv("XDG_DATA_DIRS");
+	xdg_data_dirs = g_strdup_printf("%s:%s", tmp, PACKAGE_DATA_DIR);
+	g_setenv("XDG_DATA_DIRS", xdg_data_dirs, TRUE);
+	g_free(xdg_data_dirs);
 
 	lang=linphone_gtk_get_lang(config_file);
 	if (lang == NULL || lang[0]=='\0'){
