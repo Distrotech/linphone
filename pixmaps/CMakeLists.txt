@@ -21,36 +21,9 @@
 ############################################################################
 
 set(PIXMAPS
-	active_chat.png
-	addcall-green.png
-	call.png
-	call_status_incoming.png
-	call_status_outgoing.png
-	chat.png
-	composing_active_chat.png
-	composing_chat.png
-	contact-orange.png
-	contact_starred.png
-	contact_unstarred.png
-	dialer.png
-	hold_off.png
-	hold_on.png
 	linphone-banner.png
 	linphone.icns
 	linphone.png
-	mic_active.png
-	mic_muted.png
-	notok.png
-	ok.png
-	speaker.png
-	startcall-green.png
-	startcall-small.png
-	status-green.png
-	status-offline.png
-	status-orange.png
-	status-red.png
-	stopcall-red.png
-	stopcall-small.png
 )
 
 install(FILES ${PIXMAPS}
@@ -58,7 +31,8 @@ install(FILES ${PIXMAPS}
 	PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 )
 
-install(FILES linphone.png
-	DESTINATION ${PACKAGE_DATA_DIR}/icons/hicolor/48x48/apps
-	PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+install(DIRECTORY hicolor
+	DESTINATION ${PACKAGE_DATA_DIR}/icons
+	FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+	DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )
