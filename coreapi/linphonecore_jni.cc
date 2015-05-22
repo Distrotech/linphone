@@ -1049,12 +1049,16 @@ public:
 		}
 		LinphoneCoreVTable *table = linphone_core_get_current_vtable(lc);
 		LinphoneCoreData* lcData = (LinphoneCoreData*)linphone_core_v_table_get_user_data(table);
+		jobject jcontent = content ? create_java_linphone_content(env, content) : NULL;
 		env->CallVoidMethod(lcData->listener,
 				lcData->fileTransferProgressIndicationId,
 				lcData->core,
 				(jmsg = getChatMessage(env, message)),
-				content ? create_java_linphone_content(env, content) : NULL,
+				jcontent,
 				progress);
+		if (jcontent) {
+			env->DeleteLocalRef(jcontent);
+		}
 	}
 
 	static void fileTransferSend(LinphoneCore *lc, LinphoneChatMessage *message, const LinphoneContent* content, char* buff, size_t* size) {
@@ -1068,13 +1072,21 @@ public:
 		}
 		LinphoneCoreVTable *table = linphone_core_get_current_vtable(lc);
 		LinphoneCoreData* lcData = (LinphoneCoreData*)linphone_core_v_table_get_user_data(table);
+		jobject jcontent = content ? create_java_linphone_content(env, content) : NULL;
+		jobject jbuffer = buff ? env->NewDirectByteBuffer(buff, asking) : NULL;
 		*size = env->CallIntMethod(lcData->listener,
 				lcData->fileTransferSendId,
 				lcData->core,
 				(jmsg = getChatMessage(env, message)),
-				content ? create_java_linphone_content(env, content) : NULL,
-				buff ? env->NewDirectByteBuffer(buff, asking) : NULL,
+				jcontent,
+				jbuffer,
 				asking);
+		if (jcontent) {
+			env->DeleteLocalRef(jcontent);
+		}
+		if (jbuffer) {
+			env->DeleteLocalRef(jbuffer);
+		}
 	}
 
 	static void fileTransferRecv(LinphoneCore *lc, LinphoneChatMessage *message, const LinphoneContent* content, const char* buff, size_t size) {
@@ -1090,14 +1102,18 @@ public:
 
 		jbyteArray jbytes = env->NewByteArray(size);
 		env->SetByteArrayRegion(jbytes, 0, size, (jbyte*)buff);
+		jobject jcontent = content ? create_java_linphone_content(env, content) : NULL;
 
 		env->CallVoidMethod(lcData->listener,
 				lcData->fileTransferRecvId,
 				lcData->core,
 				(jmsg = getChatMessage(env, message)),
-				content ? create_java_linphone_content(env, content) : NULL,
+				jcontent,
 				jbytes,
 				size);
+		if (jcontent) {
+			env->DeleteLocalRef(jcontent);
+		}
 	}
 	static void logCollectionUploadProgressIndication(LinphoneCore *lc, size_t offset, size_t total) {
 		JNIEnv *env = 0;
@@ -3316,14 +3332,16 @@ static void message_state_changed(LinphoneChatMessage* msg, LinphoneChatMessageS
 	jclass clazz = (jclass) env->GetObjectClass(listener);
 	jmethodID method = env->GetMethodID(clazz, "onLinphoneChatMessageStateChanged","(Lorg/linphone/core/LinphoneChatMessage;Lorg/linphone/core/LinphoneChatMessage$State;)V");
 	jobject jmessage = getChatMessage(env, msg);
-
-	jclass chatMessageStateClass = (jclass)env->NewGlobalRef(env->FindClass("org/linphone/core/LinphoneChatMessage$State"));
+	env->DeleteLocalRef(clazz);
+	
+	jclass chatMessageStateClass = (jclass)env->FindClass("org/linphone/core/LinphoneChatMessage$State");
 	jmethodID chatMessageStateFromIntId = env->GetStaticMethodID(chatMessageStateClass, "fromInt","(I)Lorg/linphone/core/LinphoneChatMessage$State;");
 	env->CallVoidMethod(listener, method, jmessage, env->CallStaticObjectMethod(chatMessageStateClass, chatMessageStateFromIntId, (jint)state));
 
 	if (state == LinphoneChatMessageStateDelivered || state == LinphoneChatMessageStateNotDelivered) {
 		env->DeleteGlobalRef(listener);
 	}
+	env->DeleteLocalRef(chatMessageStateClass);
 }
 
 static void file_transfer_progress_indication(LinphoneChatMessage *msg, const LinphoneContent* content, size_t offset, size_t total) {
@@ -3337,8 +3355,13 @@ static void file_transfer_progress_indication(LinphoneChatMessage *msg, const Li
 	jobject listener = (jobject) msg->cb_ud;
 	jclass clazz = (jclass) env->GetObjectClass(listener);
 	jmethodID method = env->GetMethodID(clazz, "onLinphoneChatMessageFileTransferProgressChanged", "(Lorg/linphone/core/LinphoneChatMessage;Lorg/linphone/core/LinphoneContent;II)V");
+	env->DeleteLocalRef(clazz);
 	jobject jmessage = getChatMessage(env, msg);
-	env->CallVoidMethod(listener, method, jmessage, content ? create_java_linphone_content(env, content) : NULL, offset, total);
+	jobject jcontent = content ? create_java_linphone_content(env, content) : NULL;
+	env->CallVoidMethod(listener, method, jmessage, jcontent, offset, total);
+	if (jcontent) {
+		env->DeleteLocalRef(jcontent);
+	}
 }
 
 static void file_transfer_recv(LinphoneChatMessage *msg, const LinphoneContent* content, const LinphoneBuffer *buffer) {
@@ -3352,8 +3375,18 @@ static void file_transfer_recv(LinphoneChatMessage *msg, const LinphoneContent* 
 	jobject listener = (jobject) msg->cb_ud;
 	jclass clazz = (jclass) env->GetObjectClass(listener);
 	jmethodID method = env->GetMethodID(clazz, "onLinphoneChatMessageFileTransferReceived", "(Lorg/linphone/core/LinphoneChatMessage;Lorg/linphone/core/LinphoneContent;Lorg/linphone/core/LinphoneBuffer;)V");
+	env->DeleteLocalRef(clazz);
+	
 	jobject jmessage = getChatMessage(env, msg);
-	env->CallVoidMethod(listener, method, jmessage, content ? create_java_linphone_content(env, content) : NULL, buffer ? create_java_linphone_buffer(env, buffer) : NULL);
+	jobject jbuffer = buffer ? create_java_linphone_buffer(env, buffer) : NULL;
+	jobject jcontent = content ? create_java_linphone_content(env, content) : NULL;
+	env->CallVoidMethod(listener, method, jmessage, jcontent, jbuffer);
+	if (jbuffer) {
+		env->DeleteLocalRef(jbuffer);
+	}
+	if (jcontent) {
+		env->DeleteLocalRef(jcontent);
+	}
 }
 
 static LinphoneBuffer* file_transfer_send(LinphoneChatMessage *msg,  const LinphoneContent* content, size_t offset, size_t size) {
@@ -3368,11 +3401,18 @@ static LinphoneBuffer* file_transfer_send(LinphoneChatMessage *msg,  const Linph
 	jobject listener = (jobject) msg->cb_ud;
 	jclass clazz = (jclass) env->GetObjectClass(listener);
 	jmethodID method = env->GetMethodID(clazz, "onLinphoneChatMessageFileTransferSent","(Lorg/linphone/core/LinphoneChatMessage;Lorg/linphone/core/LinphoneContent;IILorg/linphone/core/LinphoneBuffer;)V");
+	env->DeleteLocalRef(clazz);
+	
 	jobject jmessage = getChatMessage(env, msg);
 	jobject jbuffer = create_java_linphone_buffer(env, NULL);
-	env->CallVoidMethod(listener, method, jmessage, content ? create_java_linphone_content(env, content) : NULL, offset, size, jbuffer);
+	jobject jcontent = content ? create_java_linphone_content(env, content) : NULL;
+	env->CallVoidMethod(listener, method, jmessage, jcontent, offset, size, jbuffer);
+	if (jcontent) {
+		env->DeleteLocalRef(jcontent);
+	}
 	
 	buffer = create_c_linphone_buffer_from_java_linphone_buffer(env, jbuffer);
+	env->DeleteLocalRef(jbuffer);
 	return buffer;
 }
 
@@ -3446,6 +3486,7 @@ static void chat_room_impl_callback(LinphoneChatMessage* msg, LinphoneChatMessag
 	if (state == LinphoneChatMessageStateDelivered || state == LinphoneChatMessageStateNotDelivered) {
 		env->DeleteGlobalRef(listener);
 		env->DeleteGlobalRef(jmessage);
+		env->DeleteGlobalRef(chatMessageStateClass);
 		linphone_chat_message_set_user_data(msg,NULL);
 	}
 }
@@ -3629,6 +3670,19 @@ extern "C" void Java_org_linphone_core_LinphoneCallParamsImpl_enableVideo(JNIEnv
 
 extern "C" jboolean Java_org_linphone_core_LinphoneCallParamsImpl_getVideoEnabled(JNIEnv *env, jobject thiz, jlong lcp){
 	return (jboolean)linphone_call_params_video_enabled((LinphoneCallParams*)lcp);
+}
+
+extern "C" void Java_org_linphone_core_LinphoneCallParamsImpl_enableVideoMulticast(JNIEnv *env, jobject thiz, jlong lcp, jboolean b){
+	linphone_call_params_enable_video_multicast((LinphoneCallParams*)lcp, b);
+}
+extern "C" jboolean Java_org_linphone_core_LinphoneCallParamsImpl_videoMulticastEnabled(JNIEnv *env, jobject thiz, jlong lcp){
+	return (jboolean)linphone_call_params_video_multicast_enabled((LinphoneCallParams*)lcp);
+}
+extern "C" void Java_org_linphone_core_LinphoneCallParamsImpl_enableAudioMulticast(JNIEnv *env, jobject thiz, jlong lcp, jboolean b){
+	linphone_call_params_enable_audio_multicast((LinphoneCallParams*)lcp, b);
+}
+extern "C" jboolean Java_org_linphone_core_LinphoneCallParamsImpl_audioMulticastEnabled(JNIEnv *env, jobject thiz, jlong lcp){
+	return (jboolean)linphone_call_params_audio_multicast_enabled((LinphoneCallParams*)lcp);
 }
 
 extern "C" jboolean Java_org_linphone_core_LinphoneCallParamsImpl_localConferenceMode(JNIEnv *env, jobject thiz, jlong lcp){
@@ -4160,6 +4214,7 @@ extern "C" void Java_org_linphone_core_LinphoneCoreImpl_tunnelAddServer(JNIEnv *
 		linphone_tunnel_config_set_delay(tunnelConfig, env->CallIntMethod(config, getDelayMethod));
 		linphone_tunnel_add_server(tunnel, tunnelConfig);
 		env->ReleaseStringUTFChars(hostString, host);
+		env->DeleteLocalRef(TunnelConfigClass);
 	} else {
 		ms_error("LinphoneCore.tunnelAddServer(): tunnel feature is not enabled");
 	}
@@ -4189,6 +4244,7 @@ extern "C" jobjectArray Java_org_linphone_core_LinphoneCoreImpl_tunnelGetServers
 			env->CallVoidMethod(elt, setRemoteUdpMirrorPortMethod, linphone_tunnel_config_get_remote_udp_mirror_port(conf));
 			env->CallVoidMethod(elt, setDelayMethod, linphone_tunnel_config_get_delay(conf));
 			env->SetObjectArrayElement(tunnelConfigArray, i, elt);
+			env->DeleteLocalRef(TunnelConfigClass);
 		}
 	}
 	return tunnelConfigArray;
@@ -4620,7 +4676,7 @@ static jobject create_java_linphone_content(JNIEnv *env, const LinphoneContent *
 	jint jsize = 0;
 	const LinphoneContentPrivate *content = LINPHONE_CONTENT_PRIVATE(icontent);
 
-	contentClass = (jclass)env->NewGlobalRef(env->FindClass("org/linphone/core/LinphoneContentImpl"));
+	contentClass = (jclass)env->FindClass("org/linphone/core/LinphoneContentImpl");
 	ctor = env->GetMethodID(contentClass,"<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[BLjava/lang/String;I)V");
 
 	jtype = env->NewStringUTF(content->type);
@@ -4635,7 +4691,17 @@ static jobject create_java_linphone_content(JNIEnv *env, const LinphoneContent *
 	}
 
 	jobject jobj = env->NewObject(contentClass, ctor, jname, jtype, jsubtype, jdata, jencoding, jsize);
-	env->DeleteGlobalRef(contentClass);
+	
+	env->DeleteLocalRef(contentClass);
+	env->DeleteLocalRef(jtype);
+	env->DeleteLocalRef(jsubtype);
+	if (jencoding) {
+		env->DeleteLocalRef(jencoding);
+	}
+	if (jname) {
+		env->DeleteLocalRef(jname);
+	}
+	
 	return jobj;
 }
 
@@ -4645,7 +4711,7 @@ static jobject create_java_linphone_buffer(JNIEnv *env, const LinphoneBuffer *bu
 	jbyteArray jdata = NULL;
 	jint jsize = 0;
 
-	bufferClass = (jclass)env->NewGlobalRef(env->FindClass("org/linphone/core/LinphoneBufferImpl"));
+	bufferClass = (jclass)env->FindClass("org/linphone/core/LinphoneBufferImpl");
 	ctor = env->GetMethodID(bufferClass,"<init>", "([BI)V");
 	jsize = buffer ? (jint) buffer->size : 0;
 
@@ -4655,32 +4721,32 @@ static jobject create_java_linphone_buffer(JNIEnv *env, const LinphoneBuffer *bu
 	}
 
 	jobject jobj = env->NewObject(bufferClass, ctor, jdata, jsize);
-	env->DeleteGlobalRef(bufferClass);
+	env->DeleteLocalRef(bufferClass);
 	return jobj;
 }
 
 static LinphoneBuffer* create_c_linphone_buffer_from_java_linphone_buffer(JNIEnv *env, jobject jbuffer) {
 	jclass bufferClass;
 	jmethodID getSizeMethod, getDataMethod;
-	LinphoneBuffer *buffer;
+	LinphoneBuffer *buffer = NULL;
 	jint jsize;
 	jobject jdata;
 	jbyteArray jcontent;
 	uint8_t *content;
 
-	bufferClass = (jclass)env->NewGlobalRef(env->FindClass("org/linphone/core/LinphoneBufferImpl"));
+	bufferClass = (jclass)env->FindClass("org/linphone/core/LinphoneBufferImpl");
 	getSizeMethod = env->GetMethodID(bufferClass, "getSize", "()I");
 	getDataMethod = env->GetMethodID(bufferClass, "getContent", "()[B");
 	
 	jsize = env->CallIntMethod(jbuffer, getSizeMethod);
 	jdata = env->CallObjectMethod(jbuffer, getDataMethod);
 	jcontent = reinterpret_cast<jbyteArray>(jdata);
-	content = (uint8_t*)env->GetByteArrayElements(jcontent, NULL);
-	
-	buffer = linphone_buffer_new_from_data(content, (size_t)jsize);
-	
-	env->ReleaseByteArrayElements(jcontent, (jbyte*)content, JNI_ABORT);
-	env->DeleteGlobalRef(bufferClass);
+	if (jcontent != NULL) {
+		content = (uint8_t*)env->GetByteArrayElements(jcontent, NULL);
+		buffer = linphone_buffer_new_from_data(content, (size_t)jsize);
+		env->ReleaseByteArrayElements(jcontent, (jbyte*)content, JNI_ABORT);
+	}
+	env->DeleteLocalRef(bufferClass);
 	
 	return buffer;
 }

@@ -561,6 +561,7 @@ LINPHONE_PUBLIC float linphone_call_stats_get_sender_loss_rate(const LinphoneCal
 LINPHONE_PUBLIC float linphone_call_stats_get_receiver_loss_rate(const LinphoneCallStats *stats);
 LINPHONE_PUBLIC float linphone_call_stats_get_sender_interarrival_jitter(const LinphoneCallStats *stats, LinphoneCall *call);
 LINPHONE_PUBLIC float linphone_call_stats_get_receiver_interarrival_jitter(const LinphoneCallStats *stats, LinphoneCall *call);
+LINPHONE_PUBLIC rtp_stats_t linphone_call_stats_get_rtp_stats(const LinphoneCallStats *statss, LinphoneCall *call);
 LINPHONE_PUBLIC uint64_t linphone_call_stats_get_late_packets_cumulative_number(const LinphoneCallStats *stats, LinphoneCall *call);
 LINPHONE_PUBLIC float linphone_call_stats_get_download_bandwidth(const LinphoneCallStats *stats);
 LINPHONE_PUBLIC float linphone_call_stats_get_upload_bandwidth(const LinphoneCallStats *stats);
@@ -1076,9 +1077,10 @@ LINPHONE_PUBLIC bool_t linphone_proxy_config_is_phone_number(LinphoneProxyConfig
 
 /**
  * Normalize a human readable phone number into a basic string. 888-444-222 becomes 888444222
- * or +33888444222 depending on the #LinphoneProxyConfig argument. This function will always
- * generate a normalized username; if input is not a phone number, output will be a copy of input.
- * @param proxy #LinphoneProxyConfig object containing country code and/or escape symbol.
+ * or +33888444222 depending on the #LinphoneProxyConfig object. However this argument is OPTIONNAL
+ * and if not provided, a default one will be used.
+ * This function will always generate a normalized username; if input is not a phone number, output will be a copy of input.
+ * @param proxy #LinphoneProxyConfig object containing country code and/or escape symbol. If NULL passed, will use default configuration.
  * @param username the string to parse
  * @param result the newly normalized number
  * @param result_len the size of the normalized number \a result
@@ -2234,6 +2236,17 @@ LINPHONE_PUBLIC	LinphoneCallParams *linphone_core_create_default_call_parameters
 LINPHONE_PUBLIC LinphoneCallParams *linphone_core_create_call_params(LinphoneCore *lc, LinphoneCall *call);
 
 LINPHONE_PUBLIC	LinphoneCall *linphone_core_get_call_by_remote_address(LinphoneCore *lc, const char *remote_address);
+
+/**
+ * Get the call with the remote_address specified
+ * @param lc
+ * @param remote_address
+ * @return the LinphoneCall of the call if found
+ *
+ * @ingroup call_control
+ */
+LINPHONE_PUBLIC	LinphoneCall *linphone_core_get_call_by_remote_address2(LinphoneCore *lc, LinphoneAddress *remote_address);
+
 
 /**
  * Send the specified dtmf.

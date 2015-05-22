@@ -29,9 +29,9 @@
 #include <gtk/gtk.h>
 #endif
 
- static bool_t liblinphone_tester_ipv6_enabled=FALSE;
- static int liblinphone_tester_keep_accounts_flag = 0;
- static int manager_count = 0;
+static bool_t liblinphone_tester_ipv6_enabled=FALSE;
+static int liblinphone_tester_keep_accounts_flag = 0;
+static int manager_count = 0;
 
 const char* test_domain="sipopen.example.org";
 const char* auth_domain="sip.example.org";
@@ -67,15 +67,15 @@ void liblinphone_tester_enable_ipv6(bool_t enabled){
 
 LinphoneAddress * create_linphone_address(const char * domain) {
 	LinphoneAddress *addr = linphone_address_new(NULL);
-	CU_ASSERT_PTR_NOT_NULL_FATAL(addr);
+	BC_ASSERT_PTR_NOT_NULL_FATAL(addr);
 	linphone_address_set_username(addr,test_username);
-	CU_ASSERT_STRING_EQUAL(test_username,linphone_address_get_username(addr));
+	BC_ASSERT_STRING_EQUAL(test_username,linphone_address_get_username(addr));
 	if (!domain) domain= test_route;
 	linphone_address_set_domain(addr,domain);
-	CU_ASSERT_STRING_EQUAL(domain,linphone_address_get_domain(addr));
+	BC_ASSERT_STRING_EQUAL(domain,linphone_address_get_domain(addr));
 	linphone_address_set_display_name(addr, NULL);
 	linphone_address_set_display_name(addr, "Mr Tester");
-	CU_ASSERT_STRING_EQUAL("Mr Tester",linphone_address_get_display_name(addr));
+	BC_ASSERT_STRING_EQUAL("Mr Tester",linphone_address_get_display_name(addr));
 	return addr;
 }
 
@@ -107,7 +107,7 @@ LinphoneCore* configure_lc_from(LinphoneCoreVTable* v_table, const char* path, c
 
 	if (file){
 		filepath = ms_strdup_printf("%s/%s", path, file);
-		CU_ASSERT_TRUE_FATAL(ortp_file_exist(filepath)==0);
+		BC_ASSERT_TRUE_FATAL(ortp_file_exist(filepath)==0);
 		config = lp_config_new_with_factory(NULL,filepath);
 	}
 
@@ -224,6 +224,12 @@ LinphoneCoreManager *get_manager(LinphoneCore *lc){
 	return manager;
 }
 
+bool_t transport_supported(LinphoneCore *lc, LinphoneTransportType transport) {
+	bool_t supported = linphone_core_sip_transport_supported(lc, transport);
+	if (!supported) ms_warning("TLS transport not supported, falling back to TCP if possible otherwise skipping test.");
+	return supported;
+}
+
 LinphoneCoreManager* linphone_core_manager_init(const char* rc_file) {
 	LinphoneCoreManager* mgr= ms_new0(LinphoneCoreManager,1);
 	char *rc_path = NULL;
@@ -297,7 +303,7 @@ void linphone_core_manager_start(LinphoneCoreManager *mgr, const char* rc_file, 
 	LinphoneProxyConfig* proxy;
 	int proxy_count;
 
-	/*CU_ASSERT_EQUAL(ms_list_size(linphone_core_get_proxy_config_list(lc)),proxy_count);*/
+	/*BC_ASSERT_EQUAL(ms_list_size(linphone_core_get_proxy_config_list(lc)),proxy_count, int, "%d");*/
 	if (check_for_proxies && rc_file) /**/
 		proxy_count=ms_list_size(linphone_core_get_proxy_config_list(mgr->lc));
 	else
@@ -311,7 +317,7 @@ void linphone_core_manager_start(LinphoneCoreManager *mgr, const char* rc_file, 
 			ms_error("Did not register after %d seconds for %d proxies", REGISTER_TIMEOUT, proxy_count);
 		}
 	}
-	CU_ASSERT_EQUAL(mgr->stat.number_of_LinphoneRegistrationOk,proxy_count);
+	BC_ASSERT_EQUAL(mgr->stat.number_of_LinphoneRegistrationOk,proxy_count, int, "%d");
 	enable_codec(mgr->lc,"PCMU",8000);
 
 	linphone_core_get_default_proxy(mgr->lc,&proxy);
@@ -402,11 +408,29 @@ void liblinphone_tester_add_suites() {
 	bc_tester_add_suite(&remote_provisioning_test_suite);
 	bc_tester_add_suite(&quality_reporting_test_suite);
 	bc_tester_add_suite(&log_collection_test_suite);
-	bc_tester_add_suite(&transport_test_suite);
+	bc_tester_add_suite(&tunnel_test_suite);
 	bc_tester_add_suite(&player_test_suite);
 	bc_tester_add_suite(&dtmf_test_suite);
 #if defined(VIDEO_ENABLED) && defined(HAVE_GTK)
 	bc_tester_add_suite(&video_test_suite);
 #endif
 	bc_tester_add_suite(&multicast_call_test_suite);
+	bc_tester_add_suite(&proxy_config_test_suite);
+}
+
+static bool_t linphone_core_manager_get_max_audio_bw_base(const int array[],int array_size) {
+	int i,result=0;
+	for (i=0; i<array_size; i++) {
+		result = MAX(result,array[i]);
+	}
+	return result;
+}
+
+int linphone_core_manager_get_max_audio_down_bw(const LinphoneCoreManager *mgr) {
+	return linphone_core_manager_get_max_audio_bw_base(mgr->stat.audio_download_bandwidth
+			, sizeof(mgr->stat.audio_download_bandwidth)/sizeof(int));
+}
+int linphone_core_manager_get_max_audio_up_bw(const LinphoneCoreManager *mgr) {
+	return linphone_core_manager_get_max_audio_bw_base(mgr->stat.audio_upload_bandwidth
+			, sizeof(mgr->stat.audio_upload_bandwidth)/sizeof(int));
 }

@@ -44,14 +44,14 @@ extern test_suite_t stun_test_suite;
 extern test_suite_t remote_provisioning_test_suite;
 extern test_suite_t quality_reporting_test_suite;
 extern test_suite_t log_collection_test_suite;
-extern test_suite_t transport_test_suite;
+extern test_suite_t tunnel_test_suite;
 extern test_suite_t player_test_suite;
 extern test_suite_t dtmf_test_suite;
 extern test_suite_t offeranswer_test_suite;
 extern test_suite_t video_test_suite;
 extern test_suite_t multicast_call_test_suite;
 extern test_suite_t multi_call_test_suite;
-
+extern test_suite_t proxy_config_test_suite;
 
 extern int liblinphone_tester_ipv6_available(void);
 
@@ -212,12 +212,17 @@ typedef struct _stats {
 	int number_of_LinphoneCoreLogCollectionUploadStateDelivered;
 	int number_of_LinphoneCoreLogCollectionUploadStateNotDelivered;
 	int number_of_LinphoneCoreLogCollectionUploadStateInProgress;
-	int audio_download_bandwidth;
-	int audio_upload_bandwidth;
-	int video_download_bandwidth;
-	int video_upload_bandwidth;
+	int audio_download_bandwidth[3];
+	int *current_audio_download_bandwidth;
+	int audio_upload_bandwidth[3];
+	int *current_audio_upload_bandwidth;
+
+	int video_download_bandwidth[3];
+	int video_upload_bandwidth[3];
+	int current_bandwidth_index;
 
 }stats;
+
 
 typedef struct _LinphoneCoreManager {
 	LinphoneCoreVTable v_table;
@@ -283,11 +288,12 @@ bool_t call_with_test_params(LinphoneCoreManager* caller_mgr
 				,const LinphoneCallTestParams *callee_test_params);
 
 bool_t call(LinphoneCoreManager* caller_mgr,LinphoneCoreManager* callee_mgr);
-bool_t add_video(LinphoneCoreManager* caller,LinphoneCoreManager* callee);
+bool_t add_video(LinphoneCoreManager* caller,LinphoneCoreManager* callee, bool_t change_video_policy);
 void end_call(LinphoneCoreManager *m1, LinphoneCoreManager *m2);
 void disable_all_audio_codecs_except_one(LinphoneCore *lc, const char *mime, int rate);
 void disable_all_video_codecs_except_one(LinphoneCore *lc, const char *mime);
 stats * get_stats(LinphoneCore *lc);
+bool_t transport_supported(LinphoneCore *lc, LinphoneTransportType transport);
 LinphoneCoreManager *get_manager(LinphoneCore *lc);
 const char *liblinphone_tester_get_subscribe_content(void);
 const char *liblinphone_tester_get_notify_content(void);
@@ -308,5 +314,14 @@ void call_base(LinphoneMediaEncryption mode, bool_t enable_video,bool_t enable_r
 bool_t call_with_caller_params(LinphoneCoreManager* caller_mgr,LinphoneCoreManager* callee_mgr, const LinphoneCallParams *params);
 bool_t pause_call_1(LinphoneCoreManager* mgr_1,LinphoneCall* call_1,LinphoneCoreManager* mgr_2,LinphoneCall* call_2);
 bool_t compare_files(const char *path1, const char *path2);
+void check_media_direction(LinphoneCoreManager* mgr, LinphoneCall *call, MSList* lcs,LinphoneMediaDirection audio_dir, LinphoneMediaDirection video_dir);
+
+static const int audio_cmp_max_shift=20;
+
+/*
+ * this function return max value in the last 3 seconds*/
+int linphone_core_manager_get_max_audio_down_bw(const LinphoneCoreManager *mgr);
+int linphone_core_manager_get_max_audio_up_bw(const LinphoneCoreManager *mgr);
+
 #endif /* LIBLINPHONE_TESTER_H_ */
 

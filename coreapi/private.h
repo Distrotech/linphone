@@ -112,7 +112,8 @@ struct _LinphoneCallParams{
 	LinphoneMediaDirection video_dir;
 	bool_t video_declined; /*use to keep  traces of declined video to avoid to re-offer video in case of automatic RE-INVITE*/
 	bool_t internal_call_update; /*use mark that call update was requested internally (might be by ice)*/
-
+	bool_t video_multicast_enabled;
+	bool_t audio_multicast_enabled;
 };
 
 BELLE_SIP_DECLARE_VPTR(LinphoneCallParams);
@@ -205,8 +206,6 @@ typedef struct StunCandidate{
 
 typedef struct _PortConfig{
 	char multicast_ip[LINPHONE_IPADDR_SIZE];
-	int mcast_rtp_port;
-	int mcast_rtcp_port;
 	int rtp_port;
 	int rtcp_port;
 }PortConfig;
@@ -227,7 +226,6 @@ struct _LinphoneCall{
 	LinphoneAddress *me; /*Either from or to based on call dir*/
 	SalOp *op;
 	SalOp *ping_op;
-	char sig_localip[LINPHONE_IPADDR_SIZE]; /* our best guess for local sig ipaddress for this call */
 	char media_localip[LINPHONE_IPADDR_SIZE]; /* our best guess for local media ipaddress for this call */
 	LinphoneCallState state;
 	LinphoneCallState prevstate;
@@ -415,8 +413,6 @@ void linphone_core_get_local_ip(LinphoneCore *lc, int af, const char *dest, char
 
 LinphoneProxyConfig *linphone_proxy_config_new_from_config_file(LinphoneCore *lc, int index);
 void linphone_proxy_config_write_to_config_file(struct _LpConfig* config,LinphoneProxyConfig *obj, int index);
-
-bool_t linphone_proxy_config_normalize_number(LinphoneProxyConfig *cfg, const char *username, char *result, size_t result_len);
 
 void linphone_core_message_received(LinphoneCore *lc, SalOp *op, const SalMessage *msg);
 void linphone_core_is_composing_received(LinphoneCore *lc, SalOp *op, const SalIsComposing *is_composing);
@@ -781,7 +777,7 @@ struct _LinphoneCore
 	char* user_certificates_path;
 	LinphoneVideoPolicy video_policy;
 	time_t network_last_check;
-	
+
 	bool_t use_files;
 	bool_t apply_nat_settings;
 	bool_t initial_subscribes_sent;
@@ -791,7 +787,7 @@ struct _LinphoneCore
 	bool_t auto_net_state_mon;
 	bool_t network_reachable;
 	bool_t network_reachable_to_be_notified; /*set to true when state must be notified in next iterate*/
-	
+
 	bool_t use_preview_window;
 	bool_t network_last_status;
 	bool_t ringstream_autorelease;
@@ -862,6 +858,7 @@ void linphone_core_set_state(LinphoneCore *lc, LinphoneGlobalState gstate, const
 void linphone_call_make_local_media_description(LinphoneCore *lc, LinphoneCall *call);
 void linphone_call_make_local_media_description_with_params(LinphoneCore *lc, LinphoneCall *call, LinphoneCallParams *params);
 void linphone_call_increment_local_media_description(LinphoneCall *call);
+void linphone_call_fill_media_multicast_addr(LinphoneCall *call);
 void linphone_core_update_streams(LinphoneCore *lc, LinphoneCall *call, SalMediaDescription *new_md);
 
 bool_t linphone_core_is_payload_type_usable_for_bandwidth(LinphoneCore *lc, const PayloadType *pt,  int bandwidth_limit);

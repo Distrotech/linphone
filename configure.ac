@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([linphone],[3.8.1],[linphone-developers@nongnu.org])
+AC_INIT([linphone],[3.8.2],[linphone-developers@nongnu.org])
 AC_CANONICAL_SYSTEM
 AC_CONFIG_SRCDIR([coreapi/linphonecore.c])
 
@@ -17,7 +17,7 @@ if test "$LINPHONE_EXTRA_VERSION" != "" ;then
 	LINPHONE_VERSION=$LINPHONE_VERSION.${LINPHONE_EXTRA_VERSION}
 fi
 
-LIBLINPHONE_SO_CURRENT=6 dnl increment this number when you add/change/remove an interface
+LIBLINPHONE_SO_CURRENT=7 dnl increment this number when you add/change/remove an interface
 LIBLINPHONE_SO_REVISION=0 dnl increment this number when you change source code, without changing interfaces; set to 0 when incrementing CURRENT
 LIBLINPHONE_SO_AGE=0 dnl increment this number when you add an interface, set to 0 if you remove an interface
 
@@ -347,9 +347,13 @@ if test "$gtk_ui" = "true" ; then
 		fi
 		AC_DEFINE([HAVE_GTK_OSX],[1],[Defined when gtk osx is used])
 	fi
+
+	PKG_CHECK_MODULES(LIBGLIB, [glib-2.0 >= 2.26.0], [build_status_notifier=yes], [build_status_notifier=no])
 else
 	echo "GTK interface compilation is disabled."
 fi
+
+AM_CONDITIONAL([BUILD_STATUS_NOTIFIER], [test "$build_status_notifier" = "yes"])
 
 AC_ARG_ENABLE(notify,
 	[AS_HELP_STRING([--enable-notify=[yes/no]], [Enable libnotify support (default=yes)])],
@@ -1015,12 +1019,12 @@ dnl ##################################################
 dnl # Check for doxygen
 dnl ##################################################
 
-AC_ARG_ENABLE(doxygen,
-	[AS_HELP_STRING([--disable-documentation], [Disable documentation generation using doxygen (default=no)])],
+AC_ARG_ENABLE(documentation,
+	[AS_HELP_STRING([--enable-documentation], [Documentation generation using doxygen (default=yes)])],
 	[case "${enableval}" in
 		yes)	documentation_enabled=yes;;
 		no)		documentation_enabled=no;;
-		*)		AC_MSG_ERROR("Bad value for --disable-documentation");;
+		*)		AC_MSG_ERROR("Bad value for --enable-documentation");;
 	esac],
 	[documentation_enabled=yes]
 )
@@ -1037,6 +1041,7 @@ AC_CONFIG_FILES([
 	build/Makefile
 	build/macos/Makefile
 	build/macos/Info-linphone.plist
+	build/macos/pkg-distribution.xml
 	m4/Makefile
 	po/Makefile.in
 	pixmaps/Makefile
@@ -1071,12 +1076,13 @@ printf "* %-30s %s\n" "Video support"		$video
 printf "* %-30s %s\n" "GTK interface"		$gtk_ui
 printf "* %-30s %s\n" "Account assistant"	$build_wizard
 printf "* %-30s %s\n" "Console interface"	$console_ui
-printf "* %-30s %s\n" "Tools"			$build_tools
+printf "* %-30s %s\n" "Tools"				$build_tools
 printf "* %-30s %s\n" "Message storage"		$enable_msg_storage
 printf "* %-30s %s\n" "IM encryption"		$lime
 printf "* %-30s %s\n" "uPnP support" 		$build_upnp
 printf "* %-30s %s\n" "LDAP support" 		$enable_ldap
 printf "* %-30s %s\n" "ZLIB support" 		$found_zlib
+printf "* %-30s %s\n" "Documentation" 		$documentation_enabled
 
 if test "$enable_tunnel" = "true" ; then
 	printf "* %-30s %s\n" "Tunnel support" "true"

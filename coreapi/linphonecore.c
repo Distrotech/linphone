@@ -3436,6 +3436,8 @@ int linphone_core_start_update_call(LinphoneCore *lc, LinphoneCall *call){
 	int err;
 	bool_t no_user_consent=call->params->no_user_consent;
 
+	linphone_call_fill_media_multicast_addr(call);
+
 	if (!no_user_consent) linphone_call_make_local_media_description(lc,call);
 #ifdef BUILD_UPNP
 	if(call->upnp_session != NULL) {
@@ -3593,6 +3595,7 @@ int linphone_core_start_accept_call_update(LinphoneCore *lc, LinphoneCall *call,
 	linphone_call_make_local_media_description(lc,call);
 
 	linphone_call_update_remote_session_id_and_ver(call);
+	linphone_call_stop_ice_for_inactive_streams(call);
 	sal_call_set_local_media_description(call->op,call->localdesc);
 	sal_call_accept(call->op);
 	md=sal_call_get_final_media_description(call->op);
@@ -3650,6 +3653,11 @@ int _linphone_core_accept_call_update(LinphoneCore *lc, LinphoneCall *call, cons
 	}
 	if (params==NULL){
 		linphone_call_params_enable_video(call->params, lc->video_policy.automatically_accept || call->current_params->has_video);
+		if (!sal_call_is_offerer(call->op)) {
+			/*reset call param for multicast because this param is only relevant when offering*/
+			linphone_call_params_enable_audio_multicast(call->params,FALSE);
+			linphone_call_params_enable_video_multicast(call->params,FALSE);
+		}
 	}else
 		linphone_call_set_new_params(call,params);
 
@@ -3661,6 +3669,9 @@ int _linphone_core_accept_call_update(LinphoneCore *lc, LinphoneCall *call, cons
 		ms_warning("Video isn't supported in conference");
 		call->params->has_video = FALSE;
 	}
+	/*update multicast params according to call params*/
+	linphone_call_fill_media_multicast_addr(call);
+
 	linphone_call_init_media_streams(call); /*so that video stream is initialized if necessary*/
 	if (call->ice_session != NULL) {
 		if (linphone_call_prepare_ice(call,TRUE)==1)
@@ -3720,6 +3731,7 @@ int linphone_core_accept_call_with_params(LinphoneCore *lc, LinphoneCall *call, 
 	SalOp *replaced;
 	SalMediaDescription *new_md;
 	bool_t was_ringing=FALSE;
+	MSList * iterator;
 
 	if (call==NULL){
 		//if just one call is present answer the only one ...
@@ -3739,6 +3751,28 @@ int linphone_core_accept_call_with_params(LinphoneCore *lc, LinphoneCall *call, 
 			return -1;
 			break;
 	}
+
+
+	for (iterator=ms_list_copy(linphone_core_get_calls(lc));iterator!=NULL;iterator=iterator->next) {
+		LinphoneCall *a_call=(LinphoneCall*)iterator->data;
+		if (a_call==call) continue;
+		switch(a_call->state){
+		case LinphoneCallOutgoingInit:
+		case LinphoneCallOutgoingProgress:
+		case LinphoneCallOutgoingRinging:
+		case LinphoneCallOutgoingEarlyMedia:
+
+				ms_message("Already existing call [%p] in state [%s], canceling it before accepting new call [%p]"	,a_call
+																													,linphone_call_state_to_string(a_call->state)
+																													,call);
+				linphone_core_terminate_call(lc,a_call);
+				break;
+			default:
+				break; /*nothing to do*/
+		}
+
+	}
+	if (iterator) ms_list_free(iterator);
 
 	/* check if this call is supposed to replace an already running one*/
 	replaced=sal_call_get_replaces(call->op);
@@ -4137,9 +4171,17 @@ static int remote_address_compare(LinphoneCall *call, const LinphoneAddress *rad
  * @ingroup call_control
  */
 LinphoneCall *linphone_core_get_call_by_remote_address(LinphoneCore *lc, const char *remote_address){
+	LinphoneCall *call=NULL;
 	LinphoneAddress *raddr=linphone_address_new(remote_address);
+	if (raddr) {
+		call=linphone_core_get_call_by_remote_address2(lc, raddr);
+		linphone_address_unref(raddr);
+	}
+	return call;
+}
+LinphoneCall *linphone_core_get_call_by_remote_address2(LinphoneCore *lc, LinphoneAddress *raddr){
 	MSList *elem=ms_list_find_custom(lc->calls,(int (*)(const void*,const void *))remote_address_compare,raddr);
-	linphone_address_unref(raddr);
+
 	if (elem) return (LinphoneCall*) elem->data;
 	return NULL;
 }
@@ -7021,6 +7063,8 @@ void linphone_core_init_default_params(LinphoneCore*lc, LinphoneCallParams *para
 	params->audio_dir=LinphoneMediaDirectionSendRecv;
 	params->video_dir=LinphoneMediaDirectionSendRecv;
 	params->real_early_media=lp_config_get_int(lc->config,"misc","real_early_media",FALSE);
+	params->audio_multicast_enabled=linphone_core_audio_multicast_enabled(lc);
+	params->video_multicast_enabled=linphone_core_video_multicast_enabled(lc);
 }
 
 void linphone_core_set_device_identifier(LinphoneCore *lc,const char* device_id) {

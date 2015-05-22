@@ -18,21 +18,23 @@ liblinphonetester_la_SOURCES = \
 				flexisip_tester.c \
 				log_collection_tester.c \
 				message_tester.c \
-				multi_call.c \
+				multi_call_tester.c \
 				multicast_call_tester.c \
 				offeranswer_tester.c \
 				player_tester.c \
 				presence_tester.c \
+				proxy_config_tester.c \
 				quality_reporting_tester.c \
 				register_tester.c \
 				remote_provisioning_tester.c \
 				setup_tester.c \
 				stun_tester.c \
-				transport_tester.c \
+				tunnel_tester.c \
 				tester.c \
 				upnp_tester.c \
 				video_tester.c \
 				common/bc_tester_utils.c
+
 liblinphonetester_ladir = $(includedir)/linphone
 liblinphonetester_la_HEADERS = common/bc_tester_utils.h
 
