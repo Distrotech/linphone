@@ -164,6 +164,9 @@ LINPHONE_PUBLIC void linphone_gtk_notebook_tab_select(GtkNotebook *notebook, Gtk
 LINPHONE_PUBLIC void linphone_gtk_show_friends(void);
 LINPHONE_PUBLIC void linphone_gtk_show_contact(LinphoneFriend *lf, GtkWidget *parent);
 LINPHONE_PUBLIC void linphone_gtk_buddy_info_updated(LinphoneCore *lc, LinphoneFriend *lf);
+LINPHONE_PUBLIC gboolean linphone_gtk_friend_list_motion_event_handler(GtkTreeView *friendlist, GdkEventMotion *event);
+LINPHONE_PUBLIC gboolean linphone_gtk_friend_list_enter_event_handler(GtkTreeView *friendlist, GdkEventCrossing *event);
+LINPHONE_PUBLIC gboolean linphone_gtk_friend_list_leave_event_handler(GtkTreeView *friendlist, GdkEventCrossing *event);
 
 /*functions controlling the different views*/
 LINPHONE_PUBLIC gboolean linphone_gtk_use_in_call_view();

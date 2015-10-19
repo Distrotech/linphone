@@ -6,7 +6,9 @@
   <object class="GtkImage" id="add_call_image">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixel_size">32</property>
+    <property name="xpad">1</property>
+    <property name="ypad">1</property>
+    <property name="pixel_size">30</property>
     <property name="icon_name">linphone-add-call</property>
   </object>
   <object class="GtkImage" id="add_image">
@@ -38,6 +40,8 @@
       <column type="gchararray"/>
       <!-- column-name chat_icon -->
       <column type="gchararray"/>
+      <!-- column-name button_visible -->
+      <column type="gboolean"/>
     </columns>
     <data>
       <row>
@@ -45,18 +49,21 @@
         <col id="1">Toto</col>
         <col id="4">toto@sip.linphone.org</col>
         <col id="5">linphone-chat-nothing</col>
+        <col id="6">False</col>
       </row>
       <row>
         <col id="0">linphone-status-offline</col>
         <col id="1">Toto2</col>
         <col id="4">toto2@sip.linphone.org</col>
         <col id="5">linphone-chat-nothing</col>
+        <col id="6">True</col>
       </row>
       <row>
         <col id="0">linphone-status-offline</col>
         <col id="1">Toto3</col>
         <col id="4">toto3@sip.linphone.org</col>
         <col id="5">linphone-chat-nothing</col>
+        <col id="6">False</col>
       </row>
     </data>
   </object>
@@ -117,13 +124,17 @@
   <object class="GtkImage" id="start_call_image">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixel_size">32</property>
+    <property name="xpad">1</property>
+    <property name="ypad">1</property>
+    <property name="pixel_size">30</property>
     <property name="icon_name">linphone-start-call</property>
   </object>
   <object class="GtkImage" id="start_chat_image">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixel_size">32</property>
+    <property name="xpad">1</property>
+    <property name="ypad">1</property>
+    <property name="pixel_size">30</property>
     <property name="icon_name">linphone-start-chat</property>
   </object>
   <object class="GtkWindow" id="main">
@@ -480,12 +491,15 @@
                             <signal name="button-press-event" handler="linphone_gtk_contact_list_button_pressed" swapped="no"/>
                             <signal name="cursor-changed" handler="linphone_gtk_contact_clicked" swapped="no"/>
                             <signal name="row-activated" handler="linphone_gtk_contact_activated" swapped="no"/>
+                            <signal name="enter-notify-event" handler="linphone_gtk_friend_list_enter_event_handler" swapped="no"/>
+                            <signal name="leave-notify-event" handler="linphone_gtk_friend_list_leave_event_handler" swapped="no"/>
                             <signal name="popup-menu" handler="linphone_gtk_popup_contact_menu" swapped="no"/>
+                            <signal name="motion-notify-event" handler="linphone_gtk_friend_list_motion_event_handler" swapped="no"/>
                             <child>
                               <object class="GtkTreeViewColumn" id="presence_status_column">
                                 <child>
                                   <object class="GtkCellRendererPixbuf" id="status_img_cell">
-                                    <property name="stock_size">3</property>
+                                    <property name="stock_size">2</property>
                                   </object>
                                   <attributes>
                                     <attribute name="icon-name">0</attribute>
@@ -510,8 +524,11 @@
                                 <child>
                                   <object class="GtkCellRendererPixbuf" id="contact_call_renderer">
                                     <property name="icon_name">linphone-start-call2</property>
-                                    <property name="stock_size">3</property>
+                                    <property name="stock_size">2</property>
                                   </object>
+                                  <attributes>
+                                    <attribute name="visible">6</attribute>
+                                  </attributes>
                                 </child>
                               </object>
                             </child>
@@ -519,9 +536,10 @@
                               <object class="GtkTreeViewColumn" id="contact_chat_column">
                                 <child>
                                   <object class="GtkCellRendererPixbuf" id="contact_chat_renderer">
-                                    <property name="stock_size">3</property>
+                                    <property name="stock_size">2</property>
                                   </object>
                                   <attributes>
+                                    <attribute name="visible">6</attribute>
                                     <attribute name="icon-name">5</attribute>
                                   </attributes>
                                 </child>
@@ -628,6 +646,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="headers_visible">False</property>
+                                    <property name="show_expanders">False</property>
                                     <signal name="cursor-changed" handler="linphone_gtk_history_row_selected" swapped="no"/>
                                     <signal name="row-activated" handler="linphone_gtk_history_row_activated" swapped="no"/>
                                   </object>

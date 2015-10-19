@@ -29,6 +29,7 @@ enum{
 	FRIEND_CHATROOM,
 	FRIEND_SIP_ADDRESS,
 	FRIEND_CHAT,
+	FRIEND_BUTTONS_VISIBILIY,
 	FRIEND_LIST_NCOL
 };
 
@@ -700,7 +701,7 @@ void linphone_gtk_show_friends(void){
 		gtk_list_store_append(store,&iter);
 		gtk_list_store_set(store,&iter,FRIEND_NAME, display,FRIEND_ID,lf,
 				FRIEND_PRESENCE_IMG, send_subscribe ? status_to_icon_name(linphone_friend_get_status(lf)) : NULL,
-				FRIEND_CHAT,"linphone-chat-nothing", -1);
+				FRIEND_CHAT,"linphone-chat-nothing", FRIEND_BUTTONS_VISIBILIY, FALSE, -1);
 		cr=linphone_gtk_create_chatroom(f_uri);
 		gtk_list_store_set(store,&iter,FRIEND_CHATROOM,cr,-1);
 		nbmsg=linphone_chat_room_get_unread_messages_count(cr);
@@ -964,3 +965,52 @@ void linphone_gtk_buddy_info_updated(LinphoneCore *lc, LinphoneFriend *lf){
 	/*refresh the entire list*/
 	linphone_gtk_show_friends();
 }
+
+static void set_buttons_visible(GtkTreeView *friendlist, GtkTreePath *path, gboolean visible) {
+	GtkTreeIter iter;
+	GtkTreeModel *model = gtk_tree_view_get_model(friendlist);
+	gtk_tree_model_get_iter(model, &iter, path);
+	gtk_list_store_set(GTK_LIST_STORE(model), &iter, FRIEND_BUTTONS_VISIBILIY, visible, -1);
+}
+
+static void hide_current_visible_buttons(GtkTreeView *friendlist) {
+	GtkTreePath *path = g_object_get_data(G_OBJECT(friendlist), "hovered_line");
+	if(path) {
+		set_buttons_visible(friendlist, path, FALSE);
+		g_object_set_data(G_OBJECT(friendlist), "hovered_line", NULL);
+	}
+}
+
+static void update_buttons_visibility(GtkTreeView *friendlist, int wx, int wy) {
+	int x,y;
+	GtkTreePath *path;
+	
+	gtk_tree_view_convert_widget_to_bin_window_coords(friendlist, wx, wy, &x, &y);
+	if(gtk_tree_view_get_path_at_pos(friendlist, x, y, &path, NULL, NULL, NULL)) {
+		GtkTreePath *last_path = (GtkTreePath *)g_object_get_data(G_OBJECT(friendlist), "hovered_line");
+		if(last_path == NULL || gtk_tree_path_compare(path, last_path) != 0) {
+			if(last_path) set_buttons_visible(friendlist, last_path, FALSE);
+			set_buttons_visible(friendlist, path, TRUE);
+			g_object_set_data_full(G_OBJECT(friendlist), "hovered_line", gtk_tree_path_copy(path), (GDestroyNotify)gtk_tree_path_free);
+		}
+		gtk_tree_path_free(path);
+	} else {
+		hide_current_visible_buttons(friendlist);
+	}
+}
+
+gboolean linphone_gtk_friend_list_motion_event_handler(GtkTreeView *friendlist, GdkEventMotion *event) {
+	update_buttons_visibility(friendlist, event->x, event->y);
+	return FALSE;
+}
+
+gboolean linphone_gtk_friend_list_enter_event_handler(GtkTreeView *friendlist, GdkEventCrossing *event) {
+	update_buttons_visibility(friendlist, event->x, event->y);
+	return FALSE;
+}
+
+gboolean linphone_gtk_friend_list_leave_event_handler(GtkTreeView *friendlist, GdkEventCrossing *event) {
+	hide_current_visible_buttons(friendlist);
+	return FALSE;
+}
+
