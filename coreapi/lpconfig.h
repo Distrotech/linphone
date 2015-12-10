@@ -285,7 +285,7 @@ LINPHONE_PUBLIC void lp_config_unref(LpConfig *lpconfig);
  * @param filename Name of the file where to write data. The name is relative to the place of the config file
  * @param data String to write
  */
-LINPHONE_PUBLIC void lp_config_write_relative_file(const LpConfig *lpconfig, const char *filename, const char *data);
+LINPHONE_PUBLIC int lp_config_write_relative_file(const LpConfig *lpconfig, const char *filename, const char *data);
 
 /**
  * @brief Read a string from a file placed beside the Linphone configuration file

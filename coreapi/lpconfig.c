@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <assert.h>
 #if !defined(_WIN32_WCE)
 #include <errno.h>
@@ -85,14 +86,11 @@ struct _LpConfig{
 	int readonly;
 };
 
-char* lp_realpath(const char* file, char* name) {
+char* lp_realpath(const char* path) {
 #if defined(_WIN32) || defined(__QNX__) || defined(ANDROID)
-	return ms_strdup(file);
+	return ms_strdup(path);
 #else
-	char * output = realpath(file, name);
-	char * msoutput = ms_strdup(output);
-	free(output);
-	return msoutput;
+	return realpath(path, NULL);
 #endif
 }
 
@@ -394,7 +392,7 @@ LpConfig *lp_config_new_with_factory(const char *config_filename, const char *fa
 	lpconfig->refcnt=1;
 	if (config_filename!=NULL){
 		if(ortp_file_exist(config_filename) == 0) {
-			lpconfig->filename=lp_realpath(config_filename, NULL);
+			lpconfig->filename=lp_realpath(config_filename);
 			if(lpconfig->filename == NULL) {
 				ms_error("Could not find the real path of %s: %s", config_filename, strerror(errno));
 				goto fail;
@@ -446,7 +444,7 @@ fail:
 }
 
 int lp_config_read_file(LpConfig *lpconfig, const char *filename){
-	char* path = lp_realpath(filename, NULL);
+	char* path = lp_realpath(filename);
 	FILE* f=fopen(path,"r");
 	if (f!=NULL){
 		ms_message("Reading config information from %s", path);
@@ -747,135 +745,102 @@ const char* lp_config_get_default_string(const LpConfig *lpconfig, const char *s
 	return lp_config_get_string(lpconfig, default_section, key, default_value);
 }
 
-/*
- * WARNING: this function is very dangerous.
- * Read carefuly the folowing notices:
- * 1. The 'path' parameter may be modify by
- *    the function. Be care to keep a copy of
- *    the original string.
- * 2. The return pointer may points on a part of
- *    'path'. So, be care to not free the string
- *    pointed by 'path' before the last used of
- *    the returned pointer.
- * 3. Do not feed it after midnight
- */
-static const char *_lp_config_dirname(char *path) {
+static char *lp_dirname(const char *path) {
 #ifdef _MSC_VER
 	char drive[_MAX_DRIVE];
 	char dir[_MAX_DIR];
 	char fname[_MAX_FNAME];
 	char ext[_MAX_EXT];
-	static char dirname[_MAX_DRIVE + _MAX_DIR];
-	_splitpath(path, drive, dir, fname, ext);
-	snprintf(dirname, sizeof(dirname), "%s%s", drive, dir);
-	return dirname;
+	splitpath(path, drive, dir, fname, ext);
+	return ms_strdup_printf("%s%s", drive, dir);
 #else
-	return dirname(path);
+	char path_cpy[PATH_MAX];
+	strncpy(path_cpy, path, PATH_MAX);
+	return ms_strdup(dirname(path_cpy));
 #endif
 }
 
-bool_t lp_config_relative_file_exists(const LpConfig *lpconfig, const char *filename) {
-	if (lpconfig->filename == NULL) {
-		return FALSE;
-	} else {
-		char *filename = ms_strdup(lpconfig->filename);
-		const char *dir = _lp_config_dirname(filename);
-		char *filepath = ms_strdup_printf("%s/%s", dir, filename);
-		char *realfilepath = lp_realpath(filepath, NULL);
-		FILE *file;
-
-		ms_free(filename);
-		ms_free(filepath);
-
-		if(realfilepath == NULL) return FALSE;
-
-		file = fopen(realfilepath, "r");
-		ms_free(realfilepath);
-		if (file) {
-			fclose(file);
-		}
-		return file != NULL;
-	}
+static char *lp_config_resolve_relative_file(const LpConfig *lpconfig, const char *filename) {
+	char *config_dir;
+	char tmp_path[PATH_MAX];
+	if(lpconfig->filename == NULL) return NULL;
+	config_dir = lp_dirname(lpconfig->filename);
+	snprintf(tmp_path, PATH_MAX, "%s/%s", config_dir, filename);
+	ms_free(config_dir);
+	return lp_realpath(tmp_path);
 }
 
-void lp_config_write_relative_file(const LpConfig *lpconfig, const char *filename, const char *data) {
-	char *dup_config_file = NULL;
-	const char *dir = NULL;
-	char *filepath = NULL;
-	char *realfilepath = NULL;
-	FILE *file;
+bool_t lp_config_relative_file_exists(const LpConfig *lpconfig, const char *filename) {
+	char *path = lp_config_resolve_relative_file(lpconfig, filename);
+	int access_res;
+	if(path == NULL) return FALSE;
+	access_res = access(path, F_OK);
+	ms_free(path);
+	return access_res == 0;
+}
 
-	if (lpconfig->filename == NULL) return;
+int lp_config_write_relative_file(const LpConfig *lpconfig, const char *filename, const char *data) {
+	char *path = lp_config_resolve_relative_file(lpconfig, filename);
+	int res = -1;
+	int nwritten;
+	FILE *file = NULL;
 
-	if(strlen(data) == 0) {
-		ms_warning("%s has not been created because there is no data to write", filename);
-		return;
-	}
-
-	dup_config_file = ms_strdup(lpconfig->filename);
-	dir = _lp_config_dirname(dup_config_file);
-	filepath = ms_strdup_printf("%s/%s", dir, filename);
-	realfilepath = lp_realpath(filepath, NULL);
-	if(realfilepath == NULL) {
-		ms_error("Could not resolv %s: %s", filepath, strerror(errno));
+	if(path == NULL) {
+		ms_error("Could not resolve relative file '%s'", filename);
 		goto end;
 	}
-
-	file = fopen(realfilepath, "w");
+	file = fopen(path, "wb");
 	if(file == NULL) {
-		ms_error("Could not open %s for write", realfilepath);
+		ms_error("Could not open %s for writing", path);
 		goto end;
 	}
-
-	fprintf(file, "%s", data);
-	fclose(file);
+	nwritten = fprintf(file, "%s", data);
+	if(nwritten < 0) {
+		ms_error("EC state data could not be written in %s: %s", path, strerror(errno));
+	} else if(nwritten < strlen(data)) {
+		ms_error("All EC state data could not be written in %s. Only %d octet have been written", path, nwritten);
+		goto end;
+	}
+	res = 0;
 
 end:
-	ms_free(dup_config_file);
-	ms_free(filepath);
-	if(realfilepath) ms_free(realfilepath);
+	if(path) ms_free(path);
+	if(file) fclose(file);
+	return res;
 }
 
 int lp_config_read_relative_file(const LpConfig *lpconfig, const char *filename, char *data, size_t max_length) {
-	char *dup_config_file = NULL;
-	const char *dir = NULL;
-	char *filepath = NULL;
+	char *path = lp_config_resolve_relative_file(lpconfig, filename);
+	int res = -1;
 	FILE *file = NULL;
-	char* realfilepath = NULL;
-
-	if (lpconfig->filename == NULL) return -1;
-
-	dup_config_file = ms_strdup(lpconfig->filename);
-	dir = _lp_config_dirname(dup_config_file);
-	filepath = ms_strdup_printf("%s/%s", dir, filename);
-	realfilepath = lp_realpath(filepath, NULL);
-	if(realfilepath == NULL) {
-		ms_error("Could not resolv %s: %s", filepath, strerror(errno));
-		goto err;
+	int nread;
+	
+	data[0] = '\0';
+	if(path == NULL) {
+		ms_error("Could not resolve relative file '%s'", filename);
+		goto end;
 	}
-
-	file = fopen(realfilepath, "r");
+	file = fopen(path, "rb");
 	if(file == NULL) {
-		ms_error("Could not open %s for read. %s", realfilepath, strerror(errno));
-		goto err;
+		ms_error("Could not open %s for reading. %s", path, strerror(errno));
+		goto end;
 	}
-
-	if(fread(data, 1, max_length, file)<=0) {
-		ms_error("%s could not be loaded. %s", realfilepath, strerror(errno));
-		goto err;
+	if((nread = fread(data, 1, max_length, file)) < 0) {
+		ms_error("%s could not be loaded. %s", path, strerror(errno));
+		goto end;
 	}
-	fclose(file);
+	if(nread < max_length && !feof(file)) {
+		ms_error("All data in %s could not be loaded: %s", path, strerror(errno));
+		data[0] = '\0';
+		goto end;
+	}
+	data[nread] = '\0';
+	res = 0;
 
-	ms_free(dup_config_file);
-	ms_free(filepath);
-	ms_free(realfilepath);
-	return 0;
-
-err:
-	ms_free(filepath);
-	ms_free(filepath);
-	if(realfilepath) ms_free(realfilepath);
-	return -1;
+end:
+	if(path) ms_free(path);
+	if(file) fclose(file);
+	return res;
 }
 
 const char** lp_config_get_sections_names(LpConfig *lpconfig) {
