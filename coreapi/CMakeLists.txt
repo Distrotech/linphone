@@ -46,6 +46,7 @@ set(LINPHONE_HEADER_FILES
 	linphone_tunnel.h
 	lpc2xml.h
 	lpconfig.h
+	ringplayer.h
 	sipsetup.h
 	xml2lpc.h
 	xmlrpc.h
@@ -105,6 +106,7 @@ set(LINPHONE_SOURCE_FILES_C
 	proxy.c
 	quality_reporting.c
 	remote_provisioning.c
+	ringplayer.c
 	sal.c
 	siplogin.c
 	sipsetup.c
