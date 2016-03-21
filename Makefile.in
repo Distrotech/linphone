@@ -80,8 +80,7 @@ host_triplet = @host@
 target_triplet = @target@
 
 #a zip containing win32 binaries, suitable to generate an installer
-@BUILD_ZRTP_TRUE@am__append_1 = ./bin/libzrtpcpp.dll ./bin/msys-1.0.dll ./bin/msys-crypto-1.0.0.dll
-@BUILD_TUNNEL_TRUE@am__append_2 = ./bin/libtunnel-0.dll
+@BUILD_TUNNEL_TRUE@am__append_1 = ./bin/libtunnel-0.dll
 subdir = .
 DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
 	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -273,6 +272,8 @@ LD = @LD@
 LDAP_CFLAGS = @LDAP_CFLAGS@
 LDAP_LIBS = @LDAP_LIBS@
 LDFLAGS = @LDFLAGS@
+LIBGLIB_CFLAGS = @LIBGLIB_CFLAGS@
+LIBGLIB_LIBS = @LIBGLIB_LIBS@
 LIBGTKMAC_CFLAGS = @LIBGTKMAC_CFLAGS@
 LIBGTKMAC_LIBS = @LIBGTKMAC_LIBS@
 LIBGTKWIZARD_CFLAGS = @LIBGTKWIZARD_CFLAGS@
@@ -285,8 +286,6 @@ LIBLINPHONE_SO_CURRENT = @LIBLINPHONE_SO_CURRENT@
 LIBLINPHONE_SO_VERSION = @LIBLINPHONE_SO_VERSION@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBSOUP_CFLAGS = @LIBSOUP_CFLAGS@
-LIBSOUP_LIBS = @LIBSOUP_LIBS@
 LIBTOOL = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 LIBUPNP_CFLAGS = @LIBUPNP_CFLAGS@
@@ -347,6 +346,7 @@ SASL_LIBS = @SASL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIPP = @SIPP@
 SIPSTACK_CFLAGS = @SIPSTACK_CFLAGS@
 SIPSTACK_LIBS = @SIPSTACK_LIBS@
 SPEEX_CFLAGS = @SPEEX_CFLAGS@
@@ -354,6 +354,8 @@ SPEEX_LIBS = @SPEEX_LIBS@
 SQLITE3_CFLAGS = @SQLITE3_CFLAGS@
 SQLITE3_LIBS = @SQLITE3_LIBS@
 STRICT_OPTIONS = @STRICT_OPTIONS@
+STRICT_OPTIONS_CC = @STRICT_OPTIONS_CC@
+STRICT_OPTIONS_CXX = @STRICT_OPTIONS_CXX@
 STRIP = @STRIP@
 TRUESPEECH_CFLAGS = @TRUESPEECH_CFLAGS@
 TUNNEL_CFLAGS = @TUNNEL_CFLAGS@
@@ -364,6 +366,8 @@ WINDRES = @WINDRES@
 X11_LIBS = @X11_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
+ZLIB_CFLAGS = @ZLIB_CFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -431,6 +435,7 @@ ACLOCAL_AMFLAGS = -I m4 $(ACLOCAL_MACOS_FLAGS)
 SUBDIRS = build m4 pixmaps po @ORTP_DIR@ @MS2_DIR@ \
 		coreapi console gtk share scripts tools tester include
 
+GITVERSION = `cd $(top_srcdir) && git describe --always || echo $(VERSION)`
 ACLOCAL_FLAGS = -I$(top_srcdir)/m4
 OPTIONAL_SOUNDS = \
 		share/sounds/linphone/rings/synth.wav \
@@ -441,11 +446,11 @@ OPTIONAL_SOUNDS = \
 
 INSTALLDIR = $(abs_top_builddir)/linphone-install
 INSTALLDIR_WITH_PREFIX = $(INSTALLDIR)/$(prefix)
-ZIPFILE = $(abs_top_builddir)/$(PACKAGE)-win32-$(VERSION).zip
+ZIPFILE = $(abs_top_builddir)/$(PACKAGE)-win32-$(GITVERSION).zip
 ZIP_EXCLUDED = include lib \
 		$(OPTIONAL_SOUNDS)
 
-SDK_ZIPFILE = $(abs_top_builddir)/lib$(PACKAGE)-win32-$(VERSION).zip
+SDK_ZIPFILE = $(abs_top_builddir)/lib$(PACKAGE)-win32-sdk-$(GITVERSION).zip
 SDK_EXCLUDED = \
 	bin/linphone.exe \
 	lib/*.la \
@@ -461,7 +466,7 @@ GTK_FILELIST = gtk+-2.24.8.filelist
 GTK_FILELIST_PATH = $(abs_top_srcdir)/$(GTK_FILELIST)
 LINPHONEDEPS_FILELIST = linphone-deps.filelist
 WINBINDIST_FILES = `cat $(abs_top_srcdir)/$(LINPHONEDEPS_FILELIST)` \
-	$(am__append_1) $(am__append_2)
+	$(am__append_1)
 ISS_SCRIPT = linphone.iss
 ISS_SCRIPT_PATH = $(abs_top_srcdir)/$(ISS_SCRIPT)
 #path to Inno Setup 5 compiler
@@ -471,7 +476,7 @@ PACKAGE_BUNDLE_FILE = $(top_srcdir)/build/macos/$(PACKAGE).bundle
 EXTRA_DIST = BUGS  \
 			README.arm \
 			README.mingw \
-			README.macos \
+			README.macos.md \
 			autogen.sh \
 			linphone.spec \
 			linphone.spec.in \
@@ -487,10 +492,13 @@ CLEANFILES = Portfile Portfile-devel
 
 ### MAC
 MACAPPNAME = Linphone.app
-MACAPPZIP = $(PACKAGE)-$(VERSION).app.zip
-MACAPPDMG = $(PACKAGE)-$(VERSION).dmg
+MACAPPZIP = $(PACKAGE)-$(GITVERSION).app.zip
+MACAPPDMG = $(PACKAGE)-$(GITVERSION).dmg
+MACAPPPKG = $(PACKAGE)-$(GITVERSION).pkg
 BUNDLEPREFIX = ./
 BUNDLEDIR = $(BUNDLEPREFIX)$(MACAPPNAME)
+#a path prefix where additional libs can be cherry-picked by the bundler.
+LINPHONE_ADDITIONAL_DEPENDENCIES_PREFIX = /usr/local
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -1070,13 +1078,22 @@ filelist: zip
 		fi \
 	done
 
+### LOCALIZATION
+
+pull-transifex:
+	tx pull -af
+
+push-transifex:
+	$(MAKE) -C po update-po
+	tx push -s -f --no-interactive
+
 ### WINDOWS
 
 setup.exe: filelist
 	cp $(ISS_SCRIPT) $(INSTALLDIR_WITH_PREFIX)/.
 	cd $(INSTALLDIR_WITH_PREFIX) && \
-	$(ISCC) $(ISS_SCRIPT) 
-	mv $(INSTALLDIR_WITH_PREFIX)/Output/setup.exe $(PACKAGE)-$(VERSION)-setup.exe
+	$(ISCC) $(ISS_SCRIPT)
+	mv $(INSTALLDIR_WITH_PREFIX)/Output/setup.exe $(PACKAGE)-setup-$(GITVERSION).exe
 	rm -rf $(INSTALLDIR_WITH_PREFIX)/Output
 	rm -f $(INSTALLDIR_WITH_PREFIX)/$(PACKAGE_WIN32_FILELIST)
 	rm -f $(INSTALLDIR_WITH_PREFIX)/$(ISS_SCRIPT)
@@ -1094,7 +1111,7 @@ Portfile-devel:	$(top_srcdir)/scripts/Portfile-devel.tmpl dist
 	sed -e 's/\@VERSION\@/$(LINPHONE_VERSION)/g' \
 	  -e 's/\@LINPHONE_MD5\@/$(GEN_MD5)/' < $< > $@
 
-bundle:
+Linphone.app:
 	rm -rf $(INSTALLDIR)
 	$(MKDIR_P) $(INSTALLDIR)
 	make install DESTDIR=$(INSTALLDIR)
@@ -1102,13 +1119,31 @@ bundle:
 	LINPHONE_INSTALL_PREFIX=$(INSTALLDIR_WITH_PREFIX) \
 	LIBLINPHONE_INSTALL_PREFIX=$(INSTALLDIR_WITH_PREFIX) \
 	MS2_PLUGINS_INSTALL_PREFIX=$(prefix) \
+	LINPHONE_ADDITIONAL_DEPENDENCIES_PREFIX=$(LINPHONE_ADDITIONAL_DEPENDENCIES_PREFIX) \
 	gtk-mac-bundler $(PACKAGE_BUNDLE_FILE)
-	printf "[Pango]\nModuleFiles=./etc/pango/pango.modules\n" \
-	> $(BUNDLEDIR)/Contents/Resources/etc/pango/pangorc
-	cp -f $(BUNDLEDIR)/Contents/Resources/etc/pango/pango.modules $(BUNDLEDIR)/Contents/Resources/etc/pango/pango.modules.orig
-	sed -e 's:@executable_path.*/::g' $(BUNDLEDIR)/Contents/Resources/etc/pango/pango.modules.orig  > $(BUNDLEDIR)/Contents/Resources/etc/pango/pango.modules
+	patch ${BUNDLEDIR}/Contents/Resources/share/themes/Quartz/gtk-2.0/gtkrc ${srcdir}/build/macos/quartz-theme-gtkrc.patch
+	rm -f ${BUNDLEDIR}/Contents/Resources/lib/libopenh264*
+
+bundle: $(MACAPPNAME)
 	cd $(BUNDLEDIR)/.. && rm -f $(MACAPPZIP) && zip -r $(MACAPPZIP) $(MACAPPNAME) && cd -
 	cd $(BUNDLEDIR)/.. && rm -f $(MAXAPPDMG) && hdiutil create $(MACAPPDMG) -srcfolder $(MACAPPNAME) -ov && cd -
+
+signed-bundle: $(MACAPPNAME)
+	codesign --deep -s "$(BUNDLE_SIGNING_ID)" $(BUNDLEDIR)
+	cd $(BUNDLEDIR)/.. && rm -f $(MAXAPPDMG) && hdiutil create $(MACAPPDMG) -srcfolder $(MACAPPNAME) -ov && cd -
+
+pkg: $(MACAPPNAME)
+	rm -rf ./packaging
+	mkdir -p ./packaging
+	cp ${srcdir}/COPYING ./packaging
+	cp ${srcdir}/pixmaps/linphone.png ./packaging
+	pkgbuild --install-location /Applications --scripts ${srcdir}/build/macos/pkg-scripts --component $(MACAPPNAME) ./packaging/linphone.pkg
+	productbuild --resources . --distribution ${srcdir}/build/macos/pkg-distribution.xml --package-path ./packaging $(MACAPPPKG)
+
+signed-pkg: pkg
+	mv $(MACAPPPKG) $(MACAPPPKG).tmp
+	productsign --sign "$(BUNDLE_SIGNING_ID)" $(MACAPPPKG).tmp $(MACAPPPKG)
+	rm -f $(MACAPPPKG).tmp
 
 ###
 ### CLEAN
@@ -1118,7 +1153,9 @@ clean-local:
 discovery:
 	touch specs.c
 	$(CC) --include $(top_builddir)/config.h \
-          $(TUNNEL_CFLAGS) $(CFLAGS) $(MEDIASTREAMER2_CFLAGS) $(ORTP_CFLAGS)  $(SIPSTACK_CFLAGS) $(CUNIT_CFLAGS) -E -P -v -dD specs.c
+        $(TUNNEL_CFLAGS) $(CFLAGS) $(MEDIASTREAMER2_CFLAGS) $(ORTP_CFLAGS)  $(SIPSTACK_CFLAGS) $(CUNIT_CFLAGS) -E -P -v -dD specs.c
+
+.PHONY: $(MACAPPNAME) pkg
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

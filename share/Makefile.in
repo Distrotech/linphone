@@ -81,7 +81,8 @@ host_triplet = @host@
 target_triplet = @target@
 subdir = share
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(srcdir)/linphone.pc.in $(srcdir)/linphone.desktop.in
+	$(srcdir)/linphone.pc.in $(srcdir)/linphone.desktop.in \
+	$(srcdir)/audio-assistant.desktop.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intltool.m4 \
@@ -97,7 +98,8 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES = linphone.pc linphone.desktop
+CONFIG_CLEAN_FILES = linphone.pc linphone.desktop \
+	audio-assistant.desktop
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -153,11 +155,11 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(linphonedir)" \
+am__installdirs = "$(DESTDIR)$(appdatadir)" "$(DESTDIR)$(linphonedir)" \
 	"$(DESTDIR)$(linphone_fddir)" "$(DESTDIR)$(pkgconfigdir)" \
 	"$(DESTDIR)$(ringdir)" "$(DESTDIR)$(sounddir)"
-DATA = $(linphone_DATA) $(linphone_fd_DATA) $(pkgconfig_DATA) \
-	$(ring_DATA) $(sound_DATA)
+DATA = $(appdata_DATA) $(linphone_DATA) $(linphone_fd_DATA) \
+	$(pkgconfig_DATA) $(ring_DATA) $(sound_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -277,6 +279,8 @@ LD = @LD@
 LDAP_CFLAGS = @LDAP_CFLAGS@
 LDAP_LIBS = @LDAP_LIBS@
 LDFLAGS = @LDFLAGS@
+LIBGLIB_CFLAGS = @LIBGLIB_CFLAGS@
+LIBGLIB_LIBS = @LIBGLIB_LIBS@
 LIBGTKMAC_CFLAGS = @LIBGTKMAC_CFLAGS@
 LIBGTKMAC_LIBS = @LIBGTKMAC_LIBS@
 LIBGTKWIZARD_CFLAGS = @LIBGTKWIZARD_CFLAGS@
@@ -289,8 +293,6 @@ LIBLINPHONE_SO_CURRENT = @LIBLINPHONE_SO_CURRENT@
 LIBLINPHONE_SO_VERSION = @LIBLINPHONE_SO_VERSION@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBSOUP_CFLAGS = @LIBSOUP_CFLAGS@
-LIBSOUP_LIBS = @LIBSOUP_LIBS@
 LIBTOOL = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 LIBUPNP_CFLAGS = @LIBUPNP_CFLAGS@
@@ -351,6 +353,7 @@ SASL_LIBS = @SASL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIPP = @SIPP@
 SIPSTACK_CFLAGS = @SIPSTACK_CFLAGS@
 SIPSTACK_LIBS = @SIPSTACK_LIBS@
 SPEEX_CFLAGS = @SPEEX_CFLAGS@
@@ -358,6 +361,8 @@ SPEEX_LIBS = @SPEEX_LIBS@
 SQLITE3_CFLAGS = @SQLITE3_CFLAGS@
 SQLITE3_LIBS = @SQLITE3_LIBS@
 STRICT_OPTIONS = @STRICT_OPTIONS@
+STRICT_OPTIONS_CC = @STRICT_OPTIONS_CC@
+STRICT_OPTIONS_CXX = @STRICT_OPTIONS_CXX@
 STRIP = @STRIP@
 TRUESPEECH_CFLAGS = @TRUESPEECH_CFLAGS@
 TUNNEL_CFLAGS = @TUNNEL_CFLAGS@
@@ -368,6 +373,8 @@ WINDRES = @WINDRES@
 X11_LIBS = @X11_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
+ZLIB_CFLAGS = @ZLIB_CFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -430,7 +437,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = C fr it ja cs xml
-LINPHONE_SOUNDS = ringback.wav hello8000.wav hello16000.wav
+LINPHONE_SOUNDS = ringback.wav hello8000.wav hello16000.wav incoming_chat.wav
 LINPHONE_RINGS = rings/orig.wav \
 				rings/oldphone.wav \
 				rings/oldphone-mono.wav \
@@ -449,17 +456,21 @@ ring_DATA = $(LINPHONE_RINGS)
 
 #to be compliant with freedesktop.org:
 linphone_fddir = $(datadir)/applications
-linphone_fd_DATA = linphone.desktop
+linphone_fd_DATA = linphone.desktop audio-assistant.desktop
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = linphone.pc
 linphonedir = $(datadir)/linphone
 linphone_DATA = rootca.pem
+appdatadir = $(datadir)/appdata
+appdata_DATA = linphone.appdata.xml
 EXTRA_DIST = $(LINPHONE_SOUNDS) \
 						$(LINPHONE_RINGS) \
-					        linphone.desktop.in   \
+						linphone.desktop.in   \
+						audio-assistant.desktop.in   \
 						linphone.pc.in \
 						Makefile.inc \
-						archived-rootca.pem
+						archived-rootca.pem \
+						$(appdata_DATA)
 
 CLEANFILES = rootca.pem
 all: all-recursive
@@ -499,12 +510,35 @@ linphone.pc: $(top_builddir)/config.status $(srcdir)/linphone.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 linphone.desktop: $(top_builddir)/config.status $(srcdir)/linphone.desktop.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+audio-assistant.desktop: $(top_builddir)/config.status $(srcdir)/audio-assistant.desktop.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-appdataDATA: $(appdata_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(appdata_DATA)'; test -n "$(appdatadir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(appdatadir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(appdatadir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(appdatadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(appdatadir)" || exit $$?; \
+	done
+
+uninstall-appdataDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(appdata_DATA)'; test -n "$(appdatadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(appdatadir)'; $(am__uninstall_files_from_dir)
 install-linphoneDATA: $(linphone_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(linphone_DATA)'; test -n "$(linphonedir)" || list=; \
@@ -770,7 +804,7 @@ check: check-recursive
 all-am: Makefile $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(linphonedir)" "$(DESTDIR)$(linphone_fddir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(ringdir)" "$(DESTDIR)$(sounddir)"; do \
+	for dir in "$(DESTDIR)$(appdatadir)" "$(DESTDIR)$(linphonedir)" "$(DESTDIR)$(linphone_fddir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(ringdir)" "$(DESTDIR)$(sounddir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -824,8 +858,9 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-linphoneDATA install-linphone_fdDATA \
-	install-pkgconfigDATA install-ringDATA install-soundDATA
+install-data-am: install-appdataDATA install-linphoneDATA \
+	install-linphone_fdDATA install-pkgconfigDATA install-ringDATA \
+	install-soundDATA
 
 install-dvi: install-dvi-recursive
 
@@ -869,8 +904,9 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-linphoneDATA uninstall-linphone_fdDATA \
-	uninstall-pkgconfigDATA uninstall-ringDATA uninstall-soundDATA
+uninstall-am: uninstall-appdataDATA uninstall-linphoneDATA \
+	uninstall-linphone_fdDATA uninstall-pkgconfigDATA \
+	uninstall-ringDATA uninstall-soundDATA
 
 .MAKE: $(am__recursive_targets) install-am install-strip
 
@@ -878,16 +914,17 @@ uninstall-am: uninstall-linphoneDATA uninstall-linphone_fdDATA \
 	check-am clean clean-generic clean-libtool cscopelist-am ctags \
 	ctags-am distclean distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am \
-	install-linphoneDATA install-linphone_fdDATA install-man \
-	install-pdf install-pdf-am install-pkgconfigDATA install-ps \
-	install-ps-am install-ringDATA install-soundDATA install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-linphoneDATA \
+	install install-am install-appdataDATA install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-linphoneDATA install-linphone_fdDATA \
+	install-man install-pdf install-pdf-am install-pkgconfigDATA \
+	install-ps install-ps-am install-ringDATA install-soundDATA \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-appdataDATA uninstall-linphoneDATA \
 	uninstall-linphone_fdDATA uninstall-pkgconfigDATA \
 	uninstall-ringDATA uninstall-soundDATA
 

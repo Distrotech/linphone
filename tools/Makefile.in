@@ -81,7 +81,10 @@ host_triplet = @host@
 target_triplet = @target@
 @BUILD_TOOLS_TRUE@bin_PROGRAMS = xml2lpc_test$(EXEEXT) \
 @BUILD_TOOLS_TRUE@	lpc2xml_test$(EXEEXT) \
-@BUILD_TOOLS_TRUE@	lp-gen-wrappers$(EXEEXT)
+@BUILD_TOOLS_TRUE@	lp-gen-wrappers$(EXEEXT) \
+@BUILD_TOOLS_TRUE@	lp-autoanswer$(EXEEXT)
+@ENABLE_TESTS_TRUE@noinst_PROGRAMS = test_lsd$(EXEEXT) \
+@ENABLE_TESTS_TRUE@	test_ecc$(EXEEXT) test_numbers$(EXEEXT)
 subdir = tools
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
@@ -103,19 +106,29 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
-PROGRAMS = $(bin_PROGRAMS)
-am__lp_gen_wrappers_SOURCES_DIST = genwrappers.cc software-desc.cc \
-	software-desc.hh generator.cc generator.hh
-@BUILD_TOOLS_TRUE@am_lp_gen_wrappers_OBJECTS = genwrappers.$(OBJEXT) \
-@BUILD_TOOLS_TRUE@	software-desc.$(OBJEXT) generator.$(OBJEXT)
-lp_gen_wrappers_OBJECTS = $(am_lp_gen_wrappers_OBJECTS)
+PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
+am__lp_autoanswer_SOURCES_DIST = auto_answer.c
+@BUILD_TOOLS_TRUE@am_lp_autoanswer_OBJECTS =  \
+@BUILD_TOOLS_TRUE@	lp_autoanswer-auto_answer.$(OBJEXT)
+lp_autoanswer_OBJECTS = $(am_lp_autoanswer_OBJECTS)
 am__DEPENDENCIES_1 =
-@BUILD_TOOLS_TRUE@lp_gen_wrappers_DEPENDENCIES =  \
+@BUILD_TOOLS_TRUE@lp_autoanswer_DEPENDENCIES =  \
+@BUILD_TOOLS_TRUE@	$(top_builddir)/coreapi/liblinphone.la \
 @BUILD_TOOLS_TRUE@	$(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+lp_autoanswer_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(lp_autoanswer_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am__lp_gen_wrappers_SOURCES_DIST = genwrappers.cc software-desc.cc \
+	software-desc.hh generator.cc generator.hh
+@BUILD_TOOLS_TRUE@am_lp_gen_wrappers_OBJECTS = genwrappers.$(OBJEXT) \
+@BUILD_TOOLS_TRUE@	software-desc.$(OBJEXT) generator.$(OBJEXT)
+lp_gen_wrappers_OBJECTS = $(am_lp_gen_wrappers_OBJECTS)
+@BUILD_TOOLS_TRUE@lp_gen_wrappers_DEPENDENCIES =  \
+@BUILD_TOOLS_TRUE@	$(am__DEPENDENCIES_1)
 am__lpc2xml_test_SOURCES_DIST = lpc2xml_test.c
 @BUILD_TOOLS_TRUE@am_lpc2xml_test_OBJECTS =  \
 @BUILD_TOOLS_TRUE@	lpc2xml_test-lpc2xml_test.$(OBJEXT)
@@ -124,6 +137,31 @@ lpc2xml_test_OBJECTS = $(am_lpc2xml_test_OBJECTS)
 @BUILD_TOOLS_TRUE@	$(top_builddir)/coreapi/liblinphone.la
 lpc2xml_test_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(lpc2xml_test_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am__test_ecc_SOURCES_DIST = test_ecc.c
+@ENABLE_TESTS_TRUE@am_test_ecc_OBJECTS = test_ecc-test_ecc.$(OBJEXT)
+test_ecc_OBJECTS = $(am_test_ecc_OBJECTS)
+@ENABLE_TESTS_TRUE@test_ecc_DEPENDENCIES =  \
+@ENABLE_TESTS_TRUE@	$(top_builddir)/coreapi/liblinphone.la
+test_ecc_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(test_ecc_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am__test_lsd_SOURCES_DIST = test_lsd.c
+@ENABLE_TESTS_TRUE@am_test_lsd_OBJECTS = test_lsd-test_lsd.$(OBJEXT)
+test_lsd_OBJECTS = $(am_test_lsd_OBJECTS)
+@ENABLE_TESTS_TRUE@test_lsd_DEPENDENCIES =  \
+@ENABLE_TESTS_TRUE@	$(top_builddir)/coreapi/liblinphone.la
+test_lsd_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(test_lsd_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am__test_numbers_SOURCES_DIST = test_numbers.c
+@ENABLE_TESTS_TRUE@am_test_numbers_OBJECTS =  \
+@ENABLE_TESTS_TRUE@	test_numbers-test_numbers.$(OBJEXT)
+test_numbers_OBJECTS = $(am_test_numbers_OBJECTS)
+@ENABLE_TESTS_TRUE@test_numbers_DEPENDENCIES =  \
+@ENABLE_TESTS_TRUE@	$(top_builddir)/coreapi/liblinphone.la
+test_numbers_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(test_numbers_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am__xml2lpc_test_SOURCES_DIST = xml2lpc_test.c
 @BUILD_TOOLS_TRUE@am_xml2lpc_test_OBJECTS =  \
@@ -186,10 +224,14 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(lp_gen_wrappers_SOURCES) $(lpc2xml_test_SOURCES) \
+SOURCES = $(lp_autoanswer_SOURCES) $(lp_gen_wrappers_SOURCES) \
+	$(lpc2xml_test_SOURCES) $(test_ecc_SOURCES) \
+	$(test_lsd_SOURCES) $(test_numbers_SOURCES) \
 	$(xml2lpc_test_SOURCES)
-DIST_SOURCES = $(am__lp_gen_wrappers_SOURCES_DIST) \
-	$(am__lpc2xml_test_SOURCES_DIST) \
+DIST_SOURCES = $(am__lp_autoanswer_SOURCES_DIST) \
+	$(am__lp_gen_wrappers_SOURCES_DIST) \
+	$(am__lpc2xml_test_SOURCES_DIST) $(am__test_ecc_SOURCES_DIST) \
+	$(am__test_lsd_SOURCES_DIST) $(am__test_numbers_SOURCES_DIST) \
 	$(am__xml2lpc_test_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -281,6 +323,8 @@ LD = @LD@
 LDAP_CFLAGS = @LDAP_CFLAGS@
 LDAP_LIBS = @LDAP_LIBS@
 LDFLAGS = @LDFLAGS@
+LIBGLIB_CFLAGS = @LIBGLIB_CFLAGS@
+LIBGLIB_LIBS = @LIBGLIB_LIBS@
 LIBGTKMAC_CFLAGS = @LIBGTKMAC_CFLAGS@
 LIBGTKMAC_LIBS = @LIBGTKMAC_LIBS@
 LIBGTKWIZARD_CFLAGS = @LIBGTKWIZARD_CFLAGS@
@@ -293,8 +337,6 @@ LIBLINPHONE_SO_CURRENT = @LIBLINPHONE_SO_CURRENT@
 LIBLINPHONE_SO_VERSION = @LIBLINPHONE_SO_VERSION@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBSOUP_CFLAGS = @LIBSOUP_CFLAGS@
-LIBSOUP_LIBS = @LIBSOUP_LIBS@
 LIBTOOL = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 LIBUPNP_CFLAGS = @LIBUPNP_CFLAGS@
@@ -355,6 +397,7 @@ SASL_LIBS = @SASL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIPP = @SIPP@
 SIPSTACK_CFLAGS = @SIPSTACK_CFLAGS@
 SIPSTACK_LIBS = @SIPSTACK_LIBS@
 SPEEX_CFLAGS = @SPEEX_CFLAGS@
@@ -362,6 +405,8 @@ SPEEX_LIBS = @SPEEX_LIBS@
 SQLITE3_CFLAGS = @SQLITE3_CFLAGS@
 SQLITE3_LIBS = @SQLITE3_LIBS@
 STRICT_OPTIONS = @STRICT_OPTIONS@
+STRICT_OPTIONS_CC = @STRICT_OPTIONS_CC@
+STRICT_OPTIONS_CXX = @STRICT_OPTIONS_CXX@
 STRIP = @STRIP@
 TRUESPEECH_CFLAGS = @TRUESPEECH_CFLAGS@
 TUNNEL_CFLAGS = @TUNNEL_CFLAGS@
@@ -372,6 +417,8 @@ WINDRES = @WINDRES@
 X11_LIBS = @X11_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
+ZLIB_CFLAGS = @ZLIB_CFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -435,18 +482,19 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-	-I$(top_srcdir)/coreapi 
+	-I$(top_srcdir)/coreapi
 
 COMMON_CFLAGS = \
 	-DIN_LINPHONE \
 	$(ORTP_CFLAGS) \
 	$(MEDIASTREAMER_CFLAGS) \
 	$(STRICT_OPTIONS) \
-	$(LIBXML2_CFLAGS) 
+	$(STRICT_OPTIONS_CC) \
+	$(LIBXML2_CFLAGS)
 
 
 #-fpermissive to workaround a g++ bug on macos 32bit SDK.
-AM_CXXFLAGS = $(LIBXML2_CFLAGS) -fpermissive $(STRICT_OPTIONS) 
+AM_CXXFLAGS = $(LIBXML2_CFLAGS) -fpermissive $(STRICT_OPTIONS) $(STRICT_OPTIONS_CXX)
 EXTRA_DIST = xml2lpc_jni.cc lpc2xml_jni.cc
 @BUILD_TOOLS_TRUE@xml2lpc_test_SOURCES = \
 @BUILD_TOOLS_TRUE@	xml2lpc_test.c
@@ -469,6 +517,21 @@ EXTRA_DIST = xml2lpc_jni.cc lpc2xml_jni.cc
 @BUILD_TOOLS_TRUE@lp_gen_wrappers_LDADD = \
 @BUILD_TOOLS_TRUE@		$(LIBXML2_LIBS)
 
+@BUILD_TOOLS_TRUE@lp_autoanswer_SOURCES = auto_answer.c
+@BUILD_TOOLS_TRUE@lp_autoanswer_CFLAGS = $(COMMON_CFLAGS)
+@BUILD_TOOLS_TRUE@lp_autoanswer_LDADD = \
+@BUILD_TOOLS_TRUE@	$(top_builddir)/coreapi/liblinphone.la \
+@BUILD_TOOLS_TRUE@	$(MEDIASTREAMER_LIBS)
+
+@ENABLE_TESTS_TRUE@test_lsd_SOURCES = test_lsd.c
+@ENABLE_TESTS_TRUE@test_lsd_CFLAGS = $(COMMON_CFLAGS)
+@ENABLE_TESTS_TRUE@test_lsd_LDADD = $(top_builddir)/coreapi/liblinphone.la
+@ENABLE_TESTS_TRUE@test_ecc_SOURCES = test_ecc.c
+@ENABLE_TESTS_TRUE@test_ecc_CFLAGS = $(COMMON_CFLAGS)
+@ENABLE_TESTS_TRUE@test_ecc_LDADD = $(top_builddir)/coreapi/liblinphone.la
+@ENABLE_TESTS_TRUE@test_numbers_SOURCES = test_numbers.c
+@ENABLE_TESTS_TRUE@test_numbers_CFLAGS = $(COMMON_CFLAGS)
+@ENABLE_TESTS_TRUE@test_numbers_LDADD = $(top_builddir)/coreapi/liblinphone.la
 all: all-am
 
 .SUFFIXES:
@@ -553,6 +616,19 @@ clean-binPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
+clean-noinstPROGRAMS:
+	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
+
+lp-autoanswer$(EXEEXT): $(lp_autoanswer_OBJECTS) $(lp_autoanswer_DEPENDENCIES) $(EXTRA_lp_autoanswer_DEPENDENCIES) 
+	@rm -f lp-autoanswer$(EXEEXT)
+	$(AM_V_CCLD)$(lp_autoanswer_LINK) $(lp_autoanswer_OBJECTS) $(lp_autoanswer_LDADD) $(LIBS)
+
 lp-gen-wrappers$(EXEEXT): $(lp_gen_wrappers_OBJECTS) $(lp_gen_wrappers_DEPENDENCIES) $(EXTRA_lp_gen_wrappers_DEPENDENCIES) 
 	@rm -f lp-gen-wrappers$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(lp_gen_wrappers_OBJECTS) $(lp_gen_wrappers_LDADD) $(LIBS)
@@ -560,6 +636,18 @@ lp-gen-wrappers$(EXEEXT): $(lp_gen_wrappers_OBJECTS) $(lp_gen_wrappers_DEPENDENC
 lpc2xml_test$(EXEEXT): $(lpc2xml_test_OBJECTS) $(lpc2xml_test_DEPENDENCIES) $(EXTRA_lpc2xml_test_DEPENDENCIES) 
 	@rm -f lpc2xml_test$(EXEEXT)
 	$(AM_V_CCLD)$(lpc2xml_test_LINK) $(lpc2xml_test_OBJECTS) $(lpc2xml_test_LDADD) $(LIBS)
+
+test_ecc$(EXEEXT): $(test_ecc_OBJECTS) $(test_ecc_DEPENDENCIES) $(EXTRA_test_ecc_DEPENDENCIES) 
+	@rm -f test_ecc$(EXEEXT)
+	$(AM_V_CCLD)$(test_ecc_LINK) $(test_ecc_OBJECTS) $(test_ecc_LDADD) $(LIBS)
+
+test_lsd$(EXEEXT): $(test_lsd_OBJECTS) $(test_lsd_DEPENDENCIES) $(EXTRA_test_lsd_DEPENDENCIES) 
+	@rm -f test_lsd$(EXEEXT)
+	$(AM_V_CCLD)$(test_lsd_LINK) $(test_lsd_OBJECTS) $(test_lsd_LDADD) $(LIBS)
+
+test_numbers$(EXEEXT): $(test_numbers_OBJECTS) $(test_numbers_DEPENDENCIES) $(EXTRA_test_numbers_DEPENDENCIES) 
+	@rm -f test_numbers$(EXEEXT)
+	$(AM_V_CCLD)$(test_numbers_LINK) $(test_numbers_OBJECTS) $(test_numbers_LDADD) $(LIBS)
 
 xml2lpc_test$(EXEEXT): $(xml2lpc_test_OBJECTS) $(xml2lpc_test_DEPENDENCIES) $(EXTRA_xml2lpc_test_DEPENDENCIES) 
 	@rm -f xml2lpc_test$(EXEEXT)
@@ -573,30 +661,51 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/genwrappers.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lp_autoanswer-auto_answer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lpc2xml_test-lpc2xml_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/software-desc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_ecc-test_ecc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_lsd-test_lsd.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_numbers-test_numbers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xml2lpc_test-xml2lpc_test.Po@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+lp_autoanswer-auto_answer.o: auto_answer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lp_autoanswer_CFLAGS) $(CFLAGS) -MT lp_autoanswer-auto_answer.o -MD -MP -MF $(DEPDIR)/lp_autoanswer-auto_answer.Tpo -c -o lp_autoanswer-auto_answer.o `test -f 'auto_answer.c' || echo '$(srcdir)/'`auto_answer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lp_autoanswer-auto_answer.Tpo $(DEPDIR)/lp_autoanswer-auto_answer.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='auto_answer.c' object='lp_autoanswer-auto_answer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lp_autoanswer_CFLAGS) $(CFLAGS) -c -o lp_autoanswer-auto_answer.o `test -f 'auto_answer.c' || echo '$(srcdir)/'`auto_answer.c
+
+lp_autoanswer-auto_answer.obj: auto_answer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lp_autoanswer_CFLAGS) $(CFLAGS) -MT lp_autoanswer-auto_answer.obj -MD -MP -MF $(DEPDIR)/lp_autoanswer-auto_answer.Tpo -c -o lp_autoanswer-auto_answer.obj `if test -f 'auto_answer.c'; then $(CYGPATH_W) 'auto_answer.c'; else $(CYGPATH_W) '$(srcdir)/auto_answer.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/lp_autoanswer-auto_answer.Tpo $(DEPDIR)/lp_autoanswer-auto_answer.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='auto_answer.c' object='lp_autoanswer-auto_answer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lp_autoanswer_CFLAGS) $(CFLAGS) -c -o lp_autoanswer-auto_answer.obj `if test -f 'auto_answer.c'; then $(CYGPATH_W) 'auto_answer.c'; else $(CYGPATH_W) '$(srcdir)/auto_answer.c'; fi`
 
 lpc2xml_test-lpc2xml_test.o: lpc2xml_test.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lpc2xml_test_CFLAGS) $(CFLAGS) -MT lpc2xml_test-lpc2xml_test.o -MD -MP -MF $(DEPDIR)/lpc2xml_test-lpc2xml_test.Tpo -c -o lpc2xml_test-lpc2xml_test.o `test -f 'lpc2xml_test.c' || echo '$(srcdir)/'`lpc2xml_test.c
@@ -611,6 +720,48 @@ lpc2xml_test-lpc2xml_test.obj: lpc2xml_test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='lpc2xml_test.c' object='lpc2xml_test-lpc2xml_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lpc2xml_test_CFLAGS) $(CFLAGS) -c -o lpc2xml_test-lpc2xml_test.obj `if test -f 'lpc2xml_test.c'; then $(CYGPATH_W) 'lpc2xml_test.c'; else $(CYGPATH_W) '$(srcdir)/lpc2xml_test.c'; fi`
+
+test_ecc-test_ecc.o: test_ecc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_ecc_CFLAGS) $(CFLAGS) -MT test_ecc-test_ecc.o -MD -MP -MF $(DEPDIR)/test_ecc-test_ecc.Tpo -c -o test_ecc-test_ecc.o `test -f 'test_ecc.c' || echo '$(srcdir)/'`test_ecc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ecc-test_ecc.Tpo $(DEPDIR)/test_ecc-test_ecc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test_ecc.c' object='test_ecc-test_ecc.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_ecc_CFLAGS) $(CFLAGS) -c -o test_ecc-test_ecc.o `test -f 'test_ecc.c' || echo '$(srcdir)/'`test_ecc.c
+
+test_ecc-test_ecc.obj: test_ecc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_ecc_CFLAGS) $(CFLAGS) -MT test_ecc-test_ecc.obj -MD -MP -MF $(DEPDIR)/test_ecc-test_ecc.Tpo -c -o test_ecc-test_ecc.obj `if test -f 'test_ecc.c'; then $(CYGPATH_W) 'test_ecc.c'; else $(CYGPATH_W) '$(srcdir)/test_ecc.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_ecc-test_ecc.Tpo $(DEPDIR)/test_ecc-test_ecc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test_ecc.c' object='test_ecc-test_ecc.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_ecc_CFLAGS) $(CFLAGS) -c -o test_ecc-test_ecc.obj `if test -f 'test_ecc.c'; then $(CYGPATH_W) 'test_ecc.c'; else $(CYGPATH_W) '$(srcdir)/test_ecc.c'; fi`
+
+test_lsd-test_lsd.o: test_lsd.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_lsd_CFLAGS) $(CFLAGS) -MT test_lsd-test_lsd.o -MD -MP -MF $(DEPDIR)/test_lsd-test_lsd.Tpo -c -o test_lsd-test_lsd.o `test -f 'test_lsd.c' || echo '$(srcdir)/'`test_lsd.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_lsd-test_lsd.Tpo $(DEPDIR)/test_lsd-test_lsd.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test_lsd.c' object='test_lsd-test_lsd.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_lsd_CFLAGS) $(CFLAGS) -c -o test_lsd-test_lsd.o `test -f 'test_lsd.c' || echo '$(srcdir)/'`test_lsd.c
+
+test_lsd-test_lsd.obj: test_lsd.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_lsd_CFLAGS) $(CFLAGS) -MT test_lsd-test_lsd.obj -MD -MP -MF $(DEPDIR)/test_lsd-test_lsd.Tpo -c -o test_lsd-test_lsd.obj `if test -f 'test_lsd.c'; then $(CYGPATH_W) 'test_lsd.c'; else $(CYGPATH_W) '$(srcdir)/test_lsd.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_lsd-test_lsd.Tpo $(DEPDIR)/test_lsd-test_lsd.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test_lsd.c' object='test_lsd-test_lsd.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_lsd_CFLAGS) $(CFLAGS) -c -o test_lsd-test_lsd.obj `if test -f 'test_lsd.c'; then $(CYGPATH_W) 'test_lsd.c'; else $(CYGPATH_W) '$(srcdir)/test_lsd.c'; fi`
+
+test_numbers-test_numbers.o: test_numbers.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_numbers_CFLAGS) $(CFLAGS) -MT test_numbers-test_numbers.o -MD -MP -MF $(DEPDIR)/test_numbers-test_numbers.Tpo -c -o test_numbers-test_numbers.o `test -f 'test_numbers.c' || echo '$(srcdir)/'`test_numbers.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_numbers-test_numbers.Tpo $(DEPDIR)/test_numbers-test_numbers.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test_numbers.c' object='test_numbers-test_numbers.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_numbers_CFLAGS) $(CFLAGS) -c -o test_numbers-test_numbers.o `test -f 'test_numbers.c' || echo '$(srcdir)/'`test_numbers.c
+
+test_numbers-test_numbers.obj: test_numbers.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_numbers_CFLAGS) $(CFLAGS) -MT test_numbers-test_numbers.obj -MD -MP -MF $(DEPDIR)/test_numbers-test_numbers.Tpo -c -o test_numbers-test_numbers.obj `if test -f 'test_numbers.c'; then $(CYGPATH_W) 'test_numbers.c'; else $(CYGPATH_W) '$(srcdir)/test_numbers.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_numbers-test_numbers.Tpo $(DEPDIR)/test_numbers-test_numbers.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test_numbers.c' object='test_numbers-test_numbers.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_numbers_CFLAGS) $(CFLAGS) -c -o test_numbers-test_numbers.obj `if test -f 'test_numbers.c'; then $(CYGPATH_W) 'test_numbers.c'; else $(CYGPATH_W) '$(srcdir)/test_numbers.c'; fi`
 
 xml2lpc_test-xml2lpc_test.o: xml2lpc_test.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xml2lpc_test_CFLAGS) $(CFLAGS) -MT xml2lpc_test-xml2lpc_test.o -MD -MP -MF $(DEPDIR)/xml2lpc_test-xml2lpc_test.Tpo -c -o xml2lpc_test-xml2lpc_test.o `test -f 'xml2lpc_test.c' || echo '$(srcdir)/'`xml2lpc_test.c
@@ -627,22 +778,25 @@ xml2lpc_test-xml2lpc_test.obj: xml2lpc_test.c
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xml2lpc_test_CFLAGS) $(CFLAGS) -c -o xml2lpc_test-xml2lpc_test.obj `if test -f 'xml2lpc_test.c'; then $(CYGPATH_W) 'xml2lpc_test.c'; else $(CYGPATH_W) '$(srcdir)/xml2lpc_test.c'; fi`
 
 .cc.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
 
 .cc.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .cc.lo:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
@@ -774,7 +928,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libtool \
+	clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -845,15 +1000,16 @@ uninstall-am: uninstall-binPROGRAMS
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean \
-	clean-binPROGRAMS clean-generic clean-libtool cscopelist-am \
-	ctags ctags-am distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-binPROGRAMS \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	clean-binPROGRAMS clean-generic clean-libtool \
+	clean-noinstPROGRAMS cscopelist-am ctags ctags-am distclean \
+	distclean-compile distclean-generic distclean-libtool \
+	distclean-tags distdir dvi dvi-am html html-am info info-am \
+	install install-am install-binPROGRAMS install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS

@@ -15,7 +15,8 @@
 /* Define if wizard enabled */
 #undef BUILD_WIZARD
 
-/* Tells whether localisation is possible */
+/* Define to 1 if translation of program messages to the user's native
+   language is requested. */
 #undef ENABLE_NLS
 
 /* Defined when using gsm at nonstandard rates */
@@ -38,6 +39,9 @@
 /* defined when CU_curses_run_tests is available */
 #undef HAVE_CU_CURSES
 
+/* defined when CU_get_suite is available */
+#undef HAVE_CU_GET_SUITE
+
 /* Define if the GNU dcgettext() function is already present or preinstalled.
    */
 #undef HAVE_DCGETTEXT
@@ -52,7 +56,7 @@
 /* Define to 1 if you have the `getifaddrs' function. */
 #undef HAVE_GETIFADDRS
 
-/* Tells wheter localisation is possible */
+/* Define if the GNU gettext() function is already present or preinstalled. */
 #undef HAVE_GETTEXT
 
 /* Define to 1 if you have the `get_current_dir_name' function. */
@@ -67,6 +71,9 @@
 /* Define if you have the iconv() function. */
 #undef HAVE_ICONV
 
+/* Tells wheter localisation is possible */
+#undef HAVE_INTL
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -79,6 +86,9 @@
 /* Define to 1 if you have the <libudev.h> header file. */
 #undef HAVE_LIBUDEV_H
 
+/* Defined when LIME support is compiled */
+#undef HAVE_LIME
+
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
@@ -87,6 +97,9 @@
 
 /* NOTIFY4 support */
 #undef HAVE_NOTIFY4
+
+/* Define to 1 if you have the <polarssl/gcm.h> header file. */
+#undef HAVE_POLARSSL_GCM_H
 
 /* defined when compiling with readline support */
 #undef HAVE_READLINE
@@ -105,6 +118,9 @@
 
 /* Define if sighandler_t available */
 #undef HAVE_SIGHANDLER_T
+
+/* defined when SIPP is available */
+#undef HAVE_SIPP
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -135,6 +151,9 @@
 
 /* Define to 1 if you have the <X11/Xlib.h> header file. */
 #undef HAVE_X11_XLIB_H
+
+/* ZLIB support */
+#undef HAVE_ZLIB
 
 /* All supported languages */
 #undef LINPHONE_ALL_LANGS
@@ -181,6 +200,9 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
+
+/* defined when SIPP is available */
+#undef SIPP_COMMAND
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

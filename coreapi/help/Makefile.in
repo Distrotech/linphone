@@ -83,7 +83,9 @@ target_triplet = @target@
 @ENABLE_TUTORIALS_TRUE@noinst_PROGRAMS = helloworld$(EXEEXT) \
 @ENABLE_TUTORIALS_TRUE@	registration$(EXEEXT) \
 @ENABLE_TUTORIALS_TRUE@	buddy_status$(EXEEXT) chatroom$(EXEEXT) \
-@ENABLE_TUTORIALS_TRUE@	notify$(EXEEXT)
+@ENABLE_TUTORIALS_TRUE@	notify$(EXEEXT) filetransfer$(EXEEXT) \
+@ENABLE_TUTORIALS_TRUE@	realtimetext_sender$(EXEEXT) \
+@ENABLE_TUTORIALS_TRUE@	realtimetext_receiver$(EXEEXT)
 subdir = coreapi/help
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/Doxyfile.in $(top_srcdir)/depcomp
@@ -125,6 +127,12 @@ am__chatroom_SOURCES_DIST = chatroom.c
 @ENABLE_TUTORIALS_TRUE@am_chatroom_OBJECTS = chatroom.$(OBJEXT)
 chatroom_OBJECTS = $(am_chatroom_OBJECTS)
 @ENABLE_TUTORIALS_TRUE@chatroom_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am__filetransfer_SOURCES_DIST = filetransfer.c
+@ENABLE_TUTORIALS_TRUE@am_filetransfer_OBJECTS =  \
+@ENABLE_TUTORIALS_TRUE@	filetransfer.$(OBJEXT)
+filetransfer_OBJECTS = $(am_filetransfer_OBJECTS)
+@ENABLE_TUTORIALS_TRUE@filetransfer_DEPENDENCIES =  \
+@ENABLE_TUTORIALS_TRUE@	$(am__DEPENDENCIES_2)
 am__helloworld_SOURCES_DIST = helloworld.c
 @ENABLE_TUTORIALS_TRUE@am_helloworld_OBJECTS = helloworld.$(OBJEXT)
 helloworld_OBJECTS = $(am_helloworld_OBJECTS)
@@ -137,6 +145,18 @@ am__notify_SOURCES_DIST = notify.c
 @ENABLE_TUTORIALS_TRUE@am_notify_OBJECTS = notify.$(OBJEXT)
 notify_OBJECTS = $(am_notify_OBJECTS)
 @ENABLE_TUTORIALS_TRUE@notify_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am__realtimetext_receiver_SOURCES_DIST = realtimetext_receiver.c
+@ENABLE_TUTORIALS_TRUE@am_realtimetext_receiver_OBJECTS =  \
+@ENABLE_TUTORIALS_TRUE@	realtimetext_receiver.$(OBJEXT)
+realtimetext_receiver_OBJECTS = $(am_realtimetext_receiver_OBJECTS)
+@ENABLE_TUTORIALS_TRUE@realtimetext_receiver_DEPENDENCIES =  \
+@ENABLE_TUTORIALS_TRUE@	$(am__DEPENDENCIES_2)
+am__realtimetext_sender_SOURCES_DIST = realtimetext_sender.c
+@ENABLE_TUTORIALS_TRUE@am_realtimetext_sender_OBJECTS =  \
+@ENABLE_TUTORIALS_TRUE@	realtimetext_sender.$(OBJEXT)
+realtimetext_sender_OBJECTS = $(am_realtimetext_sender_OBJECTS)
+@ENABLE_TUTORIALS_TRUE@realtimetext_sender_DEPENDENCIES =  \
+@ENABLE_TUTORIALS_TRUE@	$(am__DEPENDENCIES_2)
 am__registration_SOURCES_DIST = registration.c
 @ENABLE_TUTORIALS_TRUE@am_registration_OBJECTS =  \
 @ENABLE_TUTORIALS_TRUE@	registration.$(OBJEXT)
@@ -178,8 +198,11 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 DIST_SOURCES = $(am__buddy_status_SOURCES_DIST) \
-	$(am__chatroom_SOURCES_DIST) $(am__helloworld_SOURCES_DIST) \
-	$(am__notify_SOURCES_DIST) $(am__registration_SOURCES_DIST)
+	$(am__chatroom_SOURCES_DIST) $(am__filetransfer_SOURCES_DIST) \
+	$(am__helloworld_SOURCES_DIST) $(am__notify_SOURCES_DIST) \
+	$(am__realtimetext_receiver_SOURCES_DIST) \
+	$(am__realtimetext_sender_SOURCES_DIST) \
+	$(am__registration_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -300,6 +323,8 @@ LD = @LD@
 LDAP_CFLAGS = @LDAP_CFLAGS@
 LDAP_LIBS = @LDAP_LIBS@
 LDFLAGS = @LDFLAGS@
+LIBGLIB_CFLAGS = @LIBGLIB_CFLAGS@
+LIBGLIB_LIBS = @LIBGLIB_LIBS@
 LIBGTKMAC_CFLAGS = @LIBGTKMAC_CFLAGS@
 LIBGTKMAC_LIBS = @LIBGTKMAC_LIBS@
 LIBGTKWIZARD_CFLAGS = @LIBGTKWIZARD_CFLAGS@
@@ -312,8 +337,6 @@ LIBLINPHONE_SO_CURRENT = @LIBLINPHONE_SO_CURRENT@
 LIBLINPHONE_SO_VERSION = @LIBLINPHONE_SO_VERSION@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBSOUP_CFLAGS = @LIBSOUP_CFLAGS@
-LIBSOUP_LIBS = @LIBSOUP_LIBS@
 LIBTOOL = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 LIBUPNP_CFLAGS = @LIBUPNP_CFLAGS@
@@ -374,6 +397,7 @@ SASL_LIBS = @SASL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIPP = @SIPP@
 SIPSTACK_CFLAGS = @SIPSTACK_CFLAGS@
 SIPSTACK_LIBS = @SIPSTACK_LIBS@
 SPEEX_CFLAGS = @SPEEX_CFLAGS@
@@ -381,6 +405,8 @@ SPEEX_LIBS = @SPEEX_LIBS@
 SQLITE3_CFLAGS = @SQLITE3_CFLAGS@
 SQLITE3_LIBS = @SQLITE3_LIBS@
 STRICT_OPTIONS = @STRICT_OPTIONS@
+STRICT_OPTIONS_CC = @STRICT_OPTIONS_CC@
+STRICT_OPTIONS_CXX = @STRICT_OPTIONS_CXX@
 STRIP = @STRIP@
 TRUESPEECH_CFLAGS = @TRUESPEECH_CFLAGS@
 TUNNEL_CFLAGS = @TUNNEL_CFLAGS@
@@ -391,6 +417,8 @@ WINDRES = @WINDRES@
 X11_LIBS = @X11_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
+ZLIB_CFLAGS = @ZLIB_CFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -453,7 +481,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 EXTRA_DIST = Doxyfile.in doxygen.dox
-SOURCES = doxygen.dox $(top_srcdir)/coreapi/help/*.c $(top_srcdir)/coreapi/*.c $(top_srcdir)/coreapi/*.h  
+SOURCES = doxygen.dox $(top_srcdir)/coreapi/help/*.c $(top_srcdir)/coreapi/*.c $(top_srcdir)/coreapi/*.h
 
 # html doc
 
@@ -467,7 +495,10 @@ SOURCES = doxygen.dox $(top_srcdir)/coreapi/help/*.c $(top_srcdir)/coreapi/*.c $
 @ENABLE_TUTORIALS_TRUE@LINPHONE_TUTOS = $(helloworld_SOURCES) \
 @ENABLE_TUTORIALS_TRUE@	$(registration_SOURCES) \
 @ENABLE_TUTORIALS_TRUE@	$(buddy_status_SOURCES) \
-@ENABLE_TUTORIALS_TRUE@	$(chatroom_SOURCES) $(notify_SOURCES)
+@ENABLE_TUTORIALS_TRUE@	$(chatroom_SOURCES) $(notify_SOURCES) \
+@ENABLE_TUTORIALS_TRUE@	$(filetransfer_SOURCES) \
+@ENABLE_TUTORIALS_TRUE@	$(realtimetext_sender_SOURCES) \
+@ENABLE_TUTORIALS_TRUE@	$(realtimetext_receiver_SOURCES)
 @ENABLE_TUTORIALS_TRUE@helloworld_LDADD = $(top_builddir)/coreapi/liblinphone.la \
 @ENABLE_TUTORIALS_TRUE@				$(MEDIASTREAMER_LIBS) \
 @ENABLE_TUTORIALS_TRUE@				$(ORTP_LIBS) \
@@ -481,9 +512,16 @@ SOURCES = doxygen.dox $(top_srcdir)/coreapi/help/*.c $(top_srcdir)/coreapi/*.c $
 @ENABLE_TUTORIALS_TRUE@chatroom_LDADD = $(helloworld_LDADD)
 @ENABLE_TUTORIALS_TRUE@notify_SOURCES = notify.c
 @ENABLE_TUTORIALS_TRUE@notify_LDADD = $(helloworld_LDADD)
+@ENABLE_TUTORIALS_TRUE@filetransfer_SOURCES = filetransfer.c
+@ENABLE_TUTORIALS_TRUE@filetransfer_LDADD = $(helloworld_LDADD)
+@ENABLE_TUTORIALS_TRUE@realtimetext_sender_SOURCES = realtimetext_sender.c
+@ENABLE_TUTORIALS_TRUE@realtimetext_sender_LDADD = $(helloworld_LDADD)
+@ENABLE_TUTORIALS_TRUE@realtimetext_receiver_SOURCES = realtimetext_receiver.c
+@ENABLE_TUTORIALS_TRUE@realtimetext_receiver_LDADD = $(helloworld_LDADD)
 @ENABLE_TUTORIALS_TRUE@AM_CFLAGS = \
 @ENABLE_TUTORIALS_TRUE@	-I$(top_srcdir)/coreapi \
 @ENABLE_TUTORIALS_TRUE@	$(STRICT_OPTIONS) \
+@ENABLE_TUTORIALS_TRUE@	$(STRICT_OPTIONS_CC) \
 @ENABLE_TUTORIALS_TRUE@	-DIN_LINPHONE \
 @ENABLE_TUTORIALS_TRUE@	$(ORTP_CFLAGS) \
 @ENABLE_TUTORIALS_TRUE@	$(MEDIASTREAMER_CFLAGS) \
@@ -550,6 +588,10 @@ chatroom$(EXEEXT): $(chatroom_OBJECTS) $(chatroom_DEPENDENCIES) $(EXTRA_chatroom
 	@rm -f chatroom$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(chatroom_OBJECTS) $(chatroom_LDADD) $(LIBS)
 
+filetransfer$(EXEEXT): $(filetransfer_OBJECTS) $(filetransfer_DEPENDENCIES) $(EXTRA_filetransfer_DEPENDENCIES) 
+	@rm -f filetransfer$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(filetransfer_OBJECTS) $(filetransfer_LDADD) $(LIBS)
+
 helloworld$(EXEEXT): $(helloworld_OBJECTS) $(helloworld_DEPENDENCIES) $(EXTRA_helloworld_DEPENDENCIES) 
 	@rm -f helloworld$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(helloworld_OBJECTS) $(helloworld_LDADD) $(LIBS)
@@ -557,6 +599,14 @@ helloworld$(EXEEXT): $(helloworld_OBJECTS) $(helloworld_DEPENDENCIES) $(EXTRA_he
 notify$(EXEEXT): $(notify_OBJECTS) $(notify_DEPENDENCIES) $(EXTRA_notify_DEPENDENCIES) 
 	@rm -f notify$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(notify_OBJECTS) $(notify_LDADD) $(LIBS)
+
+realtimetext_receiver$(EXEEXT): $(realtimetext_receiver_OBJECTS) $(realtimetext_receiver_DEPENDENCIES) $(EXTRA_realtimetext_receiver_DEPENDENCIES) 
+	@rm -f realtimetext_receiver$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(realtimetext_receiver_OBJECTS) $(realtimetext_receiver_LDADD) $(LIBS)
+
+realtimetext_sender$(EXEEXT): $(realtimetext_sender_OBJECTS) $(realtimetext_sender_DEPENDENCIES) $(EXTRA_realtimetext_sender_DEPENDENCIES) 
+	@rm -f realtimetext_sender$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(realtimetext_sender_OBJECTS) $(realtimetext_sender_LDADD) $(LIBS)
 
 registration$(EXEEXT): $(registration_OBJECTS) $(registration_DEPENDENCIES) $(EXTRA_registration_DEPENDENCIES) 
 	@rm -f registration$(EXEEXT)
@@ -570,27 +620,33 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buddy_status.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chatroom.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filetransfer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/helloworld.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/notify.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/realtimetext_receiver.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/realtimetext_sender.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/registration.Po@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<

@@ -82,12 +82,16 @@ host_triplet = @host@
 target_triplet = @target@
 @BUILD_GTK_UI_TRUE@bin_PROGRAMS = linphone$(EXEEXT)
 @BUILD_GTK_UI_TRUE@@BUILD_WIZARD_TRUE@am__append_1 = \
-@BUILD_GTK_UI_TRUE@@BUILD_WIZARD_TRUE@			setupwizard.c
+@BUILD_GTK_UI_TRUE@@BUILD_WIZARD_TRUE@	setupwizard.c setupwizard.h
 
-@BUILD_GTK_UI_TRUE@@BUILD_WIN32_TRUE@am__append_2 = linphone.res -lwininet
+@BUILD_GTK_UI_TRUE@@BUILD_STATUS_NOTIFIER_TRUE@am__append_2 = \
+@BUILD_GTK_UI_TRUE@@BUILD_STATUS_NOTIFIER_TRUE@	status_notifier.c \
+@BUILD_GTK_UI_TRUE@@BUILD_STATUS_NOTIFIER_TRUE@	status_notifier.h
+
+@BUILD_GTK_UI_TRUE@@BUILD_WIN32_TRUE@am__append_3 = linphone.res -lwininet
 subdir = gtk
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp
+	$(top_srcdir)/depcomp $(am__dist_ui_DATA_DIST)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intltool.m4 \
@@ -110,9 +114,12 @@ PROGRAMS = $(bin_PROGRAMS)
 am__linphone_SOURCES_DIST = main.c propertybox.c friendlist.c \
 	support.c chat.c calllogs.c logging.c update.c buddylookup.c \
 	utils.c incall_view.c loginframe.c singleinstance.c \
-	conference.c config-fetching.c linphone.h setupwizard.c
+	conference.c config-fetching.c audio_assistant.c videowindow.c \
+	status_icon.c status_icon.h linphone.h regex.h setupwizard.c \
+	setupwizard.h status_notifier.c status_notifier.h
 @BUILD_GTK_UI_TRUE@@BUILD_WIZARD_TRUE@am__objects_1 =  \
 @BUILD_GTK_UI_TRUE@@BUILD_WIZARD_TRUE@	setupwizard.$(OBJEXT)
+@BUILD_GTK_UI_TRUE@@BUILD_STATUS_NOTIFIER_TRUE@am__objects_2 = status_notifier.$(OBJEXT)
 @BUILD_GTK_UI_TRUE@am_linphone_OBJECTS = main.$(OBJEXT) \
 @BUILD_GTK_UI_TRUE@	propertybox.$(OBJEXT) friendlist.$(OBJEXT) \
 @BUILD_GTK_UI_TRUE@	support.$(OBJEXT) chat.$(OBJEXT) \
@@ -122,7 +129,10 @@ am__linphone_SOURCES_DIST = main.c propertybox.c friendlist.c \
 @BUILD_GTK_UI_TRUE@	loginframe.$(OBJEXT) \
 @BUILD_GTK_UI_TRUE@	singleinstance.$(OBJEXT) \
 @BUILD_GTK_UI_TRUE@	conference.$(OBJEXT) \
-@BUILD_GTK_UI_TRUE@	config-fetching.$(OBJEXT) $(am__objects_1)
+@BUILD_GTK_UI_TRUE@	config-fetching.$(OBJEXT) \
+@BUILD_GTK_UI_TRUE@	audio_assistant.$(OBJEXT) \
+@BUILD_GTK_UI_TRUE@	videowindow.$(OBJEXT) status_icon.$(OBJEXT) \
+@BUILD_GTK_UI_TRUE@	$(am__objects_1) $(am__objects_2)
 linphone_OBJECTS = $(am_linphone_OBJECTS)
 am__DEPENDENCIES_1 =
 @BUILD_GTK_UI_TRUE@@BUILD_WIN32_TRUE@am__DEPENDENCIES_2 =  \
@@ -181,6 +191,13 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__dist_ui_DATA_DIST = about.ui main.ui password.ui contact.ui \
+	parameters.ui sip_account.ui call_logs.ui keypad.ui log.ui \
+	buddylookup.ui tunnel_config.ui waiting.ui dscp_settings.ui \
+	call_statistics.ui ldap.ui config-uri.ui provisioning-fetch.ui \
+	audio_assistant.ui chatroom_frame.ui in_call_frame.ui \
+	conf_frame.ui callee_frame.ui login_frame.ui setup_wizard.ui \
+	stock_people.png $(top_srcdir)/COPYING
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -208,7 +225,7 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-DATA = $(ui_DATA)
+DATA = $(dist_ui_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -294,6 +311,8 @@ LD = @LD@
 LDAP_CFLAGS = @LDAP_CFLAGS@
 LDAP_LIBS = @LDAP_LIBS@
 LDFLAGS = @LDFLAGS@
+LIBGLIB_CFLAGS = @LIBGLIB_CFLAGS@
+LIBGLIB_LIBS = @LIBGLIB_LIBS@
 LIBGTKMAC_CFLAGS = @LIBGTKMAC_CFLAGS@
 LIBGTKMAC_LIBS = @LIBGTKMAC_LIBS@
 LIBGTKWIZARD_CFLAGS = @LIBGTKWIZARD_CFLAGS@
@@ -306,8 +325,6 @@ LIBLINPHONE_SO_CURRENT = @LIBLINPHONE_SO_CURRENT@
 LIBLINPHONE_SO_VERSION = @LIBLINPHONE_SO_VERSION@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBSOUP_CFLAGS = @LIBSOUP_CFLAGS@
-LIBSOUP_LIBS = @LIBSOUP_LIBS@
 LIBTOOL = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 LIBUPNP_CFLAGS = @LIBUPNP_CFLAGS@
@@ -368,6 +385,7 @@ SASL_LIBS = @SASL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIPP = @SIPP@
 SIPSTACK_CFLAGS = @SIPSTACK_CFLAGS@
 SIPSTACK_LIBS = @SIPSTACK_LIBS@
 SPEEX_CFLAGS = @SPEEX_CFLAGS@
@@ -375,6 +393,8 @@ SPEEX_LIBS = @SPEEX_LIBS@
 SQLITE3_CFLAGS = @SQLITE3_CFLAGS@
 SQLITE3_LIBS = @SQLITE3_LIBS@
 STRICT_OPTIONS = @STRICT_OPTIONS@
+STRICT_OPTIONS_CC = @STRICT_OPTIONS_CC@
+STRICT_OPTIONS_CXX = @STRICT_OPTIONS_CXX@
 STRIP = @STRIP@
 TRUESPEECH_CFLAGS = @TRUESPEECH_CFLAGS@
 TUNNEL_CFLAGS = @TUNNEL_CFLAGS@
@@ -385,6 +405,8 @@ WINDRES = @WINDRES@
 X11_LIBS = @X11_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
+ZLIB_CFLAGS = @ZLIB_CFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -462,40 +484,48 @@ UI_FILES = about.ui \
 		call_statistics.ui \
 		ldap.ui \
 		config-uri.ui \
-		provisioning-fetch.ui
+		provisioning-fetch.ui \
+		audio_assistant.ui \
+		chatroom_frame.ui \
+		in_call_frame.ui \
+		conf_frame.ui \
+		callee_frame.ui \
+		login_frame.ui \
+		setup_wizard.ui
 
 PIXMAPS = \
-		stock_people.png 
+		stock_people.png
 
 LINPHONE_ICO_RC_FILE = linphone.rc
 LINPHONE_ICO_FILE = linphone.ico
-EXTRA_DIST = $(PIXMAPS) \
-		$(UI_FILES) \
-		linphone.iss \
-		$(LINPHONE_ICO_RC_FILE) \
-		$(LINPHONE_ICO_FILE)
+EXTRA_DIST = \
+	linphone.iss \
+	$(LINPHONE_ICO_RC_FILE) \
+	$(LINPHONE_ICO_FILE)
 
 @BUILD_GTK_UI_TRUE@BUILT_SOURCES = version_date.h
 @BUILD_GTK_UI_TRUE@linphone_SOURCES = main.c propertybox.c \
 @BUILD_GTK_UI_TRUE@	friendlist.c support.c chat.c calllogs.c \
 @BUILD_GTK_UI_TRUE@	logging.c update.c buddylookup.c utils.c \
 @BUILD_GTK_UI_TRUE@	incall_view.c loginframe.c singleinstance.c \
-@BUILD_GTK_UI_TRUE@	conference.c config-fetching.c linphone.h \
-@BUILD_GTK_UI_TRUE@	$(am__append_1)
+@BUILD_GTK_UI_TRUE@	conference.c config-fetching.c \
+@BUILD_GTK_UI_TRUE@	audio_assistant.c videowindow.c \
+@BUILD_GTK_UI_TRUE@	status_icon.c status_icon.h linphone.h \
+@BUILD_GTK_UI_TRUE@	regex.h $(am__append_1) $(am__append_2)
 @BUILD_GTK_UI_TRUE@linphone_LDADD =  \
 @BUILD_GTK_UI_TRUE@	$(top_builddir)/coreapi/liblinphone.la \
 @BUILD_GTK_UI_TRUE@	$(LIBGTK_LIBS) $(NOTIFY1_LIBS) \
 @BUILD_GTK_UI_TRUE@	$(NOTIFY4_LIBS) $(LIBGTKMAC_LIBS) \
 @BUILD_GTK_UI_TRUE@	$(INTLLIBS) $(SQLITE3_LIBS) \
-@BUILD_GTK_UI_TRUE@	$(BELLESIP_LIBS) $(am__append_2)
+@BUILD_GTK_UI_TRUE@	$(BELLESIP_LIBS) $(am__append_3)
 @BUILD_GTK_UI_TRUE@@BUILD_WIN32_FALSE@linphone_LDFLAGS = -export-dynamic
 @BUILD_GTK_UI_TRUE@@BUILD_WIN32_TRUE@linphone_LDFLAGS = -Wl,--export-all-symbols -mwindows
 @BUILD_GTK_UI_TRUE@uidir = $(datadir)/linphone
-@BUILD_GTK_UI_TRUE@ui_DATA = $(UI_FILES) $(PIXMAPS) $(top_srcdir)/COPYING
-AM_CFLAGS = -DIN_LINPHONE -I$(top_srcdir)/coreapi/ \
+@BUILD_GTK_UI_TRUE@dist_ui_DATA = $(UI_FILES) $(PIXMAPS) $(top_srcdir)/COPYING
+AM_CFLAGS = -DIN_LINPHONE -I$(top_srcdir)/coreapi/ -I$(top_builddir)/coreapi/ \
 		$(MEDIASTREAMER_CFLAGS) \
 		$(ORTP_CFLAGS) $(BELLESIP_CFLAGS) \
-		$(STRICT_OPTIONS) $(LIBGTK_CFLAGS) $(LIBGTKMAC_CFLAGS) $(IPV6_CFLAGS) \
+		$(STRICT_OPTIONS) $(STRICT_OPTIONS_CC) $(LIBGTK_CFLAGS) $(LIBGTKMAC_CFLAGS) $(IPV6_CFLAGS) \
 		$(TUNNEL_CFLAGS) \
 		$(SQLITE3_CFLAGS)
 
@@ -595,6 +625,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/audio_assistant.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buddylookup.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/calllogs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chat.Po@am__quote@
@@ -608,27 +639,33 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/propertybox.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/setupwizard.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/singleinstance.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/status_icon.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/status_notifier.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/support.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/update.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/videowindow.Po@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
@@ -638,9 +675,9 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-uiDATA: $(ui_DATA)
+install-dist_uiDATA: $(dist_ui_DATA)
 	@$(NORMAL_INSTALL)
-	@list='$(ui_DATA)'; test -n "$(uidir)" || list=; \
+	@list='$(dist_ui_DATA)'; test -n "$(uidir)" || list=; \
 	if test -n "$$list"; then \
 	  echo " $(MKDIR_P) '$(DESTDIR)$(uidir)'"; \
 	  $(MKDIR_P) "$(DESTDIR)$(uidir)" || exit 1; \
@@ -654,9 +691,9 @@ install-uiDATA: $(ui_DATA)
 	  $(INSTALL_DATA) $$files "$(DESTDIR)$(uidir)" || exit $$?; \
 	done
 
-uninstall-uiDATA:
+uninstall-dist_uiDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(ui_DATA)'; test -n "$(uidir)" || list=; \
+	@list='$(dist_ui_DATA)'; test -n "$(uidir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(uidir)'; $(am__uninstall_files_from_dir)
 
@@ -805,7 +842,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-uiDATA
+install-data-am: install-dist_uiDATA
 
 install-dvi: install-dvi-am
 
@@ -851,7 +888,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-uiDATA
+uninstall-am: uninstall-binPROGRAMS uninstall-dist_uiDATA
 
 .MAKE: all check install install-am install-strip
 
@@ -860,18 +897,18 @@ uninstall-am: uninstall-binPROGRAMS uninstall-uiDATA
 	ctags ctags-am distclean distclean-compile distclean-generic \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-binPROGRAMS \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	install-uiDATA installcheck installcheck-am installdirs \
+	install-data install-data-am install-dist_uiDATA install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
 	maintainer-clean maintainer-clean-generic mostlyclean \
 	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
 	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-uiDATA
+	uninstall-binPROGRAMS uninstall-dist_uiDATA
 
-		gtkrc \
-		gtkrc.mac
+	gtkrc \
+	gtkrc.mac
 
 @BUILD_GTK_UI_TRUE@@BUILD_WIN32_TRUE@linphone.res:	$(LINPHONE_ICO_RC_FILE) $(LINPHONE_ICO_FILE)
 @BUILD_GTK_UI_TRUE@@BUILD_WIN32_TRUE@	$(WINDRES) $(srcdir)/$(LINPHONE_ICO_RC_FILE) -O coff -o linphone.res

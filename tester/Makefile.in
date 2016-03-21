@@ -14,6 +14,8 @@
 
 @SET_MAKE@
 
+
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -79,10 +81,13 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-@BUILD_CUNIT_TESTS_TRUE@noinst_PROGRAMS = liblinphone_tester$(EXEEXT)
+@BUILD_CUNIT_TESTS_TRUE@@BUILD_GTK_UI_TRUE@am__append_1 = $(LIBGTK_LIBS) $(LIBGTKMAC_LIBS)
+@BUILD_CUNIT_TESTS_TRUE@@BUILD_GTK_UI_TRUE@am__append_2 = $(LIBGTK_CFLAGS) $(LIBGTKMAC_CFLAGS) -DHAVE_GTK
+@BUILD_CUNIT_TESTS_TRUE@@BUILD_IOS_FALSE@noinst_PROGRAMS = liblinphone_tester$(EXEEXT)
 subdir = tester
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp
+	$(top_srcdir)/depcomp $(am__liblinphone_HEADERS_DIST) \
+	$(am__liblinphonetester_la_HEADERS_DIST) README
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intltool.m4 \
@@ -100,34 +105,88 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-PROGRAMS = $(noinst_PROGRAMS)
-am__liblinphone_tester_SOURCES_DIST = liblinphone_tester.c \
-	liblinphone_tester.h setup_tester.c register_tester.c \
-	message_tester.c call_tester.c presence_tester.c upnp_tester.c \
-	eventapi_tester.c flexisip_tester.c stun_tester.c \
-	remote_provisioning_tester.c
-@BUILD_CUNIT_TESTS_TRUE@am_liblinphone_tester_OBJECTS =  \
-@BUILD_CUNIT_TESTS_TRUE@	liblinphone_tester.$(OBJEXT) \
-@BUILD_CUNIT_TESTS_TRUE@	setup_tester.$(OBJEXT) \
-@BUILD_CUNIT_TESTS_TRUE@	register_tester.$(OBJEXT) \
-@BUILD_CUNIT_TESTS_TRUE@	message_tester.$(OBJEXT) \
-@BUILD_CUNIT_TESTS_TRUE@	call_tester.$(OBJEXT) \
-@BUILD_CUNIT_TESTS_TRUE@	presence_tester.$(OBJEXT) \
-@BUILD_CUNIT_TESTS_TRUE@	upnp_tester.$(OBJEXT) \
-@BUILD_CUNIT_TESTS_TRUE@	eventapi_tester.$(OBJEXT) \
-@BUILD_CUNIT_TESTS_TRUE@	flexisip_tester.$(OBJEXT) \
-@BUILD_CUNIT_TESTS_TRUE@	stun_tester.$(OBJEXT) \
-@BUILD_CUNIT_TESTS_TRUE@	remote_provisioning_tester.$(OBJEXT)
-liblinphone_tester_OBJECTS = $(am_liblinphone_tester_OBJECTS)
-liblinphone_tester_LDADD = $(LDADD)
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
+am__install_max = 40
+am__nobase_strip_setup = \
+  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
+am__nobase_strip = \
+  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
+am__nobase_list = $(am__nobase_strip_setup); \
+  for p in $$list; do echo "$$p $$p"; done | \
+  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
+  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
+    if (++n[$$2] == $(am__install_max)) \
+      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
+    END { for (dir in files) print dir, files[dir] }'
+am__base_list = \
+  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
+  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+am__uninstall_files_from_dir = { \
+  test -z "$$files" \
+    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
+    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
+         $(am__cd) "$$dir" && rm -f $$files; }; \
+  }
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(liblinphonedir)" \
+	"$(DESTDIR)$(liblinphonetester_ladir)"
+LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-@BUILD_CUNIT_TESTS_TRUE@liblinphone_tester_DEPENDENCIES = $(top_builddir)/coreapi/liblinphone.la \
+@BUILD_CUNIT_TESTS_TRUE@@BUILD_GTK_UI_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1) \
+@BUILD_CUNIT_TESTS_TRUE@@BUILD_GTK_UI_TRUE@	$(am__DEPENDENCIES_1)
+@BUILD_CUNIT_TESTS_TRUE@liblinphonetester_la_DEPENDENCIES =  \
+@BUILD_CUNIT_TESTS_TRUE@	../coreapi/liblinphone.la \
 @BUILD_CUNIT_TESTS_TRUE@	$(am__DEPENDENCIES_1) \
-@BUILD_CUNIT_TESTS_TRUE@	$(am__DEPENDENCIES_1)
+@BUILD_CUNIT_TESTS_TRUE@	$(am__DEPENDENCIES_2)
+am__liblinphonetester_la_SOURCES_DIST = accountmanager.c call_tester.c \
+	complex_sip_call_tester.c dtmf_tester.c eventapi_tester.c \
+	flexisip_tester.c log_collection_tester.c message_tester.c \
+	multi_call_tester.c multicast_call_tester.c \
+	offeranswer_tester.c player_tester.c presence_tester.c \
+	proxy_config_tester.c quality_reporting_tester.c \
+	register_tester.c remote_provisioning_tester.c setup_tester.c \
+	stun_tester.c tunnel_tester.c tester.c upnp_tester.c \
+	video_tester.c common/bc_tester_utils.c
+am__dirstamp = $(am__leading_dot)dirstamp
+@BUILD_CUNIT_TESTS_TRUE@am_liblinphonetester_la_OBJECTS =  \
+@BUILD_CUNIT_TESTS_TRUE@	accountmanager.lo call_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	complex_sip_call_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	dtmf_tester.lo eventapi_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	flexisip_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	log_collection_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	message_tester.lo multi_call_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	multicast_call_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	offeranswer_tester.lo player_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	presence_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	proxy_config_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	quality_reporting_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	register_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	remote_provisioning_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	setup_tester.lo stun_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	tunnel_tester.lo tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	upnp_tester.lo video_tester.lo \
+@BUILD_CUNIT_TESTS_TRUE@	common/bc_tester_utils.lo
+liblinphonetester_la_OBJECTS = $(am_liblinphonetester_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+liblinphonetester_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(liblinphonetester_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+@BUILD_CUNIT_TESTS_TRUE@am_liblinphonetester_la_rpath = -rpath \
+@BUILD_CUNIT_TESTS_TRUE@	$(libdir)
+PROGRAMS = $(noinst_PROGRAMS)
+am__liblinphone_tester_SOURCES_DIST = liblinphone_tester.c
+@BUILD_CUNIT_TESTS_TRUE@@BUILD_IOS_FALSE@am_liblinphone_tester_OBJECTS = liblinphone_tester.$(OBJEXT)
+liblinphone_tester_OBJECTS = $(am_liblinphone_tester_OBJECTS)
+@BUILD_CUNIT_TESTS_TRUE@@BUILD_IOS_FALSE@liblinphone_tester_DEPENDENCIES = $(top_builddir)/coreapi/liblinphone.la \
+@BUILD_CUNIT_TESTS_TRUE@@BUILD_IOS_FALSE@	liblinphonetester.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -162,13 +221,18 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(liblinphone_tester_SOURCES)
-DIST_SOURCES = $(am__liblinphone_tester_SOURCES_DIST)
+SOURCES = $(liblinphonetester_la_SOURCES) \
+	$(liblinphone_tester_SOURCES)
+DIST_SOURCES = $(am__liblinphonetester_la_SOURCES_DIST) \
+	$(am__liblinphone_tester_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__liblinphone_HEADERS_DIST = liblinphone_tester.h
+am__liblinphonetester_la_HEADERS_DIST = common/bc_tester_utils.h
+HEADERS = $(liblinphone_HEADERS) $(liblinphonetester_la_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -254,6 +318,8 @@ LD = @LD@
 LDAP_CFLAGS = @LDAP_CFLAGS@
 LDAP_LIBS = @LDAP_LIBS@
 LDFLAGS = @LDFLAGS@
+LIBGLIB_CFLAGS = @LIBGLIB_CFLAGS@
+LIBGLIB_LIBS = @LIBGLIB_LIBS@
 LIBGTKMAC_CFLAGS = @LIBGTKMAC_CFLAGS@
 LIBGTKMAC_LIBS = @LIBGTKMAC_LIBS@
 LIBGTKWIZARD_CFLAGS = @LIBGTKWIZARD_CFLAGS@
@@ -266,8 +332,6 @@ LIBLINPHONE_SO_CURRENT = @LIBLINPHONE_SO_CURRENT@
 LIBLINPHONE_SO_VERSION = @LIBLINPHONE_SO_VERSION@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBSOUP_CFLAGS = @LIBSOUP_CFLAGS@
-LIBSOUP_LIBS = @LIBSOUP_LIBS@
 LIBTOOL = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 LIBUPNP_CFLAGS = @LIBUPNP_CFLAGS@
@@ -328,6 +392,7 @@ SASL_LIBS = @SASL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIPP = @SIPP@
 SIPSTACK_CFLAGS = @SIPSTACK_CFLAGS@
 SIPSTACK_LIBS = @SIPSTACK_LIBS@
 SPEEX_CFLAGS = @SPEEX_CFLAGS@
@@ -335,6 +400,8 @@ SPEEX_LIBS = @SPEEX_LIBS@
 SQLITE3_CFLAGS = @SQLITE3_CFLAGS@
 SQLITE3_LIBS = @SQLITE3_LIBS@
 STRICT_OPTIONS = @STRICT_OPTIONS@
+STRICT_OPTIONS_CC = @STRICT_OPTIONS_CC@
+STRICT_OPTIONS_CXX = @STRICT_OPTIONS_CXX@
 STRIP = @STRIP@
 TRUESPEECH_CFLAGS = @TRUESPEECH_CFLAGS@
 TUNNEL_CFLAGS = @TUNNEL_CFLAGS@
@@ -345,6 +412,8 @@ WINDRES = @WINDRES@
 X11_LIBS = @X11_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
+ZLIB_CFLAGS = @ZLIB_CFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -407,26 +476,53 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 EXTRA_DIST = tester_hosts sounds images certificates rcfiles
-@BUILD_CUNIT_TESTS_TRUE@liblinphone_tester_SOURCES = liblinphone_tester.c liblinphone_tester.h\
-@BUILD_CUNIT_TESTS_TRUE@				setup_tester.c \
-@BUILD_CUNIT_TESTS_TRUE@				register_tester.c \
-@BUILD_CUNIT_TESTS_TRUE@				message_tester.c \
+
+# there are 2 targets: liblinphonetester.la and the executable liblinphone_tester
+@BUILD_CUNIT_TESTS_TRUE@liblinphonedir = $(includedir)/linphone
+@BUILD_CUNIT_TESTS_TRUE@liblinphone_HEADERS = liblinphone_tester.h
+@BUILD_CUNIT_TESTS_TRUE@lib_LTLIBRARIES = liblinphonetester.la
+@BUILD_CUNIT_TESTS_TRUE@liblinphonetester_la_SOURCES = \
+@BUILD_CUNIT_TESTS_TRUE@				accountmanager.c \
 @BUILD_CUNIT_TESTS_TRUE@				call_tester.c \
-@BUILD_CUNIT_TESTS_TRUE@				presence_tester.c \
-@BUILD_CUNIT_TESTS_TRUE@				upnp_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				complex_sip_call_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				dtmf_tester.c \
 @BUILD_CUNIT_TESTS_TRUE@				eventapi_tester.c \
 @BUILD_CUNIT_TESTS_TRUE@				flexisip_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				log_collection_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				message_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				multi_call_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				multicast_call_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				offeranswer_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				player_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				presence_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				proxy_config_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				quality_reporting_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				register_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				remote_provisioning_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				setup_tester.c \
 @BUILD_CUNIT_TESTS_TRUE@				stun_tester.c \
-@BUILD_CUNIT_TESTS_TRUE@				remote_provisioning_tester.c
+@BUILD_CUNIT_TESTS_TRUE@				tunnel_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				upnp_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				video_tester.c \
+@BUILD_CUNIT_TESTS_TRUE@				common/bc_tester_utils.c
 
-
-#liblinphone_tester_CFLAGS=$(CUNIT_CFLAGS)
-
-#liblinphone_tester_LDFLAGS=$(CUNIT_LIBS)
-@BUILD_CUNIT_TESTS_TRUE@AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/coreapi
-@BUILD_CUNIT_TESTS_TRUE@LDADD = $(top_builddir)/coreapi/liblinphone.la $(BELLESIP_LIBS) $(LIBXML2_LIBS)
-@BUILD_CUNIT_TESTS_TRUE@AM_LDFLAGS = $(CUNIT_LIBS)
-@BUILD_CUNIT_TESTS_TRUE@AM_CFLAGS = $(STRICT_OPTIONS)  -DIN_LINPHONE $(ORTP_CFLAGS) $(MEDIASTREAMER_CFLAGS) $(CUNIT_CFLAGS) $(BELLESIP_CFLAGS) $(LIBXML2_CFLAGS)
+@BUILD_CUNIT_TESTS_TRUE@liblinphonetester_ladir = $(includedir)/linphone
+@BUILD_CUNIT_TESTS_TRUE@liblinphonetester_la_HEADERS = common/bc_tester_utils.h
+@BUILD_CUNIT_TESTS_TRUE@liblinphonetester_la_LDFLAGS = -no-undefined
+@BUILD_CUNIT_TESTS_TRUE@liblinphonetester_la_LIBADD =  \
+@BUILD_CUNIT_TESTS_TRUE@	../coreapi/liblinphone.la \
+@BUILD_CUNIT_TESTS_TRUE@	$(CUNIT_LIBS) $(am__append_1)
+@BUILD_CUNIT_TESTS_TRUE@AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/coreapi -I$(top_srcdir)/tester/common
+@BUILD_CUNIT_TESTS_TRUE@AM_CFLAGS = -DBC_CONFIG_FILE=\"config.h\" \
+@BUILD_CUNIT_TESTS_TRUE@	$(STRICT_OPTIONS) $(STRICT_OPTIONS_CC) \
+@BUILD_CUNIT_TESTS_TRUE@	-DIN_LINPHONE $(ORTP_CFLAGS) \
+@BUILD_CUNIT_TESTS_TRUE@	$(MEDIASTREAMER_CFLAGS) \
+@BUILD_CUNIT_TESTS_TRUE@	$(CUNIT_CFLAGS) $(BELLESIP_CFLAGS) \
+@BUILD_CUNIT_TESTS_TRUE@	$(LIBXML2_CFLAGS) $(SQLITE3_CFLAGS) \
+@BUILD_CUNIT_TESTS_TRUE@	$(am__append_2)
+@BUILD_CUNIT_TESTS_TRUE@@BUILD_IOS_FALSE@liblinphone_tester_SOURCES = liblinphone_tester.c
+@BUILD_CUNIT_TESTS_TRUE@@BUILD_IOS_FALSE@liblinphone_tester_LDADD = $(top_builddir)/coreapi/liblinphone.la liblinphonetester.la -lm
 all: all-am
 
 .SUFFIXES:
@@ -462,6 +558,52 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
+	list2=; for p in $$list; do \
+	  if test -f $$p; then \
+	    list2="$$list2 $$p"; \
+	  else :; fi; \
+	done; \
+	test -z "$$list2" || { \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libdir)" || exit 1; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
+	}
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
+	for p in $$list; do \
+	  $(am__strip_dir) \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$f"; \
+	done
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+	@list='$(lib_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
+common/$(am__dirstamp):
+	@$(MKDIR_P) common
+	@: > common/$(am__dirstamp)
+common/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) common/$(DEPDIR)
+	@: > common/$(DEPDIR)/$(am__dirstamp)
+common/bc_tester_utils.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+
+liblinphonetester.la: $(liblinphonetester_la_OBJECTS) $(liblinphonetester_la_DEPENDENCIES) $(EXTRA_liblinphonetester_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(liblinphonetester_la_LINK) $(am_liblinphonetester_la_rpath) $(liblinphonetester_la_OBJECTS) $(liblinphonetester_la_LIBADD) $(LIBS)
+
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
 	echo " rm -f" $$list; \
@@ -477,39 +619,58 @@ liblinphone_tester$(EXEEXT): $(liblinphone_tester_OBJECTS) $(liblinphone_tester_
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f common/*.$(OBJEXT)
+	-rm -f common/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/call_tester.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eventapi_tester.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flexisip_tester.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/accountmanager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/call_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/complex_sip_call_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dtmf_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eventapi_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flexisip_tester.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblinphone_tester.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/message_tester.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/presence_tester.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/register_tester.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remote_provisioning_tester.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/setup_tester.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stun_tester.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/upnp_tester.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log_collection_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/message_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/multi_call_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/multicast_call_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/offeranswer_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/player_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/presence_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/proxy_config_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/quality_reporting_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/register_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/remote_provisioning_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/setup_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stun_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tunnel_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/upnp_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_tester.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/bc_tester_utils.Plo@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
@@ -519,6 +680,49 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf common/.libs common/_libs
+install-liblinphoneHEADERS: $(liblinphone_HEADERS)
+	@$(NORMAL_INSTALL)
+	@list='$(liblinphone_HEADERS)'; test -n "$(liblinphonedir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(liblinphonedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(liblinphonedir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(liblinphonedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(liblinphonedir)" || exit $$?; \
+	done
+
+uninstall-liblinphoneHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(liblinphone_HEADERS)'; test -n "$(liblinphonedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(liblinphonedir)'; $(am__uninstall_files_from_dir)
+install-liblinphonetester_laHEADERS: $(liblinphonetester_la_HEADERS)
+	@$(NORMAL_INSTALL)
+	@list='$(liblinphonetester_la_HEADERS)'; test -n "$(liblinphonetester_ladir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(liblinphonetester_ladir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(liblinphonetester_ladir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(liblinphonetester_ladir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(liblinphonetester_ladir)" || exit $$?; \
+	done
+
+uninstall-liblinphonetester_laHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(liblinphonetester_la_HEADERS)'; test -n "$(liblinphonetester_ladir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(liblinphonetester_ladir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -604,8 +808,11 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
 installdirs:
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(liblinphonedir)" "$(DESTDIR)$(liblinphonetester_ladir)"; do \
+	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+	done
 install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
@@ -632,17 +839,19 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f common/$(DEPDIR)/$(am__dirstamp)
+	-rm -f common/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
-	mostlyclean-am
+clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
+	clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) common/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -659,13 +868,14 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-liblinphoneHEADERS \
+	install-liblinphonetester_laHEADERS
 
 install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am:
+install-exec-am: install-libLTLIBRARIES
 
 install-html: install-html-am
 
@@ -688,7 +898,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) common/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -705,27 +915,32 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am:
+uninstall-am: uninstall-libLTLIBRARIES uninstall-liblinphoneHEADERS \
+	uninstall-liblinphonetester_laHEADERS
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstPROGRAMS cscopelist-am ctags \
-	ctags-am distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am
+	clean-libLTLIBRARIES clean-libtool clean-noinstPROGRAMS \
+	cscopelist-am ctags ctags-am distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-libLTLIBRARIES \
+	install-liblinphoneHEADERS install-liblinphonetester_laHEADERS \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am uninstall-libLTLIBRARIES \
+	uninstall-liblinphoneHEADERS \
+	uninstall-liblinphonetester_laHEADERS
 
 
 @BUILD_CUNIT_TESTS_TRUE@test: liblinphone_tester
-@BUILD_CUNIT_TESTS_TRUE@	./liblinphone_tester  --config $(abs_srcdir) 
+@BUILD_CUNIT_TESTS_TRUE@	./liblinphone_tester  --config $(abs_srcdir) $(TEST_OPTIONS)
 
 @BUILD_CUNIT_TESTS_FALSE@test:
 @BUILD_CUNIT_TESTS_FALSE@	@echo "CUnit must be installed to be able to run the tests!"

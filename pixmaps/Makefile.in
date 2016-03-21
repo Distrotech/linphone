@@ -80,7 +80,10 @@ build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
 subdir = pixmaps
-DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am
+DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
+	$(dist_actions48icons_DATA) $(dist_actionssvgicons_DATA) \
+	$(dist_appicons_DATA) $(dist_pixmap_DATA) \
+	$(dist_status48icons_DATA) $(dist_statussvgicons_DATA)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intltool.m4 \
@@ -144,8 +147,13 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(pixmapdir)"
-DATA = $(pixmap_DATA)
+am__installdirs = "$(DESTDIR)$(actions48iconsdir)" \
+	"$(DESTDIR)$(actionssvgiconsdir)" "$(DESTDIR)$(appiconsdir)" \
+	"$(DESTDIR)$(pixmapdir)" "$(DESTDIR)$(status48iconsdir)" \
+	"$(DESTDIR)$(statussvgiconsdir)"
+DATA = $(dist_actions48icons_DATA) $(dist_actionssvgicons_DATA) \
+	$(dist_appicons_DATA) $(dist_pixmap_DATA) \
+	$(dist_status48icons_DATA) $(dist_statussvgicons_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
@@ -213,6 +221,8 @@ LD = @LD@
 LDAP_CFLAGS = @LDAP_CFLAGS@
 LDAP_LIBS = @LDAP_LIBS@
 LDFLAGS = @LDFLAGS@
+LIBGLIB_CFLAGS = @LIBGLIB_CFLAGS@
+LIBGLIB_LIBS = @LIBGLIB_LIBS@
 LIBGTKMAC_CFLAGS = @LIBGTKMAC_CFLAGS@
 LIBGTKMAC_LIBS = @LIBGTKMAC_LIBS@
 LIBGTKWIZARD_CFLAGS = @LIBGTKWIZARD_CFLAGS@
@@ -225,8 +235,6 @@ LIBLINPHONE_SO_CURRENT = @LIBLINPHONE_SO_CURRENT@
 LIBLINPHONE_SO_VERSION = @LIBLINPHONE_SO_VERSION@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBSOUP_CFLAGS = @LIBSOUP_CFLAGS@
-LIBSOUP_LIBS = @LIBSOUP_LIBS@
 LIBTOOL = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 LIBUPNP_CFLAGS = @LIBUPNP_CFLAGS@
@@ -287,6 +295,7 @@ SASL_LIBS = @SASL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIPP = @SIPP@
 SIPSTACK_CFLAGS = @SIPSTACK_CFLAGS@
 SIPSTACK_LIBS = @SIPSTACK_LIBS@
 SPEEX_CFLAGS = @SPEEX_CFLAGS@
@@ -294,6 +303,8 @@ SPEEX_LIBS = @SPEEX_LIBS@
 SQLITE3_CFLAGS = @SQLITE3_CFLAGS@
 SQLITE3_LIBS = @SQLITE3_LIBS@
 STRICT_OPTIONS = @STRICT_OPTIONS@
+STRICT_OPTIONS_CC = @STRICT_OPTIONS_CC@
+STRICT_OPTIONS_CXX = @STRICT_OPTIONS_CXX@
 STRIP = @STRIP@
 TRUESPEECH_CFLAGS = @TRUESPEECH_CFLAGS@
 TUNNEL_CFLAGS = @TUNNEL_CFLAGS@
@@ -304,6 +315,8 @@ WINDRES = @WINDRES@
 X11_LIBS = @X11_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
+ZLIB_CFLAGS = @ZLIB_CFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -366,27 +379,104 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 pixmapdir = $(datadir)/pixmaps/linphone
-pixmap_DATA = \
-hold_on.png hold_off.png \
-mic_muted.png mic_active.png \
-linphone.png linphone-banner.png \
-status-green.png \
-status-orange.png \
-status-red.png \
-status-offline.png \
-call.png \
-chat.png active_chat.png composing_chat.png composing_active_chat.png\
-chat_message_inprogress.png chat_message_delivered.png chat_message_not_delivered.png\
-contact-orange.png dialer-orange.png history-orange.png\
-startcall-green.png startcall-small.png stopcall-red.png stopcall-small.png addcall-green.png linphone.icns \
-contact_starred.png contact_unstarred.png \
-speaker.png \
-call_status_incoming.png call_status_outgoing.png \
-ok.png \
-dialer.png \
-notok.png
+dist_pixmap_DATA = \
+	linphone-banner.png \
+	linphone.icns
 
-EXTRA_DIST = $(pixmap_DATA)
+iconsdir = $(datadir)/icons/hicolor
+appiconsdir = $(iconsdir)/48x48/apps
+dist_appicons_DATA = linphone.png
+status48iconsdir = $(iconsdir)/48x48/status
+dist_status48icons_DATA = \
+	linphone-micro-muted.png \
+	linphone-speaker-muted.png \
+	linphone-micro-enabled.png \
+	linphone-speaker-enabled.png \
+	linphone-status-online.png \
+	linphone-status-away.png \
+	linphone-status-donotdisturb.png \
+	linphone-status-offline.png \
+	linphone-chat-nothing.png \
+	linphone-chat-new-message.png \
+	linphone-chat-writing.png \
+	linphone-chat-new-message-and-writing.png \
+	linphone-call-status-incoming.png \
+	linphone-call-status-outgoing.png \
+	linphone-call-status-missed.png \
+	linphone-ok.png \
+	linphone-inprogress.png \
+	linphone-failed.png \
+	linphone-camera-enabled.png \
+	linphone-camera-disabled.png \
+	linphone-security-ok.png \
+	linphone-security-pending.png \
+	linphone-media-play.png \
+	linphone-media-pause.png \
+	linphone-warning.png
+
+statussvgiconsdir = $(iconsdir)/scalable/status
+dist_statussvgicons_DATA = \
+	svg/linphone-micro-muted.svg \
+	svg/linphone-speaker-muted.svg \
+	svg/linphone-micro-enabled.svg \
+	svg/linphone-speaker-enabled.svg \
+	svg/linphone-status-online.svg \
+	svg/linphone-status-away.svg \
+	svg/linphone-status-donotdisturb.svg \
+	svg/linphone-status-offline.svg \
+	svg/linphone-call-status-incoming.svg \
+	svg/linphone-call-status-missed.svg \
+	svg/linphone-call-status-outgoing.svg \
+	svg/linphone-chat-new-message-and-writing.svg \
+	svg/linphone-chat-new-message.svg \
+	svg/linphone-chat-nothing.svg \
+	svg/linphone-chat-writing.svg \
+	svg/linphone-ok.svg \
+	svg/linphone-inprogress.svg \
+	svg/linphone-failed.svg \
+	svg/linphone-camera-enabled.svg \
+	svg/linphone-camera-disabled.svg \
+	svg/linphone-security-ok.svg \
+	svg/linphone-security-pending.svg \
+	svg/linphone-media-play.svg \
+	svg/linphone-media-pause.svg \
+	svg/linphone-warning.svg
+
+actions48iconsdir = $(iconsdir)/48x48/actions
+dist_actions48icons_DATA = \
+	linphone-start-call2.png \
+	linphone-add-call.png \
+	linphone-start-call.png \
+	linphone-start-chat.png \
+	linphone-stop-call.png \
+	linphone-hold-on.png \
+	linphone-hold-off.png \
+	linphone-history.png \
+	linphone-edit.png \
+	linphone-delete.png \
+	linphone-contact-add.png \
+	linphone-conference-start.png \
+	linphone-call-transfer.png \
+	linphone-record.png \
+	linphone-chat-send.png
+
+actionssvgiconsdir = $(iconsdir)/scalable/actions
+dist_actionssvgicons_DATA = \
+	svg/linphone-start-call.svg \
+	svg/linphone-add-call.svg \
+	svg/linphone-hold-off.svg \
+	svg/linphone-hold-on.svg \
+	svg/linphone-start-call2.svg \
+	svg/linphone-start-chat.svg \
+	svg/linphone-history.svg \
+	svg/linphone-edit.svg \
+	svg/linphone-delete.svg \
+	svg/linphone-contact-add.svg \
+	svg/linphone-conference-start.svg \
+	svg/linphone-call-transfer.svg \
+	svg/linphone-record.svg \
+	svg/linphone-chat-send.svg
+
 all: all-am
 
 .SUFFIXES:
@@ -426,9 +516,72 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-pixmapDATA: $(pixmap_DATA)
+install-dist_actions48iconsDATA: $(dist_actions48icons_DATA)
 	@$(NORMAL_INSTALL)
-	@list='$(pixmap_DATA)'; test -n "$(pixmapdir)" || list=; \
+	@list='$(dist_actions48icons_DATA)'; test -n "$(actions48iconsdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(actions48iconsdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(actions48iconsdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(actions48iconsdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(actions48iconsdir)" || exit $$?; \
+	done
+
+uninstall-dist_actions48iconsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_actions48icons_DATA)'; test -n "$(actions48iconsdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(actions48iconsdir)'; $(am__uninstall_files_from_dir)
+install-dist_actionssvgiconsDATA: $(dist_actionssvgicons_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_actionssvgicons_DATA)'; test -n "$(actionssvgiconsdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(actionssvgiconsdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(actionssvgiconsdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(actionssvgiconsdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(actionssvgiconsdir)" || exit $$?; \
+	done
+
+uninstall-dist_actionssvgiconsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_actionssvgicons_DATA)'; test -n "$(actionssvgiconsdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(actionssvgiconsdir)'; $(am__uninstall_files_from_dir)
+install-dist_appiconsDATA: $(dist_appicons_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_appicons_DATA)'; test -n "$(appiconsdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(appiconsdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(appiconsdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(appiconsdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(appiconsdir)" || exit $$?; \
+	done
+
+uninstall-dist_appiconsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_appicons_DATA)'; test -n "$(appiconsdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(appiconsdir)'; $(am__uninstall_files_from_dir)
+install-dist_pixmapDATA: $(dist_pixmap_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_pixmap_DATA)'; test -n "$(pixmapdir)" || list=; \
 	if test -n "$$list"; then \
 	  echo " $(MKDIR_P) '$(DESTDIR)$(pixmapdir)'"; \
 	  $(MKDIR_P) "$(DESTDIR)$(pixmapdir)" || exit 1; \
@@ -442,11 +595,53 @@ install-pixmapDATA: $(pixmap_DATA)
 	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pixmapdir)" || exit $$?; \
 	done
 
-uninstall-pixmapDATA:
+uninstall-dist_pixmapDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(pixmap_DATA)'; test -n "$(pixmapdir)" || list=; \
+	@list='$(dist_pixmap_DATA)'; test -n "$(pixmapdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(pixmapdir)'; $(am__uninstall_files_from_dir)
+install-dist_status48iconsDATA: $(dist_status48icons_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_status48icons_DATA)'; test -n "$(status48iconsdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(status48iconsdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(status48iconsdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(status48iconsdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(status48iconsdir)" || exit $$?; \
+	done
+
+uninstall-dist_status48iconsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_status48icons_DATA)'; test -n "$(status48iconsdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(status48iconsdir)'; $(am__uninstall_files_from_dir)
+install-dist_statussvgiconsDATA: $(dist_statussvgicons_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_statussvgicons_DATA)'; test -n "$(statussvgiconsdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(statussvgiconsdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(statussvgiconsdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(statussvgiconsdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(statussvgiconsdir)" || exit $$?; \
+	done
+
+uninstall-dist_statussvgiconsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_statussvgicons_DATA)'; test -n "$(statussvgiconsdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(statussvgiconsdir)'; $(am__uninstall_files_from_dir)
 tags TAGS:
 
 ctags CTAGS:
@@ -488,7 +683,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(pixmapdir)"; do \
+	for dir in "$(DESTDIR)$(actions48iconsdir)" "$(DESTDIR)$(actionssvgiconsdir)" "$(DESTDIR)$(appiconsdir)" "$(DESTDIR)$(pixmapdir)" "$(DESTDIR)$(status48iconsdir)" "$(DESTDIR)$(statussvgiconsdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -541,7 +736,10 @@ info: info-am
 
 info-am:
 
-install-data-am: install-pixmapDATA
+install-data-am: install-dist_actions48iconsDATA \
+	install-dist_actionssvgiconsDATA install-dist_appiconsDATA \
+	install-dist_pixmapDATA install-dist_status48iconsDATA \
+	install-dist_statussvgiconsDATA
 
 install-dvi: install-dvi-am
 
@@ -585,22 +783,33 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-pixmapDATA
+uninstall-am: uninstall-dist_actions48iconsDATA \
+	uninstall-dist_actionssvgiconsDATA uninstall-dist_appiconsDATA \
+	uninstall-dist_pixmapDATA uninstall-dist_status48iconsDATA \
+	uninstall-dist_statussvgiconsDATA
 
 .MAKE: install-am install-strip
 
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	cscopelist-am ctags-am distclean distclean-generic \
 	distclean-libtool distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-pixmapDATA install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
-	ps ps-am tags-am uninstall uninstall-am uninstall-pixmapDATA
+	install install-am install-data install-data-am \
+	install-dist_actions48iconsDATA \
+	install-dist_actionssvgiconsDATA install-dist_appiconsDATA \
+	install-dist_pixmapDATA install-dist_status48iconsDATA \
+	install-dist_statussvgiconsDATA install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags-am uninstall \
+	uninstall-am uninstall-dist_actions48iconsDATA \
+	uninstall-dist_actionssvgiconsDATA uninstall-dist_appiconsDATA \
+	uninstall-dist_pixmapDATA uninstall-dist_status48iconsDATA \
+	uninstall-dist_statussvgiconsDATA
 
+@BUILD_WIN32_TRUE@	dist_icons_DATA=index.theme
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
